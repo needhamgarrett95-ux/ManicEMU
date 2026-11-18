@@ -1,0 +1,94 @@
+# Manic X Stage 1 — unsigned IPA build (no companion)
+#
+# STAGE1-X: Builds the Stage 1 fork (top-only 3DS layout + tuned Pokemon X
+# profile, no companion) on a GitHub-hosted macOS runner and uploads an
+# UNSIGNED .ipa as a workflow artifact.
+#
+# The IPA is deliberately UNSIGNED (CODE_SIGNING_ALLOWED=NO). No Apple
+# credentials, certificates, provisioning profiles, or secrets are used
+# anywhere in this workflow. After downloading the artifact, re-sign it
+# on a PC with Sideloadly (or AltStore) using your own Apple ID, exactly
+# as with the stock Manic SideloadJIT IPA. The bundle ID is
+# com.aoshuang.manicemu (Config-Base.xcconfig), so a re-signed install
+# replaces the existing sideloaded Manic rather than using a new app slot.
+#
+# Trigger: Actions tab -> "Build Manic X Stage 1 IPA" -> Run workflow.
+# This workflow does NOT run on push, so a stray commit cannot burn
+# macOS runner minutes.
+#
+# Known requirements (see STAGE1-REPORT-2026-11-18.md):
+# - The repo this runs in must contain the Stage 1 fork, including the
+#   .gitattributes LFS entries. The checkout step pulls the LFS
+#   frameworks (Cores/*.framework) and initialises submodules
+#   (Dependencies/Libretro, which holds the LibretroCore wrapper source).
+# - iOS builds cannot be verified on Linux; this workflow is the first
+#   real compile check. Expect the first run to surface Xcode-version or
+#   signing-adjacent issues; fix them in the workflow, not by adding
+#   credentials.
+
+name: Build Manic X Stage 1 IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-unsigned-ipa:
+    runs-on: macos-latest
+    steps:
+      - name: Check out fork (with LFS frameworks + submodules)
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | head -20
+
+      - name: Verify LFS frameworks are real files, not pointers
+        run: |
+          file ManicEmu/../Cores/azahar.libretro.framework/azahar.libretro || true
+          # LFS pointer files are ~130 bytes of text; a real framework binary is MBs.
+          find Cores -name "*.framework" -maxdepth 1 | head
+          du -sh Cores/azahar.libretro.framework Cores/Citra.framework
+
+      - name: Archive (unsigned, Sideload scheme)
+        run: |
+          xcodebuild \
+            -project ManicEmu/ManicEmu.xcodeproj \
+            -scheme ManicEmuSideload \
+            -configuration SideloadRelease \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/ManicEmu.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package unsigned IPA from the archive
+        run: |
+          APP_PATH="build/ManicEmu.xcarchive/Products/Applications/ManicEmuSideload.app"
+          ls -la "$APP_PATH"
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          # The .app is unsigned; Sideloadly/AltStore re-signs it on install.
+          zip -r -y ManicEmu-X-Stage1-unsigned.ipa Payload
+          ls -lh ManicEmu-X-Stage1-unsigned.ipa
+          unzip -l ManicEmu-X-Stage1-unsigned.ipa | head -20
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ManicEmu-X-Stage1-unsigned
+          path: ManicEmu-X-Stage1-unsigned.ipa
+          retention-days: 7
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build/
+          retention-days: 7

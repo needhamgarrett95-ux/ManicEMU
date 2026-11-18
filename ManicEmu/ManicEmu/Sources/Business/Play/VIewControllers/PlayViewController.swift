@@ -3235,6 +3235,35 @@ extension PlayViewController {
             guard let hostingWindow, let frames = controllerSkin.getFrames(window: hostingWindow) else { return }
             guard let libretroViewFrame = getDualScreenViewFrame() else { return }
             
+            // STAGE1-X: Top-only layout for 3DS games.
+            // When swapScreen is off, hide the bottom (touch) screen: the
+            // layout sent to the core is top = full view/buffer, bottom =
+            // 0,0,0,0, and the touch frame is zeroed so no touch input is
+            // routed to a hidden screen. When swapScreen is on (the
+            // reverseScreens binding), fall through to the normal
+            // skin-driven layout below, which already swaps the screens
+            // via the skin (controllerSkin.isSwapScreen). DS games are
+            // untouched: this block is 3DS-only. The AirPlay branch above
+            // is untouched.
+            if manicGame.gameType == ._3ds, !manicGame.swapScreen {
+                let topOnlyScale = isOriginalShader ? hostingWindow.screen.scale : 1.25
+                let topOnlyTransform = CGAffineTransform(scaleX: topOnlyScale, y: topOnlyScale)
+                let topOnlyBuffer = libretroViewFrame.applying(topOnlyTransform)
+                let topOnlyX = max(topOnlyBuffer.minX, 0).rounded1()
+                let topOnlyY = max(topOnlyBuffer.minY, 0).rounded1()
+                let topOnlyW = topOnlyBuffer.width.rounded1()
+                let topOnlyH = topOnlyBuffer.height.rounded1()
+                if manicGame.isCitra3DS {
+                    citraCore?.updateViews(topRect: libretroViewFrame,
+                                           bottomRect: .zero)
+                } else if manicGame.isAzahar3DS {
+                    let topOnlyLayout = "\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(0),\(0),\(0),\(0),\(topOnlyW),\(topOnlyH)"
+                    LibretroCore.sharedInstance().set3DSCustomLayout(topOnlyLayout)
+                    AzaharEmulatorBridge.shared.touchInputFrame = .zero
+                }
+                return
+            }
+            
             if manicGame.isCitra3DS {
                 guard let touchGameViewFrame = frames.touchGameViewFrame else { return }
                 citraCore?.updateViews(topRect: frames.mainGameViewFrame,

@@ -86,7 +86,8 @@ enum GameOption: Int, CaseIterable {
          ndsLidToggle,
          editLink,
          skinButtonBinding,
-         bitbop
+         bitbop,
+         companion
         
     //When adding a new option, make sure to add it at the end; otherwise, it might affect the existing Prefference configurations
     
@@ -238,6 +239,8 @@ enum GameOption: Int, CaseIterable {
                 .symbolImage(R.image.keyboard_iconSymbols())
         case .bitbop:
                 .symbolImage(R.image.bitbop_iconSymbols(), colors: [R.Color.Main])
+        case .companion:
+                .symbol(.bookmark)
         }
     }
     
@@ -397,6 +400,8 @@ enum GameOption: Int, CaseIterable {
             R.string.localizable.skinButtonBinding()
         case .bitbop:
             R.string.localizable.listenWithBitBop()
+        case .companion:
+            "Companion"
         }
     }
     
@@ -468,6 +473,7 @@ enum GameOption: Int, CaseIterable {
         .consoleHome,
         .amiibo,
         .simBlowing,
+        .companion,
         .swapDisk,
         .insertDisc,
         .ndsLidToggle
@@ -1020,7 +1026,8 @@ enum GameOption: Int, CaseIterable {
                 .ndsLidToggle,
                 .pspJitType,
                 .skinButtonBinding,
-                .bitbop:
+                .bitbop,
+                .companion:
             break
         }
         return .chevron(nil)
@@ -1125,6 +1132,11 @@ enum GameOption: Int, CaseIterable {
         }
         
         var allOptions = Set(GameOption.allCases)
+        // Companion overlay: 3DS games only, in-game only. Live game state
+        // only exists while a 3DS game is running.
+        if game.gameType != ._3ds || scene != .gaming {
+            allOptions.remove(.companion)
+        }
         allOptions.remove(.editLink)
         
         if GameType.gameTypes(multiPlatformFileExtension: game.fileExtension).count == 0 {

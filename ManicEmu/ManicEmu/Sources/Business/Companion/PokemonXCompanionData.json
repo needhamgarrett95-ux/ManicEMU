@@ -1,0 +1,919 @@
+{
+ "generated": "2026-11-18",
+ "moves": [
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 33,
+   "name": "tackle",
+   "power": 40,
+   "pp": 35,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/33/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "status",
+   "id": 45,
+   "name": "growl",
+   "power": null,
+   "pp": 40,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/45/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "special",
+   "id": 52,
+   "name": "ember",
+   "power": 40,
+   "pp": 25,
+   "type": "fire",
+   "url": "https://pokeapi.co/api/v2/move/52/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "special",
+   "id": 55,
+   "name": "water-gun",
+   "power": 40,
+   "pp": 25,
+   "type": "water",
+   "url": "https://pokeapi.co/api/v2/move/55/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 22,
+   "name": "vine-whip",
+   "power": 45,
+   "pp": 25,
+   "type": "grass",
+   "url": "https://pokeapi.co/api/v2/move/22/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 98,
+   "name": "quick-attack",
+   "power": 40,
+   "pp": 30,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/98/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 10,
+   "name": "scratch",
+   "power": 40,
+   "pp": 35,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/10/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 1,
+   "name": "pound",
+   "power": 40,
+   "pp": 35,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/1/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "status",
+   "id": 43,
+   "name": "leer",
+   "power": null,
+   "pp": 30,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/43/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "special",
+   "id": 145,
+   "name": "bubble",
+   "power": 40,
+   "pp": 30,
+   "type": "water",
+   "url": "https://pokeapi.co/api/v2/move/145/"
+  },
+  {
+   "accuracy": 95,
+   "damage_class": "physical",
+   "id": 75,
+   "name": "razor-leaf",
+   "power": 55,
+   "pp": 25,
+   "type": "grass",
+   "url": "https://pokeapi.co/api/v2/move/75/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 488,
+   "name": "flame-charge",
+   "power": 50,
+   "pp": 20,
+   "type": "fire",
+   "url": "https://pokeapi.co/api/v2/move/488/"
+  },
+  {
+   "accuracy": null,
+   "damage_class": "status",
+   "id": 104,
+   "name": "double-team",
+   "power": null,
+   "pp": 15,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/104/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "status",
+   "id": 39,
+   "name": "tail-whip",
+   "power": null,
+   "pp": 30,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/39/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 44,
+   "name": "bite",
+   "power": 60,
+   "pp": 25,
+   "type": "dark",
+   "url": "https://pokeapi.co/api/v2/move/44/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 17,
+   "name": "wing-attack",
+   "power": 60,
+   "pp": 35,
+   "type": "flying",
+   "url": "https://pokeapi.co/api/v2/move/17/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "physical",
+   "id": 64,
+   "name": "peck",
+   "power": 35,
+   "pp": 35,
+   "type": "flying",
+   "url": "https://pokeapi.co/api/v2/move/64/"
+  },
+  {
+   "accuracy": 95,
+   "damage_class": "status",
+   "id": 81,
+   "name": "string-shot",
+   "power": null,
+   "pp": 40,
+   "type": "bug",
+   "url": "https://pokeapi.co/api/v2/move/81/"
+  },
+  {
+   "accuracy": null,
+   "damage_class": "status",
+   "id": 106,
+   "name": "harden",
+   "power": null,
+   "pp": 30,
+   "type": "normal",
+   "url": "https://pokeapi.co/api/v2/move/106/"
+  },
+  {
+   "accuracy": 100,
+   "damage_class": "special",
+   "id": 93,
+   "name": "confusion",
+   "power": 50,
+   "pp": 25,
+   "type": "psychic",
+   "url": "https://pokeapi.co/api/v2/move/93/"
+  }
+ ],
+ "note": "Static reference data only. No live game data. Pokemon list is a small early-game Gen 6 sample, not a full Pokedex.",
+ "pokemon": [
+  {
+   "id": 650,
+   "name": "chespin",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/650/"
+  },
+  {
+   "id": 651,
+   "name": "quilladin",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/651/"
+  },
+  {
+   "id": 652,
+   "name": "chesnaught",
+   "types": [
+    "grass",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/652/"
+  },
+  {
+   "id": 653,
+   "name": "fennekin",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/653/"
+  },
+  {
+   "id": 654,
+   "name": "braixen",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/654/"
+  },
+  {
+   "id": 655,
+   "name": "delphox",
+   "types": [
+    "fire",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/655/"
+  },
+  {
+   "id": 656,
+   "name": "froakie",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/656/"
+  },
+  {
+   "id": 657,
+   "name": "frogadier",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/657/"
+  },
+  {
+   "id": 658,
+   "name": "greninja",
+   "types": [
+    "water",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/658/"
+  },
+  {
+   "id": 659,
+   "name": "bunnelby",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/659/"
+  },
+  {
+   "id": 660,
+   "name": "diggersby",
+   "types": [
+    "normal",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/660/"
+  },
+  {
+   "id": 661,
+   "name": "fletchling",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/661/"
+  },
+  {
+   "id": 662,
+   "name": "fletchinder",
+   "types": [
+    "fire",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/662/"
+  },
+  {
+   "id": 663,
+   "name": "talonflame",
+   "types": [
+    "fire",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/663/"
+  },
+  {
+   "id": 664,
+   "name": "scatterbug",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/664/"
+  },
+  {
+   "id": 665,
+   "name": "spewpa",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/665/"
+  },
+  {
+   "id": 666,
+   "name": "vivillon",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/666/"
+  },
+  {
+   "id": 667,
+   "name": "litleo",
+   "types": [
+    "fire",
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/667/"
+  },
+  {
+   "id": 668,
+   "name": "pyroar-male",
+   "types": [
+    "fire",
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/668/"
+  },
+  {
+   "id": 25,
+   "name": "pikachu",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/25/"
+  },
+  {
+   "id": 16,
+   "name": "pidgey",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/16/"
+  },
+  {
+   "id": 669,
+   "name": "flabebe",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/669/"
+  },
+  {
+   "id": 670,
+   "name": "floette",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/670/"
+  },
+  {
+   "id": 671,
+   "name": "florges",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/671/"
+  },
+  {
+   "id": 672,
+   "name": "skiddo",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/672/"
+  },
+  {
+   "id": 674,
+   "name": "pancham",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/674/"
+  }
+ ],
+ "source": "https://pokeapi.co/api/v2/",
+ "type_chart": {
+  "bug": {
+   "double_damage_from": [
+    "fire",
+    "flying",
+    "rock"
+   ],
+   "double_damage_to": [
+    "dark",
+    "grass",
+    "psychic"
+   ],
+   "half_damage_from": [
+    "fighting",
+    "grass",
+    "ground"
+   ],
+   "half_damage_to": [
+    "fairy",
+    "fighting",
+    "fire",
+    "flying",
+    "ghost",
+    "poison",
+    "steel"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": []
+  },
+  "dark": {
+   "double_damage_from": [
+    "bug",
+    "fairy",
+    "fighting"
+   ],
+   "double_damage_to": [
+    "ghost",
+    "psychic"
+   ],
+   "half_damage_from": [
+    "dark",
+    "ghost"
+   ],
+   "half_damage_to": [
+    "dark",
+    "fairy",
+    "fighting"
+   ],
+   "no_damage_from": [
+    "psychic"
+   ],
+   "no_damage_to": []
+  },
+  "dragon": {
+   "double_damage_from": [
+    "dragon",
+    "fairy",
+    "ice"
+   ],
+   "double_damage_to": [
+    "dragon"
+   ],
+   "half_damage_from": [
+    "electric",
+    "fire",
+    "grass",
+    "water"
+   ],
+   "half_damage_to": [
+    "steel"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": [
+    "fairy"
+   ]
+  },
+  "electric": {
+   "double_damage_from": [
+    "ground"
+   ],
+   "double_damage_to": [
+    "flying",
+    "water"
+   ],
+   "half_damage_from": [
+    "electric",
+    "flying",
+    "steel"
+   ],
+   "half_damage_to": [
+    "dragon",
+    "electric",
+    "grass"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": [
+    "ground"
+   ]
+  },
+  "fairy": {
+   "double_damage_from": [
+    "poison",
+    "steel"
+   ],
+   "double_damage_to": [
+    "dark",
+    "dragon",
+    "fighting"
+   ],
+   "half_damage_from": [
+    "bug",
+    "dark",
+    "fighting"
+   ],
+   "half_damage_to": [
+    "fire",
+    "poison",
+    "steel"
+   ],
+   "no_damage_from": [
+    "dragon"
+   ],
+   "no_damage_to": []
+  },
+  "fighting": {
+   "double_damage_from": [
+    "fairy",
+    "flying",
+    "psychic"
+   ],
+   "double_damage_to": [
+    "dark",
+    "ice",
+    "normal",
+    "rock",
+    "steel"
+   ],
+   "half_damage_from": [
+    "bug",
+    "dark",
+    "rock"
+   ],
+   "half_damage_to": [
+    "bug",
+    "fairy",
+    "flying",
+    "poison",
+    "psychic"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": [
+    "ghost"
+   ]
+  },
+  "fire": {
+   "double_damage_from": [
+    "ground",
+    "rock",
+    "water"
+   ],
+   "double_damage_to": [
+    "bug",
+    "grass",
+    "ice",
+    "steel"
+   ],
+   "half_damage_from": [
+    "bug",
+    "fairy",
+    "fire",
+    "grass",
+    "ice",
+    "steel"
+   ],
+   "half_damage_to": [
+    "dragon",
+    "fire",
+    "rock",
+    "water"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": []
+  },
+  "flying": {
+   "double_damage_from": [
+    "electric",
+    "ice",
+    "rock"
+   ],
+   "double_damage_to": [
+    "bug",
+    "fighting",
+    "grass"
+   ],
+   "half_damage_from": [
+    "bug",
+    "fighting",
+    "grass"
+   ],
+   "half_damage_to": [
+    "electric",
+    "rock",
+    "steel"
+   ],
+   "no_damage_from": [
+    "ground"
+   ],
+   "no_damage_to": []
+  },
+  "ghost": {
+   "double_damage_from": [
+    "dark",
+    "ghost"
+   ],
+   "double_damage_to": [
+    "ghost",
+    "psychic"
+   ],
+   "half_damage_from": [
+    "bug",
+    "poison"
+   ],
+   "half_damage_to": [
+    "dark"
+   ],
+   "no_damage_from": [
+    "fighting",
+    "normal"
+   ],
+   "no_damage_to": [
+    "normal"
+   ]
+  },
+  "grass": {
+   "double_damage_from": [
+    "bug",
+    "fire",
+    "flying",
+    "ice",
+    "poison"
+   ],
+   "double_damage_to": [
+    "ground",
+    "rock",
+    "water"
+   ],
+   "half_damage_from": [
+    "electric",
+    "grass",
+    "ground",
+    "water"
+   ],
+   "half_damage_to": [
+    "bug",
+    "dragon",
+    "fire",
+    "flying",
+    "grass",
+    "poison",
+    "steel"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": []
+  },
+  "ground": {
+   "double_damage_from": [
+    "grass",
+    "ice",
+    "water"
+   ],
+   "double_damage_to": [
+    "electric",
+    "fire",
+    "poison",
+    "rock",
+    "steel"
+   ],
+   "half_damage_from": [
+    "poison",
+    "rock"
+   ],
+   "half_damage_to": [
+    "bug",
+    "grass"
+   ],
+   "no_damage_from": [
+    "electric"
+   ],
+   "no_damage_to": [
+    "flying"
+   ]
+  },
+  "ice": {
+   "double_damage_from": [
+    "fighting",
+    "fire",
+    "rock",
+    "steel"
+   ],
+   "double_damage_to": [
+    "dragon",
+    "flying",
+    "grass",
+    "ground"
+   ],
+   "half_damage_from": [
+    "ice"
+   ],
+   "half_damage_to": [
+    "fire",
+    "ice",
+    "steel",
+    "water"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": []
+  },
+  "normal": {
+   "double_damage_from": [
+    "fighting"
+   ],
+   "double_damage_to": [],
+   "half_damage_from": [],
+   "half_damage_to": [
+    "rock",
+    "steel"
+   ],
+   "no_damage_from": [
+    "ghost"
+   ],
+   "no_damage_to": [
+    "ghost"
+   ]
+  },
+  "poison": {
+   "double_damage_from": [
+    "ground",
+    "psychic"
+   ],
+   "double_damage_to": [
+    "fairy",
+    "grass"
+   ],
+   "half_damage_from": [
+    "bug",
+    "fairy",
+    "fighting",
+    "grass",
+    "poison"
+   ],
+   "half_damage_to": [
+    "ghost",
+    "ground",
+    "poison",
+    "rock"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": [
+    "steel"
+   ]
+  },
+  "psychic": {
+   "double_damage_from": [
+    "bug",
+    "dark",
+    "ghost"
+   ],
+   "double_damage_to": [
+    "fighting",
+    "poison"
+   ],
+   "half_damage_from": [
+    "fighting",
+    "psychic"
+   ],
+   "half_damage_to": [
+    "psychic",
+    "steel"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": [
+    "dark"
+   ]
+  },
+  "rock": {
+   "double_damage_from": [
+    "fighting",
+    "grass",
+    "ground",
+    "steel",
+    "water"
+   ],
+   "double_damage_to": [
+    "bug",
+    "fire",
+    "flying",
+    "ice"
+   ],
+   "half_damage_from": [
+    "fire",
+    "flying",
+    "normal",
+    "poison"
+   ],
+   "half_damage_to": [
+    "fighting",
+    "ground",
+    "steel"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": []
+  },
+  "steel": {
+   "double_damage_from": [
+    "fighting",
+    "fire",
+    "ground"
+   ],
+   "double_damage_to": [
+    "fairy",
+    "ice",
+    "rock"
+   ],
+   "half_damage_from": [
+    "bug",
+    "dragon",
+    "fairy",
+    "flying",
+    "grass",
+    "ice",
+    "normal",
+    "psychic",
+    "rock",
+    "steel"
+   ],
+   "half_damage_to": [
+    "electric",
+    "fire",
+    "steel",
+    "water"
+   ],
+   "no_damage_from": [
+    "poison"
+   ],
+   "no_damage_to": []
+  },
+  "water": {
+   "double_damage_from": [
+    "electric",
+    "grass"
+   ],
+   "double_damage_to": [
+    "fire",
+    "ground",
+    "rock"
+   ],
+   "half_damage_from": [
+    "fire",
+    "ice",
+    "steel",
+    "water"
+   ],
+   "half_damage_to": [
+    "dragon",
+    "grass",
+    "water"
+   ],
+   "no_damage_from": [],
+   "no_damage_to": []
+  }
+ },
+ "types": [
+  "bug",
+  "dark",
+  "dragon",
+  "electric",
+  "fairy",
+  "fighting",
+  "fire",
+  "flying",
+  "ghost",
+  "grass",
+  "ground",
+  "ice",
+  "normal",
+  "poison",
+  "psychic",
+  "rock",
+  "steel",
+  "water"
+ ]
+}

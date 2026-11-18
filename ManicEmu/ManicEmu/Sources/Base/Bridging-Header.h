@@ -10,4 +10,5 @@
 #import <Libretro/LibretroCore.h>
 #import <Libretro/MetalToyView.h>
 #import "ShadowLabel.h"
+#import "HUDMemoryBridge.h"
 
