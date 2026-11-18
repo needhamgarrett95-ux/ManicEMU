@@ -33,7 +33,10 @@ on:
 
 jobs:
   build-unsigned-ipa:
-    runs-on: macos-latest
+    runs-on: macos-15
+    # macos-latest (macos-26 arm64) was cancelled twice with no steps after ~15m queued:
+    # "job was not acquired by Runner ... even after multiple attempts", capacity constraints.
+    # macos-15 is the reported workaround that gets a runner instantly.
     steps:
       - name: Check out fork (with LFS frameworks + submodules)
         uses: actions/checkout@v4
