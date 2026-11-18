@@ -45,6 +45,16 @@ jobs:
           submodules: recursive
           fetch-depth: 1
 
+      - name: Select Xcode 26 (SFSafeSymbols 7.0.0 needs the iOS 26 SDK)
+        # The macos-15 image defaults to Xcode 16.4 (iOS 18.5 SDK), which
+        # cannot compile SFSafeSymbols 7.0.0: its @available(iOS 26.0)
+        # Tab initializers call SwiftUI's Tab.init(_: LocalizedStringResource,
+        # systemImage: ...), an overload that only exists in the iOS 26 SDK.
+        # macos-15 also ships Xcode 26.0.1/26.1.1/26.2/26.3; use the newest.
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.3.app
+          xcodebuild -version
+
       - name: Show Xcode version
         run: |
           xcodebuild -version
