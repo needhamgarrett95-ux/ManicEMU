@@ -14232,7 +14232,7 @@
 				14FA7775651E45A398DCF14C /* PokemonXCompanionView.swift */,
 				BDB3A57ABD2749068C53CC23 /* PokemonXCompanionStaticData.swift */,
 				892ACA6ADCC04B44A24F3F7C /* PokemonXCompanionData.json */,
-			); name = Companion; sourceTree = "<group>"; };
+			); name = Companion; path = Companion; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
