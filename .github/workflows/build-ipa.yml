@@ -65,6 +65,7 @@ jobs:
             -configuration SideloadRelease \
             -destination 'generic/platform=iOS' \
             -archivePath build/ManicEmu.xcarchive \
+            -skipPackagePluginValidation \
             archive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
