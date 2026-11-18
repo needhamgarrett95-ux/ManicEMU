@@ -14559,26 +14559,6 @@
 				00000000000051A100000200 /* InfoPlist.strings in Resources */,
 				00000000000051A100000201 /* Assets.xcassets in Resources */,
 				00000000000051A100000202 /* System.core in Resources */,
-				E097103A3F024A44A6B7F1FB /* PokemonXCompanionModels.swift in Sources */,
-				134E8CF6D3F24B92A58F3A37 /* PokemonXCompanionView.swift in Sources */,
-				08835FA55B4048D19EFB2DF6 /* PokemonXCompanionStaticData.swift in Sources */,
-				A1CB6ACBDC9E417BB9BF8901 /* HUDMemoryBridge.m in Sources */,
-				C8ADE42B426645718EF19504 /* PokemonXCompanionModels.swift in Sources */,
-				245D54DE21C945C5BEAF0790 /* PokemonXCompanionView.swift in Sources */,
-				1DAA5FD62FDC4D6CAC482128 /* PokemonXCompanionStaticData.swift in Sources */,
-				478914889A5843ABBDA0DACB /* HUDMemoryBridge.m in Sources */,
-				9B0EF9F57621494BB95CECF3 /* PokemonXCompanionModels.swift in Sources */,
-				4973A12D5D16425980E7C795 /* PokemonXCompanionView.swift in Sources */,
-				DE6EFDAD581F41A0843E074B /* PokemonXCompanionStaticData.swift in Sources */,
-				2380CEC95EF1487388C83370 /* HUDMemoryBridge.m in Sources */,
-				EA814AEDEB95491486087AF5 /* PokemonXCompanionModels.swift in Sources */,
-				16D67EB511B84385A609E5C3 /* PokemonXCompanionView.swift in Sources */,
-				287DA91BBC1D4062A980BC51 /* PokemonXCompanionStaticData.swift in Sources */,
-				A4D852C334FC4E36BE792FD8 /* HUDMemoryBridge.m in Sources */,
-				EFC510F827184F1B8C916C77 /* PokemonXCompanionData.json in Resources */,
-				7CB97E1201164C2C8BA644D5 /* PokemonXCompanionData.json in Resources */,
-				299D97A0E2874AC0BB58C2B2 /* PokemonXCompanionData.json in Resources */,
-				9AAEDFD4DA3D4132A0804D50 /* PokemonXCompanionData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14593,6 +14573,7 @@
 				57909559303C7D9100A53656 /* InfoPlist.strings in Resources */,
 				5790955A303C7D9100A53656 /* Assets.xcassets in Resources */,
 				5790955B303C7D9100A53656 /* System.core in Resources */,
+				EFC510F827184F1B8C916C77 /* PokemonXCompanionData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15583,6 +15564,10 @@
 				57E8A110304A4A1100000084 /* StikJITManager.swift in Sources */,
 				57E8A110304A4A1100000085 /* StikJITExtensionLauncher.swift in Sources */,
 				57E8A110304A4A1100000086 /* StikJITHostCoordinator.swift in Sources */,
+				E097103A3F024A44A6B7F1FB /* PokemonXCompanionModels.swift in Sources */,
+				134E8CF6D3F24B92A58F3A37 /* PokemonXCompanionView.swift in Sources */,
+				08835FA55B4048D19EFB2DF6 /* PokemonXCompanionStaticData.swift in Sources */,
+				A1CB6ACBDC9E417BB9BF8901 /* HUDMemoryBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
