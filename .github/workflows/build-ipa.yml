@@ -33,10 +33,14 @@ on:
 
 jobs:
   build-unsigned-ipa:
-    runs-on: macos-15
-    # macos-latest (macos-26 arm64) was cancelled twice with no steps after ~15m queued:
-    # "job was not acquired by Runner ... even after multiple attempts", capacity constraints.
-    # macos-15 is the reported workaround that gets a runner instantly.
+    runs-on: xcode-27
+    # Build #9 (macos-15, Xcode 26.3 / iOS 26.2 SDK) proved upstream Manic HEAD
+    # needs the iOS 27.1 SDK: DuoHingeKit.swift is @available(iOS 27.1, *) and
+    # uses UIHinge/UIHingeInteraction, which do not exist in any Xcode 26 SDK.
+    # macos-15 tops out at Xcode 26.3 and macos-26 at Xcode 26.6, so neither
+    # can build this code. The xcode-27 image (preview, issue #14404) is the
+    # only GitHub-hosted runner with Xcode 27; its default Xcode is 27.x, so
+    # no xcode-select step is needed. Queue times may be longer (preview).
     steps:
       - name: Check out fork (with LFS frameworks + submodules)
         uses: actions/checkout@v4
@@ -45,16 +49,8 @@ jobs:
           submodules: recursive
           fetch-depth: 1
 
-      - name: Select Xcode 26 (SFSafeSymbols 7.0.0 needs the iOS 26 SDK)
-        # The macos-15 image defaults to Xcode 16.4 (iOS 18.5 SDK), which
-        # cannot compile SFSafeSymbols 7.0.0: its @available(iOS 26.0)
-        # Tab initializers call SwiftUI's Tab.init(_: LocalizedStringResource,
-        # systemImage: ...), an overload that only exists in the iOS 26 SDK.
-        # macos-15 also ships Xcode 26.0.1/26.1.1/26.2/26.3; use the newest.
-        run: |
-          sudo xcode-select -s /Applications/Xcode_26.3.app
-          xcodebuild -version
-
+      # xcode-27's default Xcode is 27.x (iOS 27 SDK); no xcode-select step.
+      # If the default ever regresses, re-add: sudo xcode-select -s /Applications/Xcode_27*.app
       - name: Show Xcode version
         run: |
           xcodebuild -version
