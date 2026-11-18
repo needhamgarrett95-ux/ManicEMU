@@ -13955,7 +13955,7 @@
 				5720E7702E54103100EC0DA5 /* RetroAchievements */,
 				57D7CF292EA5DB7B00F41540 /* TriggerPro */,
 				570CF87D2EEB092B00696C1B /* Shaders */,
-				578F28712F377FBB00D2D998 /* OnlinePlay */,,
+				578F28712F377FBB00D2D998 /* OnlinePlay */,
 				E66765B4F9AA4D80969F8D55 /* Companion */,
 			);
 			path = Business;
@@ -13973,7 +13973,7 @@
 				574BCC732F324C8E009BD74E /* Cipher.swift */,
 				578E26872FD408BC00A2749A /* Exported.swift */,
 				57C79DD22FE3E65D003C737F /* Functions.swift */,
-				A58C3F4C248E43B30099E068 /* Bridging-Header.h */,,
+				A58C3F4C248E43B30099E068 /* Bridging-Header.h */,
 				7ED0AAB866CE44458BFCA757 /* HUDMemoryBridge.h */,
 				BF6247FD737049099F98AF31 /* HUDMemoryBridge.m */,
 			);
