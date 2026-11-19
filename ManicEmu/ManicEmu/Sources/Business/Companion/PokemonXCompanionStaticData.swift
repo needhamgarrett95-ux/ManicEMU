@@ -8,6 +8,9 @@
 //  is bundled; these literals are the fallback so the Dex / type chart work
 //  even if the JSON resource is missing. Pokemon list is a small early-game
 //  Gen 6 sample (26), NOT the full Pokedex — the full 721 lives in the JSON.
+//  Likewise the move list below is the original 20-move sample only, NOT
+//  the full 621-move table — the JSON is the source of truth for both.
+//  Do NOT regenerate the 721/621 literals into Swift (too big).
 //
 //  SPDX-License-Identifier: AGPL-3.0-or-later
 

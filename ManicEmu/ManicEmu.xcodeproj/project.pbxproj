@@ -2270,6 +2270,7 @@
 		245D54DE21C945C5BEAF0790 /* PokemonXCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FA7775651E45A398DCF14C /* PokemonXCompanionView.swift */; };
 		4973A12D5D16425980E7C795 /* PokemonXCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FA7775651E45A398DCF14C /* PokemonXCompanionView.swift */; };
 		16D67EB511B84385A609E5C3 /* PokemonXCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FA7775651E45A398DCF14C /* PokemonXCompanionView.swift */; };
+		D41AD16CD2B4F06A67F4719E /* PokemonXTouchSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D6ECD9BC0FC4B2082848DA /* PokemonXTouchSender.swift */; };
 		08835FA55B4048D19EFB2DF6 /* PokemonXCompanionStaticData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB3A57ABD2749068C53CC23 /* PokemonXCompanionStaticData.swift */; };
 		1DAA5FD62FDC4D6CAC482128 /* PokemonXCompanionStaticData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB3A57ABD2749068C53CC23 /* PokemonXCompanionStaticData.swift */; };
 		DE6EFDAD581F41A0843E074B /* PokemonXCompanionStaticData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB3A57ABD2749068C53CC23 /* PokemonXCompanionStaticData.swift */; };
@@ -7537,6 +7538,7 @@
 		53DA82873DCE4EF4A0DFA22B /* PokemonXCompanionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonXCompanionModels.swift; sourceTree = "<group>"; };
 		14FA7775651E45A398DCF14C /* PokemonXCompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonXCompanionView.swift; sourceTree = "<group>"; };
 		BDB3A57ABD2749068C53CC23 /* PokemonXCompanionStaticData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonXCompanionStaticData.swift; sourceTree = "<group>"; };
+		94D6ECD9BC0FC4B2082848DA /* PokemonXTouchSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonXTouchSender.swift; sourceTree = "<group>"; };
 		892ACA6ADCC04B44A24F3F7C /* PokemonXCompanionData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PokemonXCompanionData.json; sourceTree = "<group>"; };
 		7ED0AAB866CE44458BFCA757 /* HUDMemoryBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HUDMemoryBridge.h; sourceTree = "<group>"; };
 		BF6247FD737049099F98AF31 /* HUDMemoryBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HUDMemoryBridge.m; sourceTree = "<group>"; };
@@ -14231,6 +14233,7 @@
 				53DA82873DCE4EF4A0DFA22B /* PokemonXCompanionModels.swift */,
 				14FA7775651E45A398DCF14C /* PokemonXCompanionView.swift */,
 				BDB3A57ABD2749068C53CC23 /* PokemonXCompanionStaticData.swift */,
+				94D6ECD9BC0FC4B2082848DA /* PokemonXTouchSender.swift */,
 				892ACA6ADCC04B44A24F3F7C /* PokemonXCompanionData.json */,
 			); name = Companion; path = Companion; sourceTree = "<group>"; };
 /* End PBXGroup section */
@@ -15567,6 +15570,7 @@
 				E097103A3F024A44A6B7F1FB /* PokemonXCompanionModels.swift in Sources */,
 				134E8CF6D3F24B92A58F3A37 /* PokemonXCompanionView.swift in Sources */,
 				08835FA55B4048D19EFB2DF6 /* PokemonXCompanionStaticData.swift in Sources */,
+				D41AD16CD2B4F06A67F4719E /* PokemonXTouchSender.swift in Sources */,
 				A1CB6ACBDC9E417BB9BF8901 /* HUDMemoryBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
