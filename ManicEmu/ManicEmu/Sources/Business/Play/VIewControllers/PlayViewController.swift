@@ -68,16 +68,16 @@ class PlayViewController: GameViewController {
     private var shortcutsButtonContainer: ShortcutButtonContainerView
     //渲染视图
     private var gameMetalView: UIView? = nil
-    //Pokemon X companion side panel (docked, PokemonXCompanionPanelWidth).
-    //When open, the game view shrinks to the leading portion of the skin
-    //frame; see setCompanionPanelOpen / companionAdjustedGameFrame.
-    private(set) var isCompanionPanelOpen: Bool = false
-    /// STAGE1-X (build #20): one-shot guard for the Pokemon X companion
-    /// auto-open. One PlayViewController instance = one game launch, so
-    /// once the auto-open has been attempted it never re-fires — closing
-    /// the panel with its Close button keeps it closed until the next
-    /// launch. The menu Companion option still reopens it manually.
-    private var didAttemptCompanionAutoOpen = false
+    //Pokemon X companion floating overlay (v3). The game view is NEVER
+    //shrunk for the companion — the overlay floats over the fullscreen
+    //game (see PokemonXCompanionPresenter).
+    /// STAGE1-X (build #20, v3 overlay): one-shot guard for the Pokemon X
+    /// companion auto-show. One PlayViewController instance = one game
+    /// launch, so once the auto-show has been attempted it never re-fires
+    /// — hiding the overlay with the menu Companion option keeps it hidden
+    /// until the next launch. The menu Companion option still re-shows it
+    /// manually.
+    private var didAttemptCompanionAutoShow = false
     //3DS核心
     private var citraCore: ThreeDSEmulatorBridge? = nil
     //JGenesis核心
@@ -836,10 +836,11 @@ class PlayViewController: GameViewController {
         updateSkin()
         //更新声音
         updateAudio()
-        // STAGE1-X (build #20): Pokemon X opens with the companion panel
-        // already docked — one persistent screen, no menu detour. One-shot
-        // per launch (see maybeAutoOpenCompanion).
-        maybeAutoOpenCompanion()
+        // STAGE1-X (build #20, v3 overlay): Pokemon X opens with the
+        // companion overlay already floating over the game — one persistent
+        // screen, no menu detour. One-shot per launch (see
+        // maybeAutoShowCompanion).
+        maybeAutoShowCompanion()
         shortcutsButtonContainer.isHidden = false
         //游戏启动稳定后禁用安全模式
         if manicGame.safeMode {
@@ -2841,15 +2842,17 @@ extension PlayViewController {
         if let gameMetalView {
             if gameMetalView.superview == view {
                 gameMetalView.snp.remakeConstraints { make in
-                    if self.manicGame.gameType == .ds || self.manicGame.isAzahar3DS {
+                    if self.manicGame.isPokemonX {
+                        // STAGE1-X (v3): Pokemon X is always fullscreen —
+                        // the companion overlay floats on top, the game
+                        // view is never shrunk for it.
+                        make.edges.equalTo(controllerView)
+                    } else if self.manicGame.gameType == .ds || self.manicGame.isAzahar3DS {
                         if let dualScreenViewFrame = getDualScreenViewFrame() {
-                            // Panel-aware: shrinks to the leading portion
-                            // when the companion side panel is open.
-                            let gameFrame = self.companionAdjustedGameFrame(dualScreenViewFrame)
-                            make.left.equalTo(gameFrame.minX)
-                            make.top.equalTo(gameFrame.minY)
-                            make.width.equalTo(gameFrame.width)
-                            make.height.equalTo(gameFrame.height)
+                            make.left.equalTo(dualScreenViewFrame.minX)
+                            make.top.equalTo(dualScreenViewFrame.minY)
+                            make.width.equalTo(dualScreenViewFrame.width)
+                            make.height.equalTo(dualScreenViewFrame.height)
                         } else {
                             make.edges.equalTo(controllerView)
                         }
@@ -2890,7 +2893,11 @@ extension PlayViewController {
                 guard let gameMetalView else { return }
                 self.view.insertSubview(gameMetalView, belowSubview: controllerView)
                 gameMetalView.snp.makeConstraints { make in
-                    if self.manicGame.gameType == .ds || self.manicGame.isAzahar3DS {
+                    if self.manicGame.isPokemonX {
+                        // STAGE1-X (v3): Pokemon X is always fullscreen —
+                        // the companion overlay floats on top.
+                        make.edges.equalTo(self.controllerView)
+                    } else if self.manicGame.gameType == .ds || self.manicGame.isAzahar3DS {
                         if let dualScreenViewFrame = self.getDualScreenViewFrame() {
                             make.left.equalTo(dualScreenViewFrame.minX)
                             make.top.equalTo(dualScreenViewFrame.minY)
@@ -3168,17 +3175,6 @@ extension PlayViewController {
         LibretroCore.sharedInstance().setCoreOptionNeedsUpdate()
     }
     
-    /// Companion panel: when the Pokemon X side panel is open, the game
-    /// occupies the leading portion of the skin frame (full width minus
-    /// PokemonXCompanionPanelWidth, same origin/height). Closed, or for
-    /// non-Azahar games, the frame is returned unchanged, so behaviour is
-    /// identical to today.
-    private func companionAdjustedGameFrame(_ frame: CGRect) -> CGRect {
-        guard isCompanionPanelOpen, manicGame.isAzahar3DS else { return frame }
-        let width = max(frame.width - PokemonXCompanionPanelWidth, 0)
-        return CGRect(x: frame.minX, y: frame.minY, width: width, height: frame.height)
-    }
-    
     private func updateDualScreenViews() {
         guard manicGame.gameType == .ds || manicGame.gameType == ._3ds else { return }
         let usingShaderPath = Prefference.defalut.getPrefference(kind: .shader,
@@ -3289,7 +3285,67 @@ extension PlayViewController {
             guard let hostingWindow, let frames = controllerSkin.getFrames(window: hostingWindow) else { return }
             guard let libretroViewFrame = getDualScreenViewFrame() else { return }
             
-            // STAGE1-X: Widescreen layout for 3DS games (Pokemon X companion).
+            // STAGE1-X (v3): Widescreen layout for Pokemon X.
+            //
+            // WHY THE V2 TILE PEEK HAPPENED: the build #20 branch was
+            // gated on `!manicGame.swapScreen`, so when swapScreen was on
+            // (it is @Persisted and survives relaunch — and the L3 Toggle
+            // mode could flip it), the code fell through to the skin path
+            // below and the core rendered the skin's landscape rects
+            // (top (0,0,626,375), bottom (626,0,186,139)) — the small
+            // bottom-screen tile at the top-right of Garrett's v2 phone
+            // test. The identical rects never determined the final layout
+            // in that state, even though the skin path proves the
+            // set3DSCustomLayout plumbing itself works.
+            //
+            // V3 FIX: for Pokemon X the identical-rects layout is now
+            // UNCONDITIONAL — it never takes the skin path. The swap
+            // toggle only picks WHICH screen is on top: swapScreen off ->
+            // citra_swap_screen "Bottom" (bottom drawn first, top last,
+            // both opaque) leaves ONLY the top screen visible; swapScreen
+            // on -> "Top" leaves ONLY the bottom screen visible, also
+            // fullscreen. The rects are the FULL view frame (the Metal
+            // view is fullscreen for X; the companion floats on top), in
+            // both orientations. The layout is pushed through BOTH
+            // channels — set3DSCustomLayout (direct) AND the running core
+            // options (citra_custom_layout_config + swap + Hold mode via
+            // updateRuningLibretroConfigs + setCoreOptionNeedsUpdate, NOT
+            // persisted, so other 3DS games keep their own layout) — and
+            // re-asserted on every updateDualScreenViews call, so no stale
+            // persisted value or later skin update can win over it. The
+            // debug log records the branch, swapScreen, string and frame
+            // so a future failure is diagnosable. Non-X 3DS games keep
+            // the build #20 behaviour (identical rects only while
+            // swapScreen is off, skin path otherwise).
+            if manicGame.isPokemonX, manicGame.isAzahar3DS {
+                let stage1GameFrame = hostingWindow.bounds
+                let topOnlyScale = isOriginalShader ? hostingWindow.screen.scale : 1.25
+                let topOnlyTransform = CGAffineTransform(scaleX: topOnlyScale, y: topOnlyScale)
+                let topOnlyBuffer = stage1GameFrame.applying(topOnlyTransform)
+                let topOnlyX = max(topOnlyBuffer.minX, 0).rounded1()
+                let topOnlyY = max(topOnlyBuffer.minY, 0).rounded1()
+                let topOnlyW = topOnlyBuffer.width.rounded1()
+                let topOnlyH = topOnlyBuffer.height.rounded1()
+                let wideLayout = "\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(topOnlyW),\(topOnlyH)"
+                let swapValue = manicGame.swapScreen ? "Top" : "Bottom"
+                Log.debug("[STAGE1-X] v3 Pokemon X: swapScreen=\(manicGame.swapScreen) swap=\(swapValue) wideLayout=\(wideLayout) frame=\(stage1GameFrame)")
+                LibretroCore.sharedInstance().set3DSCustomLayout(wideLayout)
+                setAzaharSwapScreen(swapValue)
+                if Self.isGaming {
+                    LibretroCore.sharedInstance().updateRuningLibretroConfigs([
+                        "citra_custom_layout_config": wideLayout,
+                        "citra_swap_screen": swapValue,
+                        "citra_swap_screen_mode": "Hold"
+                    ])
+                }
+                LibretroCore.sharedInstance().setCoreOptionNeedsUpdate()
+                // Touch frame = the bottom rect in view points (layout
+                // rect * 1/scale), mirroring the AirPlay branch pattern.
+                AzaharEmulatorBridge.shared.touchInputFrame = CGRect(x: topOnlyX, y: topOnlyY, width: topOnlyW, height: topOnlyH).applying(CGAffineTransform(scaleX: 1/topOnlyScale, y: 1/topOnlyScale))
+                return
+            }
+
+            // STAGE1-X (build #20): Widescreen layout for other 3DS games.
             // When swapScreen is off, the core gets IDENTICAL top/bottom
             // rects (both = the full game view) plus citra_swap_screen =
             // "Bottom". That makes the core's touch gate pass for any point
@@ -3304,10 +3360,7 @@ extension PlayViewController {
             // untouched: this block is 3DS-only. The AirPlay branch above
             // is untouched.
             if manicGame.gameType == ._3ds, !manicGame.swapScreen {
-                // Panel-aware: when the companion side panel is open, the
-                // layout uses the shrunken game-view rect, not the full
-                // skin frame, so buffer coords match what is on screen.
-                let stage1GameFrame = companionAdjustedGameFrame(libretroViewFrame)
+                let stage1GameFrame = libretroViewFrame
                 let topOnlyScale = isOriginalShader ? hostingWindow.screen.scale : 1.25
                 let topOnlyTransform = CGAffineTransform(scaleX: topOnlyScale, y: topOnlyScale)
                 let topOnlyBuffer = stage1GameFrame.applying(topOnlyTransform)
@@ -3388,49 +3441,18 @@ extension PlayViewController {
         }
     }
     
-    /// Opens/closes the docked Pokemon X companion side panel. The game
-    /// view shrinks to the leading portion (full width minus
-    /// PokemonXCompanionPanelWidth) when open; closed is identical to
-    /// today's full-width layout. The core layout is recomputed after the
-    /// remake so the layout string uses the actual game-view rect.
-    /// The presenter rewrite (panel view itself) is a separate step; this
-    /// only moves/resizes the game view and re-runs the layout.
-    /// STAGE1-X (build #20): auto-open the Pokemon X companion panel on
-    /// launch. Pokemon X on the Azahar core only (manicGame.isPokemonX).
-    /// One-shot per launch: a user dismissal is respected, and the menu
-    /// Companion option still reopens the panel manually. Presenting is
-    /// safe before the core has finished loading — the panel shows
-    /// placeholders until the memory reads go live.
-    private func maybeAutoOpenCompanion() {
-        guard !didAttemptCompanionAutoOpen else { return }
-        didAttemptCompanionAutoOpen = true
+    /// STAGE1-X (build #20, v3 overlay): auto-show the Pokemon X
+    /// companion overlay on launch. Pokemon X on the Azahar core only
+    /// (manicGame.isPokemonX). One-shot per launch: hiding the overlay
+    /// with the menu Companion option is respected, and the option still
+    /// re-shows it manually. Presenting is safe before the core has
+    /// finished loading — the overlay shows placeholders until the memory
+    /// reads go live.
+    private func maybeAutoShowCompanion() {
+        guard !didAttemptCompanionAutoShow else { return }
+        didAttemptCompanionAutoShow = true
         guard manicGame.isPokemonX else { return }
         PokemonXCompanionPresenter.present()
-    }
-
-    func setCompanionPanelOpen(_ open: Bool) {
-        isCompanionPanelOpen = open
-        guard let gameMetalView, gameMetalView.superview == view else {
-            updateDualScreenViews()
-            return
-        }
-        gameMetalView.snp.remakeConstraints { make in
-            if self.manicGame.gameType == .ds || self.manicGame.isAzahar3DS {
-                if let dualScreenViewFrame = self.getDualScreenViewFrame() {
-                    let gameFrame = self.companionAdjustedGameFrame(dualScreenViewFrame)
-                    make.left.equalTo(gameFrame.minX)
-                    make.top.equalTo(gameFrame.minY)
-                    make.width.equalTo(gameFrame.width)
-                    make.height.equalTo(gameFrame.height)
-                } else {
-                    make.edges.equalTo(self.controllerView)
-                }
-            } else {
-                make.edges.equalTo(self.gameView)
-            }
-        }
-        view.layoutIfNeeded()
-        updateDualScreenViews()
     }
     
     private func quit() {
