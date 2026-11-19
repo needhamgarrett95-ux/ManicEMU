@@ -22,7 +22,7 @@ static const uint32_t kFCRAMEnd  = 0x10000000u; // exclusive
     static HUDMemoryBridge *shared = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        shared = [[HUDMemoryBridge alloc] init;
+        shared = [[HUDMemoryBridge alloc] init];
     });
     return shared;
 }
