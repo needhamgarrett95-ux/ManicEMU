@@ -49,6 +49,21 @@ jobs:
           submodules: recursive
           fetch-depth: 1
 
+      # Manic addition (Pokemon X companion): the guest-memory read path lives
+      # in the Libretro submodule (Daiuno/RetroArch, pinned commit), which this
+      # repo cannot modify directly. patches/libretro-memory-read.patch adds
+      # LibretroCore.readGuestMemoryAtAddress:length:intoBuffer: to the
+      # submodule's working tree. --check first so a patch that no longer
+      # applies fails here loudly instead of as a confusing compile error.
+      # The patch is written against the pinned submodule commit (manicemu
+      # d08135f); if the pin ever moves, rebase the patch, don't delete it.
+      - name: Apply Manic memory-read patch to Libretro submodule
+        run: |
+          cd Dependencies/Libretro
+          git apply --check ../../patches/libretro-memory-read.patch
+          git apply ../../patches/libretro-memory-read.patch
+          git status --short
+
       # xcode-27's default Xcode is 27.x (iOS 27 SDK); no xcode-select step.
       # If the default ever regresses, re-add: sudo xcode-select -s /Applications/Xcode_27*.app
       - name: Show Xcode version
