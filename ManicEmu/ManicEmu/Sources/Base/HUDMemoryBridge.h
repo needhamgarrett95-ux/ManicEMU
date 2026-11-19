@@ -17,6 +17,15 @@
 //    widescreen or 60fps address. They may only be used after verification
 //    via Ghidra disassembly and/or a live Azahar FCRAM dump.
 //
+//  VERIFIED (2026-11-18, PAGE-TABLE-MAPPING-2026-11-18.md): the DllBattle
+//  battle-Pokemon structs. Player base VA 0x081fd418, six slots at +0x1E4
+//  stride; BATTLE offsets species u16 +0x0C, HP max u16 +0x0E, HP current
+//  u16 +0x10 (LIVE — +0x0E is max, not current), moves 4 x 0xE at +0x116.
+//  HP liveness proven by the post-damage test (Chespin 21 -> 18 at +0x10).
+//  The verified addresses live in PokemonXCompanionModels.swift
+//  (PokemonXBattleRead) and are validated at runtime by a species check
+//  (1...721) on every poll — this bridge stays address-agnostic by design.
+//
 //  The only address range this file asserts is the 3DS FCRAM window
 //  0x08000000-0x0FFFFFFF (256 MB, New 3DS), the standard 3DS memory map.
 //  That is a validity window, not a game offset.
