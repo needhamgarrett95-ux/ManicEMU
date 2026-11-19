@@ -2,11 +2,12 @@
 //  PokemonXCompanionStaticData.swift
 //  ManicEmu
 //
-//  GENERATED 2026-11-18 from https://pokeapi.co/api/v2/ (see PokemonXCompanionData.json
-//  in the same folder). Static reference data only — no live game data. The
-//  companion loads the JSON at runtime when it is bundled; these literals are
-//  the fallback so the Dex / type chart work even if the JSON resource is missing.
-//  Pokemon list is a small early-game Gen 6 sample (26), NOT a full Pokedex.
+//  GENERATED 2026-11-19 from PokemonXFullDex-2026-11-19.json (see
+//  PokemonXCompanionData.json in the same folder). Static reference data
+//  only — no live game data. The companion loads the JSON at runtime when it
+//  is bundled; these literals are the fallback so the Dex / type chart work
+//  even if the JSON resource is missing. Pokemon list is a small early-game
+//  Gen 6 sample (26), NOT the full Pokedex — the full 721 lives in the JSON.
 //
 //  SPDX-License-Identifier: AGPL-3.0-or-later
 
