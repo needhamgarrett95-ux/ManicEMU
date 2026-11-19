@@ -3,12 +3,15 @@
 //  ManicEmu
 //
 //  PokeDaisy-style companion for Pokemon X (Gen 6) — data models and state.
-//  UI SHELL ONLY: nothing in this file reads live game memory. Party, Bag and
-//  Battle data stay empty / placeholder until the memory bridge is wired to
-//  verified X offsets (see HUDMemoryBridge.h and COMPANION-REPORT-2026-11-18.md).
-//  Static reference data (type chart, sample Pokemon/moves) comes from PokeAPI
-//  (https://pokeapi.co/api/v2/) via PokemonXCompanionData.json, with the
-//  generated literals in PokemonXCompanionStaticData.swift as fallback.
+//  LIVE PARTY READ (2026-11-18): PokemonXLivePartyReader reads the verified
+//  DllBattle battle structs through HUDMemoryBridge (see PokemonXBattleRead
+//  below and PAGE-TABLE-MAPPING-2026-11-18.md). Party and Battle tabs fill
+//  from live battle data when a battle is running and the species check
+//  passes; otherwise they stay on honest placeholders. Bag stays a
+//  placeholder (no verified bag offsets). Static reference data (type chart,
+//  sample Pokemon/moves) comes from PokeAPI (https://pokeapi.co/api/v2/) via
+//  PokemonXCompanionData.json, with the generated literals in
+//  PokemonXCompanionStaticData.swift as fallback.
 //
 //  SPDX-License-Identifier: AGPL-3.0-or-later
 //
@@ -129,6 +132,10 @@ struct PokemonXPartySlot: Identifiable {
     var currentHP: Int?
     var maxHP: Int?
     var status: String?
+    /// True when a live read proved this slot holds no Pokemon (an empty party
+    /// slot), as opposed to "no live data at all". The view shows "Empty" for
+    /// these instead of "No live data yet".
+    var isKnownEmpty: Bool = false
 
     static func empty(id: Int) -> PokemonXPartySlot {
         PokemonXPartySlot(id: id, speciesName: nil, level: nil, currentHP: nil, maxHP: nil, status: nil)
@@ -200,16 +207,142 @@ final class PokemonXCompanionState: ObservableObject {
     }
 
     private func pollBridgeOnce() {
-        // TODO (after token reset): once X party/battle offsets are verified
-        // via Ghidra / live Azahar FCRAM and LibretroCore provides the
-        // EmuGuestReadBytesFn callback, read the verified addresses here and
-        // fill partySlots / battleMoves from the returned bytes. Until then
-        // this deliberately does nothing: no invented addresses, no fake data.
-        guard HUDMemoryBridge.shared().hasLiveDataSource else { return }
-        // A callback exists but no verified address to read yet — stay on
-        // placeholder UI until the offset hunt lands.
-        bridgeStatus = "Bridge connected, but no verified Pokemon X addresses yet."
+        guard let liveSlots = PokemonXLivePartyReader.readPlayerParty() else {
+            // No battle running, or the heap base moved: never show stale data.
+            if isLiveDataAvailable {
+                isLiveDataAvailable = false
+                partySlots = (0..<6).map { PokemonXPartySlot.empty(id: $0) }
+                battleMoves = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
+            }
+            bridgeStatus = "No live battle right now — open a battle to see your party."
+            return
+        }
+        isLiveDataAvailable = true
+        bridgeStatus = "Live — reading your party from the battle."
+        partySlots = liveSlots.enumerated().map { index, live in
+            guard let live else {
+                var slot = PokemonXPartySlot.empty(id: index)
+                slot.isKnownEmpty = true
+                return slot
+            }
+            var slot = PokemonXPartySlot.empty(id: index)
+            slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == live.species })?.name.capitalized ?? "#\(live.species)"
+            slot.level = nil // Level is not in the verified battle-struct set.
+            slot.currentHP = live.currentHP
+            slot.maxHP = live.maxHP
+            return slot
+        }
+        // Battle tab: the active battler is slot 0 in the Shauna battle (the
+        // first Pokemon sent out). If the player switches mid-battle, slot 0
+        // is no longer the active battler — v1 does not track switches.
+        if let active = liveSlots[0] {
+            battleMoves = active.moves.enumerated().map { index, move in
+                var slot = PokemonXBattleMoveSlot.empty(id: index)
+                if move.id != 0 {
+                    let known = PokemonXCompanionData.moves.first(where: { $0.id == move.id })
+                    slot.name = known?.name.capitalized ?? "Move #\(move.id)"
+                    slot.type = known?.type
+                    slot.power = known?.power
+                    slot.currentPP = move.pp
+                    slot.maxPP = move.maxPP
+                }
+                return slot
+            }
+        } else {
+            battleMoves = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
+        }
     }
 
     deinit { stopPolling() }
+}
+
+// MARK: - Live party read (verified Pokemon X battle structs)
+
+/// Verified live read for Pokemon X battles.
+///
+/// The DllBattle battle-Pokemon structs live in the 3DS heap. Their VAs are
+/// stable across the three dumps of the Shauna battle, but the base VA is
+/// heap-allocated, so EVERY poll validates slot 0's species before trusting
+/// anything. Outside battle (or if the heap base moved) the read fails the
+/// species check and the UI stays on the placeholder — never stale data.
+///
+/// BATTLE struct offsets (NOT PK6), verified in three Azahar dumps with HP
+/// liveness proven by the post-damage test (see PAGE-TABLE-MAPPING-2026-11-18.md):
+/// species u16 +0x0C, HP max u16 +0x0E, HP current u16 +0x10 (LIVE — +0x0E is
+/// max, not current; reading +0x0E as "HP" would show a permanently-full bar),
+/// moves 4 x 0xE at +0x116 (move ID u16 +0, PP cur u8 +2, PP max u8 +3).
+/// Level is NOT in the verified set (the only Lv5 candidate, a 0x05 byte at
+/// +0x18, is unproven — both battlers in the test battle are Lv5, so it cannot
+/// be distinguished from any other field that happens to be 5) and is left nil.
+private enum PokemonXBattleRead {
+    static let playerBaseVA: UInt32 = 0x081fd418
+    static let structStride: UInt32 = 0x1E4
+    static let structLength: UInt32 = 0x1E4
+
+    static let speciesOffset = 0x0C
+    static let hpMaxOffset = 0x0E
+    static let hpCurrentOffset = 0x10
+    static let movesOffset = 0x116
+    static let moveStride = 0xE
+
+    /// Gen 6 species range (Pokemon X). A species outside this range means the
+    /// heap base moved (or no battle is running) — not a real Pokemon.
+    static func isPlausibleSpecies(_ species: Int) -> Bool {
+        species >= 1 && species <= 721
+    }
+}
+
+/// One live party slot parsed from a battle struct.
+private struct PokemonXLiveSlot {
+    let species: Int
+    let currentHP: Int
+    let maxHP: Int
+    /// (move ID, PP cur, PP max) x 4; move ID 0 = empty move slot.
+    let moves: [(id: Int, pp: Int, maxPP: Int)]
+}
+
+private enum PokemonXLivePartyReader {
+    /// Reads the six player battle structs. Returns nil when the read is
+    /// untrusted as a whole (slot 0 unreadable, or slot 0's species is not a
+    /// plausible Pokemon — the heap base moved or no battle is running).
+    /// Slots 1-5 that fail to read or hold no plausible species come back as
+    /// nil (empty slot), not as a failure of the whole party.
+    static func readPlayerParty() -> [PokemonXLiveSlot?]? {
+        let bridge = HUDMemoryBridge.shared()
+        guard bridge.hasLiveDataSource else { return nil }
+        var slots: [PokemonXLiveSlot?] = []
+        for index in 0..<6 {
+            let address = PokemonXBattleRead.playerBaseVA + UInt32(index) * PokemonXBattleRead.structStride
+            guard let data = bridge.readBytes(atAddress: address, length: PokemonXBattleRead.structLength),
+                  data.count == Int(PokemonXBattleRead.structLength) else {
+                // Slot 0 unreadable = the base VA is wrong: trust nothing.
+                // Any later slot unreadable = that slot is empty.
+                if index == 0 { return nil }
+                slots.append(nil)
+                continue
+            }
+            let species = Int(u16LE(data, PokemonXBattleRead.speciesOffset))
+            guard PokemonXBattleRead.isPlausibleSpecies(species) else {
+                if index == 0 { return nil }
+                slots.append(nil)
+                continue
+            }
+            let hpMax = Int(u16LE(data, PokemonXBattleRead.hpMaxOffset))
+            let hpCur = Int(u16LE(data, PokemonXBattleRead.hpCurrentOffset))
+            var moves: [(id: Int, pp: Int, maxPP: Int)] = []
+            for moveIndex in 0..<4 {
+                let base = PokemonXBattleRead.movesOffset + moveIndex * PokemonXBattleRead.moveStride
+                let moveID = Int(u16LE(data, base))
+                let pp = Int(data[base + 2])
+                let maxPP = Int(data[base + 3])
+                moves.append((id: moveID, pp: pp, maxPP: maxPP))
+            }
+            slots.append(PokemonXLiveSlot(species: species, currentHP: hpCur, maxHP: hpMax, moves: moves))
+        }
+        return slots
+    }
+
+    private static func u16LE(_ data: Data, _ offset: Int) -> UInt16 {
+        UInt16(data[offset]) | (UInt16(data[offset + 1]) << 8)
+    }
 }
