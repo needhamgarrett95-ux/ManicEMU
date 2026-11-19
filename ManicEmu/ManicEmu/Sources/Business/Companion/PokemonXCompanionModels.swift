@@ -3,19 +3,28 @@
 //  ManicEmu
 //
 //  PokeDaisy-style companion for Pokemon X (Gen 6) — data models and state.
-//  LIVE PARTY READ (2026-11-18): PokemonXLivePartyReader reads the verified
+//  LIVE PARTY READ (2026-11-18/19): PokemonXLivePartyReader reads the verified
 //  DllBattle battle structs through HUDMemoryBridge (see PokemonXBattleRead
 //  below and PAGE-TABLE-MAPPING-2026-11-18.md). The structs are reached
 //  through the pinned party-pointer arrays (STABLE-CHAIN-HUNT-2026-11-18.md):
 //  the reader reads the 6 slot pointers from the player array at
-//  0x081FD3CC, then each slot's battle struct at the pointer it holds —
-//  never a hardcoded struct base VA. Party and Battle tabs fill from live
-//  battle data when a battle is running and the species check passes;
-//  otherwise they stay on honest placeholders. Bag stays a placeholder
-//  (no verified bag offsets). Static reference data (type chart, sample
-//  Pokemon/moves) comes from PokeAPI (https://pokeapi.co/api/v2/) via
-//  PokemonXCompanionData.json, with the generated literals in
-//  PokemonXCompanionStaticData.swift as fallback.
+//  0x081FD3CC (enemy array 0x081FEB14), then each slot's battle struct at
+//  the pointer it holds — never a hardcoded struct base VA. Party and Battle
+//  tabs fill from live battle data when a battle is running and the species
+//  check passes; otherwise they stay on honest placeholders. Level is u8 at
+//  battle-struct +0x18, PROVEN by the Slot 8 fanfare dump (LEVEL-HUNT-
+//  2026-11-19.md: Chespin 6, Froakie 5 in the same dump); +0x08 is the
+//  current-level EXP threshold, NOT current EXP, and is never read. The
+//  enemy read uses the same path on the enemy array (BATTLE-SEND-HUNT-
+//  2026-11-19.md: Froakie HP 20→14 live, Bubble PP 30→29 live). Bag stays a
+//  placeholder (no verified bag VA). The battle SEND path does NOT exist:
+//  touch synthesis is blocked in the top-only layout (the core's framebuffer
+//  layout has no bottom screen — see WIRING-REPORT-2026-11-19.md), so the
+//  Battle tab buttons stay disabled and tapping a move sends nothing.
+//  Static reference data (type chart, full 721-species Dex, moves) comes
+//  from PokeAPI (https://pokeapi.co/api/v2/) via PokemonXCompanionData.json,
+//  with the generated 26-species literals in PokemonXCompanionStaticData.swift
+//  as fallback.
 //
 //  SPDX-License-Identifier: AGPL-3.0-or-later
 //
@@ -187,6 +196,10 @@ final class PokemonXCompanionState: ObservableObject {
     @Published var selectedTab: Tab = .party
     @Published var partySlots: [PokemonXPartySlot] = (0..<6).map { PokemonXPartySlot.empty(id: $0) }
     @Published var battleMoves: [PokemonXBattleMoveSlot] = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
+    /// The active opponent (enemy party slot 0) during a battle, from the
+    /// enemy array read. Nil when no battle is running or the enemy read
+    /// fails validation — the Battle tab hides the opponent card then.
+    @Published var enemyActive: PokemonXPartySlot?
 
     /// True only once the bridge has a real read callback AND a read returned data.
     @Published var isLiveDataAvailable = false
@@ -217,6 +230,7 @@ final class PokemonXCompanionState: ObservableObject {
                 isLiveDataAvailable = false
                 partySlots = (0..<6).map { PokemonXPartySlot.empty(id: $0) }
                 battleMoves = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
+                enemyActive = nil
             }
             bridgeStatus = "No live battle right now — open a battle to see your party."
             return
@@ -231,7 +245,7 @@ final class PokemonXCompanionState: ObservableObject {
             }
             var slot = PokemonXPartySlot.empty(id: index)
             slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == live.species })?.name.capitalized ?? "#\(live.species)"
-            slot.level = nil // Level is not in the verified battle-struct set.
+            slot.level = live.level
             slot.currentHP = live.currentHP
             slot.maxHP = live.maxHP
             return slot
@@ -254,6 +268,20 @@ final class PokemonXCompanionState: ObservableObject {
             }
         } else {
             battleMoves = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
+        }
+        // Opponent: enemy party slot 0 is the active battler. Independent
+        // read — if it fails validation, hide the opponent card but keep
+        // the player party (the arrays are separate reads).
+        if let enemySlots = PokemonXLivePartyReader.readEnemyParty(),
+           let foe = enemySlots[0] {
+            var slot = PokemonXPartySlot.empty(id: 0)
+            slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == foe.species })?.name.capitalized ?? "#\(foe.species)"
+            slot.level = foe.level
+            slot.currentHP = foe.currentHP
+            slot.maxHP = foe.maxHP
+            enemyActive = slot
+        } else {
+            enemyActive = nil
         }
     }
 
@@ -282,16 +310,16 @@ final class PokemonXCompanionState: ObservableObject {
 /// liveness proven by the post-damage test (see PAGE-TABLE-MAPPING-2026-11-18.md):
 /// species u16 +0x0C, HP max u16 +0x0E, HP current u16 +0x10 (LIVE — +0x0E is
 /// max, not current; reading +0x0E as "HP" would show a permanently-full bar),
-/// moves 4 x 0xE at +0x116 (move ID u16 +0, PP cur u8 +2, PP max u8 +3).
-/// Level is NOT in the verified set (the only Lv5 candidate, a 0x05 byte at
-/// +0x18, is unproven — both battlers in the test battle are Lv5, so it cannot
-/// be distinguished from any other field that happens to be 5) and is left nil.
+/// level u8 +0x18 (PROVEN — LEVEL-HUNT-2026-11-19.md: Slot 8 fanfare dump,
+/// Chespin 6 vs Froakie 5 in the same dump; valid range 1–100), moves 4 x 0xE
+/// at +0x116 (move ID u16 +0, PP cur u8 +2, PP max u8 +3). The 7-byte field
+/// +0x104 (06x7 consume marker) is unchanged and unread. +0x08 is the
+/// current-level EXP threshold (179 at Lv6), NOT current EXP, and is never read.
 private enum PokemonXBattleRead {
     /// Player party array: 6 consecutive u32 pointers to battle structs.
     static let playerPartyArrayVA: UInt32 = 0x081FD3CC
-    /// Enemy party array: same layout. Pinned, not yet read — no UI consumes
-    /// the enemy party in v1 (Party tab is the player's party; Battle tab
-    /// shows the player's moves).
+    /// Enemy party array: same layout. Read by readEnemyParty(); the Battle
+    /// tab shows the active opponent (slot 0) from it.
     static let enemyPartyArrayVA: UInt32 = 0x081FEB14
     static let partySlotCount = 6
     static let structLength: UInt32 = 0x1E4
@@ -299,6 +327,7 @@ private enum PokemonXBattleRead {
     static let speciesOffset = 0x0C
     static let hpMaxOffset = 0x0E
     static let hpCurrentOffset = 0x10
+    static let levelOffset = 0x18
     static let movesOffset = 0x116
     static let moveStride = 0xE
 
@@ -307,11 +336,18 @@ private enum PokemonXBattleRead {
     static func isPlausibleSpecies(_ species: Int) -> Bool {
         species >= 1 && species <= 721
     }
+
+    /// Level range. A level outside this range means the struct is not a
+    /// live battle struct — same fail-safe pattern as the species check.
+    static func isPlausibleLevel(_ level: Int) -> Bool {
+        level >= 1 && level <= 100
+    }
 }
 
 /// One live party slot parsed from a battle struct.
 private struct PokemonXLiveSlot {
     let species: Int
+    let level: Int
     let currentHP: Int
     let maxHP: Int
     /// (move ID, PP cur, PP max) x 4; move ID 0 = empty move slot.
@@ -320,18 +356,31 @@ private struct PokemonXLiveSlot {
 
 private enum PokemonXLivePartyReader {
     /// Reads the six player battle structs through the pinned party-pointer
-    /// array: read the 6 slot pointers at 0x081FD3CC, then each slot's struct
-    /// at the pointer it holds. Returns nil when the read is untrusted as a
-    /// whole (array unreadable, slot 0 pointer null, slot 0 struct
-    /// unreadable, or slot 0's species not a plausible Pokemon — the heap
-    /// moved or no battle is running). Slots 1-5 that fail to read or hold
-    /// no plausible species come back as nil (empty slot), not as a failure
-    /// of the whole party.
+    /// array at 0x081FD3CC.
     static func readPlayerParty() -> [PokemonXLiveSlot?]? {
+        readParty(at: PokemonXBattleRead.playerPartyArrayVA)
+    }
+
+    /// Reads the six enemy battle structs through the pinned enemy-pointer
+    /// array at 0x081FEB14. Same path and same validation as the player
+    /// read (BATTLE-SEND-HUNT-2026-11-19.md: Froakie HP 20→14 live,
+    /// Bubble PP 30→29 live, byte-matched across Slots 2/3/4).
+    static func readEnemyParty() -> [PokemonXLiveSlot?]? {
+        readParty(at: PokemonXBattleRead.enemyPartyArrayVA)
+    }
+
+    /// Shared array read: read the 6 slot pointers at the given array VA,
+    /// then each slot's struct at the pointer it holds. Returns nil when the
+    /// read is untrusted as a whole (array unreadable, slot 0 pointer null,
+    /// slot 0 struct unreadable, or slot 0's species/level not plausible —
+    /// the heap moved or no battle is running). Slots 1-5 that fail to read
+    /// or hold no plausible species/level come back as nil (empty slot),
+    /// not as a failure of the whole party.
+    private static func readParty(at arrayVA: UInt32) -> [PokemonXLiveSlot?]? {
         let bridge = HUDMemoryBridge.shared()
         guard bridge.hasLiveDataSource else { return nil }
         // The array itself: 6 little-endian u32 pointers (24 bytes).
-        guard let arrayData = bridge.readBytes(atAddress: PokemonXBattleRead.playerPartyArrayVA,
+        guard let arrayData = bridge.readBytes(atAddress: arrayVA,
                                                length: UInt32(PokemonXBattleRead.partySlotCount * 4)),
               arrayData.count == PokemonXBattleRead.partySlotCount * 4 else {
             return nil
@@ -360,6 +409,12 @@ private enum PokemonXLivePartyReader {
                 slots.append(nil)
                 continue
             }
+            let level = Int(data[PokemonXBattleRead.levelOffset])
+            guard PokemonXBattleRead.isPlausibleLevel(level) else {
+                if index == 0 { return nil }
+                slots.append(nil)
+                continue
+            }
             let hpMax = Int(u16LE(data, PokemonXBattleRead.hpMaxOffset))
             let hpCur = Int(u16LE(data, PokemonXBattleRead.hpCurrentOffset))
             var moves: [(id: Int, pp: Int, maxPP: Int)] = []
@@ -370,7 +425,7 @@ private enum PokemonXLivePartyReader {
                 let maxPP = Int(data[base + 3])
                 moves.append((id: moveID, pp: pp, maxPP: maxPP))
             }
-            slots.append(PokemonXLiveSlot(species: species, currentHP: hpCur, maxHP: hpMax, moves: moves))
+            slots.append(PokemonXLiveSlot(species: species, level: level, currentHP: hpCur, maxHP: hpMax, moves: moves))
         }
         return slots
     }
