@@ -1127,11 +1127,11 @@ extension GameOption {
             BitBopKit.sendToBitBop(games: games, in: scene)
 
         case .companion:
-            // Companion overlay: native SwiftUI layer on top of the running
-            // game. No pause, no skin change — the controller keeps driving
-            // the game and hidden on-screen controls stay hidden.
-            // Manual toggle (build #20): opens the panel when closed,
-            // closes it when open.
+            // Companion overlay: native SwiftUI widgets floating on top of
+            // the running game. No pause, no skin change — the controller
+            // keeps driving the game and hidden on-screen controls stay
+            // hidden. Manual toggle (build #20, v3 overlay): shows the
+            // overlay when hidden, hides it when shown.
             if PokemonXCompanionPresenter.isPresented {
                 PokemonXCompanionPresenter.dismiss()
             } else {
