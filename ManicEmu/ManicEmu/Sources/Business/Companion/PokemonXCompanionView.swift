@@ -40,6 +40,7 @@ enum PokemonXCompanionPresenter {
     static func present() {
         guard let host = PlayViewController.currentPlayViewController else { return }
         guard hostingController == nil else { return }
+        installMemoryBridgeIfNeeded()
         let state = PokemonXCompanionState()
         let view = PokemonXCompanionView(state: state, onClose: { dismiss() })
         let hosting = UIHostingController(rootView: view)
@@ -56,6 +57,21 @@ enum PokemonXCompanionPresenter {
         hosting.didMove(toParent: host)
         hostingController = hosting
         state.startPolling()
+    }
+
+    /// Installs the guest-memory read callback on the shared bridge, once.
+    /// The callback reads through the running libretro core's memory maps
+    /// (LibretroCore.readGuestMemoryAtAddress:length:intoBuffer: — applied to
+    /// the Libretro submodule by patches/libretro-memory-read.patch). It is a
+    /// no-op for the native Citra core (no libretro core running, so reads
+    /// fail) and outside battle (the heap base holds no battle structs, so
+    /// the species check fails) — in both cases the companion stays on
+    /// placeholder UI instead of showing stale data.
+    private static func installMemoryBridgeIfNeeded() {
+        guard HUDMemoryBridge.shared().readBytesCallback == nil else { return }
+        HUDMemoryBridge.shared().readBytesCallback = { address, outBuffer, length in
+            LibretroCore.sharedInstance().readGuestMemory(atAddress: address, length: length, intoBuffer: outBuffer)
+        }
     }
 
     /// Dismisses the overlay. Also does not touch the skin or pause state.
@@ -163,7 +179,9 @@ struct PokemonXCompanionView: View {
 
     private var partyTab: some View {
         VStack(alignment: .leading, spacing: 10) {
-            noLiveDataNote(text: "Your party will appear here once the companion can read the game. No Pokemon are shown yet — nothing here is real data.")
+            noLiveDataNote(text: state.isLiveDataAvailable
+                ? "Live battle data — HP updates as the battle goes. Level is not shown yet (not verified in the battle data)."
+                : "Your party will appear here once the companion can read the game. No Pokemon are shown yet — nothing here is real data.")
             ForEach(state.partySlots) { slot in
                 HStack {
                     Text("Slot \(slot.id + 1)")
@@ -175,6 +193,10 @@ struct PokemonXCompanionView: View {
                         if let hp = slot.currentHP, let max = slot.maxHP {
                             Text("HP \(hp)/\(max)")
                         }
+                    } else if slot.isKnownEmpty {
+                        Text("Empty")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     } else {
                         Text("No live data yet")
                             .font(.subheadline)
@@ -291,21 +313,27 @@ struct PokemonXCompanionView: View {
 
     private var battleTab: some View {
         VStack(alignment: .leading, spacing: 12) {
-            noLiveDataNote(text: "No live battle yet. These four move slots and the Fight / Pokemon / Bag / Run buttons will light up once the companion can read the battle state. They do nothing yet — tapping them sends nothing to the game.")
+            noLiveDataNote(text: state.isLiveDataAvailable
+                ? "Live battle moves for your active Pokemon. Tapping a move does not choose it yet — use the bottom screen for now."
+                : "No live battle yet. These four move slots and the Fight / Pokemon / Bag / Run buttons will light up once the companion can read the battle state. They do nothing yet — tapping them sends nothing to the game.")
             // Four move slots, 2 x 2, like the bottom-screen move list —
             // but drawn here, on the top screen, so battles stay top-only.
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 ForEach(state.battleMoves) { slot in
                     Button(action: {}) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(slot.name ?? "Move \(slot.id + 1)")
+                            Text(slot.name ?? (state.isLiveDataAvailable ? "—" : "Move \(slot.id + 1)"))
                                 .font(.headline)
                             Text(slot.type?.capitalized ?? "Type: —")
                                 .font(.caption)
                             if let power = slot.power {
                                 Text("Power \(power)")
                                     .font(.caption)
-                            } else {
+                            }
+                            if let pp = slot.currentPP, let maxPP = slot.maxPP {
+                                Text("PP \(pp)/\(maxPP)")
+                                    .font(.caption)
+                            } else if !state.isLiveDataAvailable {
                                 Text("No live data yet")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
