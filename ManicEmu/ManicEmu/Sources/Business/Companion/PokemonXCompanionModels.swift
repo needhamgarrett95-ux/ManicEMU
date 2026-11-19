@@ -205,7 +205,7 @@ final class PokemonXCompanionState: ObservableObject {
         // EmuGuestReadBytesFn callback, read the verified addresses here and
         // fill partySlots / battleMoves from the returned bytes. Until then
         // this deliberately does nothing: no invented addresses, no fake data.
-        guard HUDMemoryBridge.sharedBridge().hasLiveDataSource else { return }
+        guard HUDMemoryBridge.shared().hasLiveDataSource else { return }
         // A callback exists but no verified address to read yet — stay on
         // placeholder UI until the offset hunt lands.
         bridgeStatus = "Bridge connected, but no verified Pokemon X addresses yet."
