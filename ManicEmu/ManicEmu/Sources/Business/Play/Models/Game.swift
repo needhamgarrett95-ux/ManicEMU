@@ -971,6 +971,16 @@ class Game: Object, ObjectUpdatable {
     var isAzahar3DS: Bool {
         return gameType == ._3ds && defaultCore == 1
     }
+
+    /// Pokemon X on the Azahar core — the game the companion overlay is
+    /// built for (STAGE1-X). Title ID 0004000000055D00 (USA), recorded at
+    /// import from the ROM header. Fallback: the imported file name when
+    /// the title ID was never recorded (identifier 0).
+    var isPokemonX: Bool {
+        guard isAzahar3DS else { return false }
+        if identifierFor3DS == 0x0004000000055D00 { return true }
+        return identifierFor3DS == 0 && name.localizedCaseInsensitiveContains("Pokemon X")
+    }
     
     var isJGenesisCore: Bool {
         return ((gameType == ._32x || gameType == .mcd) && defaultCore == 1)

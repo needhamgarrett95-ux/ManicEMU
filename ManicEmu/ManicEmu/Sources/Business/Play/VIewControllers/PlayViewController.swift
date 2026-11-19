@@ -72,6 +72,12 @@ class PlayViewController: GameViewController {
     //When open, the game view shrinks to the leading portion of the skin
     //frame; see setCompanionPanelOpen / companionAdjustedGameFrame.
     private(set) var isCompanionPanelOpen: Bool = false
+    /// STAGE1-X (build #20): one-shot guard for the Pokemon X companion
+    /// auto-open. One PlayViewController instance = one game launch, so
+    /// once the auto-open has been attempted it never re-fires — closing
+    /// the panel with its Close button keeps it closed until the next
+    /// launch. The menu Companion option still reopens it manually.
+    private var didAttemptCompanionAutoOpen = false
     //3DS核心
     private var citraCore: ThreeDSEmulatorBridge? = nil
     //JGenesis核心
@@ -830,6 +836,10 @@ class PlayViewController: GameViewController {
         updateSkin()
         //更新声音
         updateAudio()
+        // STAGE1-X (build #20): Pokemon X opens with the companion panel
+        // already docked — one persistent screen, no menu detour. One-shot
+        // per launch (see maybeAutoOpenCompanion).
+        maybeAutoOpenCompanion()
         shortcutsButtonContainer.isHidden = false
         //游戏启动稳定后禁用安全模式
         if manicGame.safeMode {
@@ -1257,6 +1267,12 @@ extension PlayViewController {
                             self.skinSwitchBindDatas["toggleControlls"] = self.manicGame.forceFullSkin
                         } else if option == .swapScreen {
                             self.skinSwitchBindDatas["reverseScreens"] = self.manicGame.swapScreen
+                            // STAGE1-X (build #20): the toggle only updated the skin
+                            // binding before — the core kept the stale layout until the
+                            // next rotation / panel toggle, so the game stayed a small
+                            // tile in the skin's swapped bottom rect. Recompute the
+                            // core layout now so the flip takes effect immediately.
+                            self.updateDualScreenViews()
                         }
                     }
                     self.resumeEmulationAndHandleAudio()
@@ -3298,6 +3314,10 @@ extension PlayViewController {
                                            bottomRect: .zero)
                 } else if manicGame.isAzahar3DS {
                     let wideLayout = "\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(topOnlyW),\(topOnlyH)"
+                    // STAGE1-X (build #20): log the exact string so a future
+                    // failure can be told apart (string never sent vs
+                    // sent but misinterpreted by the core).
+                    Log.debug("[STAGE1-X] wideLayout: \(wideLayout)")
                     LibretroCore.sharedInstance().set3DSCustomLayout(wideLayout)
                     setAzaharSwapScreen("Bottom")
                     // Touch frame = the bottom rect in view points (layout
@@ -3369,6 +3389,19 @@ extension PlayViewController {
     /// remake so the layout string uses the actual game-view rect.
     /// The presenter rewrite (panel view itself) is a separate step; this
     /// only moves/resizes the game view and re-runs the layout.
+    /// STAGE1-X (build #20): auto-open the Pokemon X companion panel on
+    /// launch. Pokemon X on the Azahar core only (manicGame.isPokemonX).
+    /// One-shot per launch: a user dismissal is respected, and the menu
+    /// Companion option still reopens the panel manually. Presenting is
+    /// safe before the core has finished loading — the panel shows
+    /// placeholders until the memory reads go live.
+    private func maybeAutoOpenCompanion() {
+        guard !didAttemptCompanionAutoOpen else { return }
+        didAttemptCompanionAutoOpen = true
+        guard manicGame.isPokemonX else { return }
+        PokemonXCompanionPresenter.present()
+    }
+
     func setCompanionPanelOpen(_ open: Bool) {
         isCompanionPanelOpen = open
         guard let gameMetalView, gameMetalView.superview == view else {

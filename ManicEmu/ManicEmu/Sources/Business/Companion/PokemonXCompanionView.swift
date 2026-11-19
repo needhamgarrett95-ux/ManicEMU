@@ -59,6 +59,10 @@ enum PokemonXCompanionPresenter {
     /// remembered last ball) survive dismissing the panel.
     private static var sharedState: PokemonXCompanionState?
 
+    /// True while the panel is docked on screen. Lets the menu Companion
+    /// option work as a real toggle (open / close).
+    static var isPresented: Bool { hostingController != nil }
+
     /// Presents the companion as a right-docked 320pt panel. Deliberately
     /// does NOT pause emulation, does NOT change forceFullSkin, and does
     /// NOT show the skin buttons — so the controller keeps working and
