@@ -2,76 +2,146 @@
 //  PokemonXCompanionView.swift
 //  ManicEmu
 //
-//  PokeDaisy-style companion overlay for Pokemon X — RIGHT-DOCKED side
-//  panel (Garrett's design, 2026-11-19): ONE persistent screen, no
-//  switching back and forth. The top screen fills the iPhone landscape
-//  width minus this 320pt panel; the panel stays open persistently — the
-//  only way out is the Close button in the header. No dimmed background,
-//  no tap-outside-to-close, opaque system background.
+//  PokeDaisy-style floating companion overlay for Pokemon X (v3, Garrett's
+//  design, 2026-11-19): the game fills the WHOLE screen and the overlay
+//  floats over it — no docked panel, no backgrounds, no headers. Minimal
+//  footprint; the game is the star. Layout (from Garrett's PokeDaisy
+//  reference screenshot + his 13:47-13:55 refinements):
+//  - Minimap widget top-right (small schematic Kalos map + area label).
+//  - Party sprite box bottom-left (lead sprite + HP bar, small dark box).
+//  - Field buttons spread across the bottom: PARTY / DEX / BAG / BATTLE /
+//    GUIDE. BAG is an icon button with a live count badge.
+//  - In battle everything else hides and the bottom row swaps to the
+//    battle commands FIGHT / BAG / POKEMON / RUN (same spot, same size);
+//    FIGHT swaps the row to the four moves + a back arrow. Only ever one
+//    slim row on screen in battle.
+//  - When a game screen is open, the overlay gets out of the way: only a
+//    small back pill shows until the player is back in the field.
 //
-//  Tabs: Party / Bag / Map / Dex / Battle / Guide / Nuzlocke / Card.
-//  The Tab enum lives in PokemonXCompanionModels.swift and has only the
-//  five original tabs (another agent owns that file), so the three new
-//  tabs are a VIEW-LOCAL selection (PokemonXPanelTab below) mapped onto
-//  state.selectedTab for the five state tabs. Party is LIVE (species,
-//  level, HP) and the Battle tab shows live moves plus the active
-//  opponent, read from the verified battle structs through
-//  HUDMemoryBridge — never filled with invented Pokemon, moves or HP.
-//  Bag and Map are LIVE reads too (guard-checked every poll). The Dex is
-//  the full 721-species Gen 1-6 Pokedex from static PokeAPI data.
+//  BUTTONS DRIVE THE GAME'S OWN SCREENS (Garrett 2026-11-19): PARTY /
+//  DEX / BAG open the game's own party / Pokedex / bag via the lab-verified
+//  touch scripts in PokemonXGameDriver (X press + menu pill tap) — not
+//  companion popups. BATTLE in the field opens the battle info card;
+//  in battle, BAG / POKEMON open the game's in-battle bag / party.
+//  GUIDE is the only companion popup (no in-game equivalent). MAP falls
+//  back to the companion map card: the in-game Town Map is BLOCKED — the
+//  Town Map item (0x001C) is not in the bag at this story point (lab
+//  verified 2026-11-19), so no Town Map script exists yet; the button
+//  must say so, never ship dead.
 //
-//  BATTLE SENDS (via PokemonXTouchSender ONLY — never the 1280x720 lab
-//  coords in PokemonXBattleFlow): FIGHT / POKEMON / BAG / RUN send their
-//  measured Battle constants. A move tap sends FIGHT first, then the
-//  move-slot point after ~1s so the game opens the move list. Move slot
-//  3 has NO measured centre — its button is disabled, never a guessed
-//  point. Growl / Vine Whip positions are ESTIMATED, not lab-measured.
-//  Mega (G11) and multi-target (G12) are NOT built: no buttons, no
-//  centres measured. One-tap switch-to-slot is NOT built (party-menu
-//  slot centres unmeasured, G13) — the switch suggestion is text only.
-//  The last-ball replay sends BAG only: the Poke Balls pocket/item/USE
-//  flow is UNMEASURED (only Medicine/Potion was measured), so the rest
-//  is finished by the player in the game menu — never faked.
+//  STYLING: Pokemon X's own modern 3DS blue/white UI (sleek, not the
+//  chunky GBA pixel look) — white pills with blue borders and dark-blue
+//  text, blue card headers. Generic iOS dark-mode styling is wrong here;
+//  the overlay must look baked into Pokemon X.
 //
-//  MULTI-INPUT (Switch-style, per Garrett):
-//  - Controller (GameSir X5 Lite) keeps driving the game — movement,
-//    menus, battles — through the emulator's controller path the whole
-//    time this panel is open. The panel never pauses the game.
-//  - Touch (iPhone screen) drives THIS panel: tap Party / Bag / Map /
-//    Dex / Battle / Guide / Nuzlocke / Card and the buttons inside it.
-//    These are native SwiftUI buttons on a native layer on top of the
-//    game, not the emulated bottom touch screen.
-//  - The on-screen emulator controls stay hidden while the panel is
-//    open: presenting this panel never calls forceFullSkin(false) /
-//    showSkinButtons and never touches the skin.
+//  LIVE DATA: the widgets show live reads at a glance (lead sprite + HP,
+//  minimap + live area label, bag count badge) from the same verified
+//  reads as before (field party table, battle structs, bag VA, map chain,
+//  Dex JSON). The overlay NEVER pauses the game and never touches the
+//  skin: the controller (GameSir) keeps driving the game while touch
+//  drives the overlay. Each widget is its own small UIHostingController
+//  sized to its content, so touches outside the widgets fall through to
+//  the game / on-screen controls below.
 //
 //  SPDX-License-Identifier: AGPL-3.0-or-later
 //
 
 import SwiftUI
 import UIKit
+import Combine
 
-// MARK: - Presenter (docked side panel on top of the game)
+// MARK: - Pokemon X UI style (modern 3DS blue/white, not GBA chunky)
+
+/// Pokemon X's own menu palette: sleek blue/white, rounded, bold dark-blue
+/// text on white. Everything in the overlay draws from here so it reads
+/// as part of the game, not pasted on top.
+private enum PokemonXXStyle {
+    /// X menu blue (headers, borders, accents).
+    static let blue = Color(red: 0.16, green: 0.40, blue: 0.75)
+    /// X dark blue (button text, titles).
+    static let deepBlue = Color(red: 0.07, green: 0.20, blue: 0.45)
+    /// Pale blue tint (card / chip backgrounds).
+    static let lightBlue = Color(red: 0.88, green: 0.94, blue: 1.0)
+    /// X gold (best-pick highlight, badges).
+    static let gold = Color(red: 0.95, green: 0.72, blue: 0.10)
+    /// Card white.
+    static let panel = Color.white.opacity(0.97)
+    /// Rounded bold label font, like X's menu text.
+    static func labelFont(_ size: CGFloat = 15) -> Font {
+        .system(size: size, weight: .bold, design: .rounded)
+    }
+    /// HP bar colour by fraction (green / yellow / red, like the game).
+    static func hpColor(fraction: Double) -> Color {
+        if fraction > 0.5 { return Color(red: 0.25, green: 0.80, blue: 0.30) }
+        if fraction > 0.25 { return Color(red: 0.95, green: 0.80, blue: 0.20) }
+        return Color(red: 0.90, green: 0.25, blue: 0.25)
+    }
+}
+
+// MARK: - Overlay-only UI state (the live game state stays in PokemonXCompanionState)
+
+/// Which companion card is open, if any. GUIDE is the only popup with no
+/// in-game equivalent; MAP is the fallback (in-game Town Map blocked);
+/// BATTLE is the field battle-info card.
+enum PokemonXOverlayCard {
+    case guide, map, battle
+}
+
+/// Which of the game's own screens the overlay opened, for the back pill.
+/// Field screens need 2 B presses to back out (sub-screen -> menu ->
+/// field); in-battle bag/party need 1 (back to the battle menu).
+enum PokemonXGameScreen {
+    case party, bag, dex, battleBag, battleParty
+    var backPresses: Int {
+        switch self {
+        case .party, .bag, .dex: return 2
+        case .battleBag, .battleParty: return 1
+        }
+    }
+}
+
+/// Overlay-only UI state, observed by every hosted widget. The presenter
+/// owns the single instance; the live game reads live in
+/// PokemonXCompanionState.
+final class PokemonXOverlayUIState: ObservableObject {
+    @Published var openCard: PokemonXOverlayCard?
+    @Published var screenOpen: PokemonXGameScreen?
+    @Published var showingMoves = false
+    @Published var isInBattle = false
+    /// True from a move tap until the row returns to commands (~1.8s);
+    /// row buttons are disabled meanwhile so a second tap cannot land on
+    /// the wrong screen while the FIGHT+move send is still in flight.
+    @Published var moveSendPending = false
+}
+
+// MARK: - Presenter (small floating hosts on top of the game)
 
 enum PokemonXCompanionPresenter {
-    private static weak var hostingController: UIHostingController<PokemonXCompanionView>?
     /// Shared state, kept across close/reopen so Nuzlocke runs (and the
-    /// remembered last ball) survive dismissing the panel.
+    /// remembered last ball) survive dismissing the overlay.
     private static var sharedState: PokemonXCompanionState?
+    /// Overlay-only UI state, kept across close/reopen.
+    private static let uiState = PokemonXOverlayUIState()
+    private static var minimapHost: UIHostingController<AnyView>?
+    private static var spriteHost: UIHostingController<AnyView>?
+    private static var rowHost: UIHostingController<AnyView>?
+    private static var pillHost: UIHostingController<AnyView>?
+    private static var cardHost: UIHostingController<AnyView>?
+    private static var cancellables = Set<AnyCancellable>()
 
-    /// True while the panel is docked on screen. Lets the menu Companion
-    /// option work as a real toggle (open / close).
-    static var isPresented: Bool { hostingController != nil }
+    /// True while the overlay is installed. Lets the menu Companion
+    /// option work as a real toggle (show / hide the overlay bar).
+    static var isPresented: Bool { rowHost != nil }
 
-    /// Presents the companion as a right-docked 320pt panel. Deliberately
-    /// does NOT pause emulation, does NOT change forceFullSkin, and does
-    /// NOT show the skin buttons — so the controller keeps working and
-    /// hidden on-screen controls stay hidden while the panel is up.
-    /// Shrinks the game view FIRST (setCompanionPanelOpen), then docks
-    /// the panel into the freed space.
+    /// Installs the floating overlay: minimap, sprite box, button row,
+    /// back pill and card host — five small hosting controllers, each
+    /// sized to its content, so touches outside them fall through to the
+    /// game below. Deliberately does NOT pause emulation, does NOT change
+    /// forceFullSkin, and does NOT show the skin buttons — so the
+    /// controller keeps working while the overlay is up.
     static func present() {
         guard let host = PlayViewController.currentPlayViewController else { return }
-        guard hostingController == nil else { return }
+        guard rowHost == nil else { return }
         installMemoryBridgeIfNeeded()
         let state: PokemonXCompanionState
         if let existing = sharedState {
@@ -81,21 +151,66 @@ enum PokemonXCompanionPresenter {
             sharedState = fresh
             state = fresh
         }
-        host.setCompanionPanelOpen(true)
-        let view = PokemonXCompanionView(state: state, onClose: { dismiss() })
-        let hosting = UIHostingController(rootView: view)
-        hosting.view.backgroundColor = .systemBackground
-        host.addChild(hosting)
-        host.view.addSubview(hosting.view)
-        hosting.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            hosting.view.trailingAnchor.constraint(equalTo: host.view.trailingAnchor),
-            hosting.view.widthAnchor.constraint(equalToConstant: PokemonXCompanionPanelWidth),
-            hosting.view.topAnchor.constraint(equalTo: host.view.topAnchor),
-            hosting.view.bottomAnchor.constraint(equalTo: host.view.bottomAnchor)
-        ])
-        hosting.didMove(toParent: host)
-        hostingController = hosting
+        let safe = host.view.safeAreaLayoutGuide
+        rowHost = install(host: host,
+                          content: PokemonXOverlayRowView(state: state, uiState: uiState)) { view, _ in
+            [view.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 12),
+             view.trailingAnchor.constraint(equalTo: safe.trailingAnchor, constant: -12),
+             view.bottomAnchor.constraint(equalTo: safe.bottomAnchor, constant: -8),
+             view.heightAnchor.constraint(equalToConstant: 50)]
+        }
+        minimapHost = install(host: host,
+                              content: PokemonXMinimapWidgetView(state: state, uiState: uiState)) { view, _ in
+            [view.topAnchor.constraint(equalTo: safe.topAnchor, constant: 10),
+             view.trailingAnchor.constraint(equalTo: safe.trailingAnchor, constant: -10),
+             view.widthAnchor.constraint(equalToConstant: 132),
+             view.heightAnchor.constraint(equalToConstant: 100)]
+        }
+        spriteHost = install(host: host,
+                             content: PokemonXSpriteBoxView(state: state, uiState: uiState)) { view, _ in
+            [view.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 10),
+             view.bottomAnchor.constraint(equalTo: safe.bottomAnchor, constant: -72),
+             view.widthAnchor.constraint(equalToConstant: 72),
+             view.heightAnchor.constraint(equalToConstant: 84)]
+        }
+        pillHost = install(host: host,
+                           content: PokemonXBackPillView(uiState: uiState)) { view, _ in
+            [view.topAnchor.constraint(equalTo: safe.topAnchor, constant: 10),
+             view.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 12),
+             view.widthAnchor.constraint(equalToConstant: 150),
+             view.heightAnchor.constraint(equalToConstant: 40)]
+        }
+        cardHost = install(host: host,
+                           content: PokemonXCardHostView(state: state, uiState: uiState)) { view, hostView in
+            [view.leadingAnchor.constraint(equalTo: hostView.leadingAnchor),
+             view.trailingAnchor.constraint(equalTo: hostView.trailingAnchor),
+             view.topAnchor.constraint(equalTo: hostView.topAnchor),
+             view.bottomAnchor.constraint(equalTo: hostView.bottomAnchor)]
+        }
+        // Auto-swap watch: the 1s poll sets enemyActive when a battle
+        // starts and clears it when the battle ends. Battle hides the
+        // widgets and swaps the row; battle end restores the field row.
+        // A battle starting also closes any open card (the row takes
+        // over) and clears a screen-open state (a game screen cannot be
+        // open when a battle starts — the menu blocks encounters).
+        state.$enemyActive
+            .receive(on: DispatchQueue.main)
+            .sink { foe in
+                uiState.isInBattle = foe != nil
+                if foe != nil {
+                    uiState.openCard = nil
+                    uiState.screenOpen = nil
+                } else {
+                    uiState.showingMoves = false
+                }
+                updateVisibility()
+            }
+            .store(in: &cancellables)
+        Publishers.CombineLatest3(uiState.$isInBattle, uiState.$screenOpen, uiState.$openCard)
+            .receive(on: DispatchQueue.main)
+            .sink { _, _, _ in updateVisibility() }
+            .store(in: &cancellables)
+        updateVisibility()
         state.startPolling()
     }
 
@@ -105,7 +220,7 @@ enum PokemonXCompanionPresenter {
     /// the Libretro submodule by patches/libretro-memory-read.patch). It is a
     /// no-op for the native Citra core (no libretro core running, so reads
     /// fail) and outside battle (the heap base holds no battle structs, so
-    /// the species check fails) — in both cases the companion stays on
+    /// the species check fails) — in both cases the overlay stays on
     /// placeholder UI instead of showing stale data.
     private static func installMemoryBridgeIfNeeded() {
         guard HUDMemoryBridge.shared().readBytesCallback == nil else { return }
@@ -114,333 +229,482 @@ enum PokemonXCompanionPresenter {
         }
     }
 
-    /// Dismisses the panel and restores the game view to full width.
-    /// Also does not touch the skin or pause state. The shared state is
-    /// kept (not discarded) so Nuzlocke runs survive close/reopen.
+    /// Which widgets show right now (auto-swap principle): a card open
+    /// hides everything else (the card is modal-ish — X / tap-outside
+    /// closes it); a game screen open hides everything but the back
+    /// pill; in battle the minimap and sprite box hide and the row shows
+    /// battle commands. The card host is fullscreen (its dim must
+    /// intercept touches) so it is hidden, not removed, when no card is
+    /// open — a hidden view intercepts nothing.
+    private static func updateVisibility() {
+        DispatchQueue.main.async {
+            let cardOpen = uiState.openCard != nil
+            let screenOpen = uiState.screenOpen != nil
+            let inBattle = uiState.isInBattle
+            minimapHost?.view.isHidden = cardOpen || screenOpen || inBattle
+            spriteHost?.view.isHidden = cardOpen || screenOpen || inBattle
+            rowHost?.view.isHidden = cardOpen || screenOpen
+            pillHost?.view.isHidden = !screenOpen
+            cardHost?.view.isHidden = !cardOpen
+        }
+    }
+
+    /// Removes the overlay. Also does not touch the skin or pause state.
+    /// The shared state is kept (not discarded) so Nuzlocke runs survive
+    /// close/reopen; the overlay UI state is reset so a re-show starts
+    /// from the field row.
     static func dismiss() {
-        guard let hosting = hostingController else { return }
-        hostingController = nil
+        guard rowHost != nil else { return }
+        for host in [minimapHost, spriteHost, rowHost, pillHost, cardHost] {
+            host?.willMove(toParent: nil)
+            host?.view.removeFromSuperview()
+            host?.removeFromParent()
+        }
+        minimapHost = nil
+        spriteHost = nil
+        rowHost = nil
+        pillHost = nil
+        cardHost = nil
+        cancellables.removeAll()
+        uiState.openCard = nil
+        uiState.screenOpen = nil
+        uiState.showingMoves = false
+        uiState.isInBattle = false
+        uiState.moveSendPending = false
         sharedState?.stopPolling()
-        hosting.willMove(toParent: nil)
-        hosting.view.removeFromSuperview()
-        hosting.removeFromParent()
-        PlayViewController.currentPlayViewController?.setCompanionPanelOpen(false)
+    }
+
+    private static func install<Content: View>(host: PlayViewController,
+                                               content: Content,
+                                               constraints: (UIView, UIView) -> [NSLayoutConstraint]) -> UIHostingController<AnyView> {
+        let hosting = UIHostingController(rootView: AnyView(content))
+        hosting.view.backgroundColor = .clear
+        host.addChild(hosting)
+        host.view.addSubview(hosting.view)
+        hosting.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate(constraints(hosting.view, host.view))
+        hosting.didMove(toParent: host)
+        return hosting
     }
 }
 
-// MARK: - Panel tabs (view-local; Models.swift owns only the five state tabs)
+// MARK: - Bottom row (field buttons / battle commands / moves)
 
-/// All eight panel tabs. The five original tabs map onto
-/// PokemonXCompanionState.Tab (state.selectedTab); guide / nuzlocke /
-/// card exist ONLY here — the Tab enum in Models.swift cannot gain cases
-/// without editing that file, which is another agent's. The tab bar sets
-/// both this selection and state.selectedTab for the five mapped tabs.
-private enum PokemonXPanelTab: String, CaseIterable, Identifiable {
-    case party, bag, map, dex, battle, guide, nuzlocke, card
-    var id: String { rawValue }
-    var title: String {
-        switch self {
-        case .party: return "Party"
-        case .bag: return "Bag"
-        case .map: return "Map"
-        case .dex: return "Dex"
-        case .battle: return "Battle"
-        case .guide: return "Guide"
-        case .nuzlocke: return "Nuzlocke"
-        case .card: return "Card"
-        }
-    }
-    /// The matching state tab, or nil for the three view-local tabs.
-    var stateTab: PokemonXCompanionState.Tab? {
-        switch self {
-        case .party: return .party
-        case .bag: return .bag
-        case .map: return .map
-        case .dex: return .dex
-        case .battle: return .battle
-        case .guide, .nuzlocke, .card: return nil
-        }
-    }
-}
-
-// MARK: - Panel view
-
-struct PokemonXCompanionView: View {
+/// The one slim row along the bottom edge. Field: PARTY / DEX / BAG /
+/// BATTLE / GUIDE spread across. Battle: FIGHT / BAG / POKEMON / RUN in
+/// the same spot and size; FIGHT swaps to the four moves + back arrow.
+/// X-styled white pills with blue borders — the whole overlay must look
+/// baked into Pokemon X, like its own battle commands.
+struct PokemonXOverlayRowView: View {
     @ObservedObject var state: PokemonXCompanionState
-    var onClose: () -> Void
+    @ObservedObject var uiState: PokemonXOverlayUIState
 
-    @State private var panelTab: PokemonXPanelTab = .party
-    @State private var dexSearchText = ""
-    @State private var selectedDexPokemon: PokemonXStaticPokemon?
+    var body: some View {
+        if uiState.isInBattle {
+            if uiState.showingMoves { moveRow } else { battleCommandRow }
+        } else {
+            fieldRow
+        }
+    }
+
+    // MARK: Field row — buttons drive the game's own screens
+
+    private var fieldRow: some View {
+        HStack(spacing: 8) {
+            rowButton("PARTY") {
+                uiState.openCard = nil
+                PokemonXGameDriver.openParty()
+                uiState.screenOpen = .party
+            }
+            rowButton("DEX") {
+                uiState.openCard = nil
+                PokemonXGameDriver.openDex()
+                uiState.screenOpen = .dex
+            }
+            bagButton
+            rowButton("BATTLE") {
+                uiState.openCard = uiState.openCard == .battle ? nil : .battle
+            }
+            rowButton("GUIDE") {
+                uiState.openCard = uiState.openCard == .guide ? nil : .guide
+            }
+        }
+    }
+
+    /// BAG is an icon button (like PokeDaisy's bottom-right BAG): a small
+    /// bag glyph + "BAG" label, with a live count badge (total items in
+    /// the bag, when the bag read is live).
+    private var bagButton: some View {
+        Button(action: {
+            uiState.openCard = nil
+            PokemonXGameDriver.openBag()
+            uiState.screenOpen = .bag
+        }) {
+            HStack(spacing: 4) {
+                PokemonXBagGlyph()
+                    .frame(width: 18, height: 18)
+                Text("BAG")
+                    .font(PokemonXXStyle.labelFont(15))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 46)
+            .background(PokemonXXStyle.panel)
+            .foregroundColor(PokemonXXStyle.deepBlue)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(PokemonXXStyle.blue, lineWidth: 1.5)
+            )
+            .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 2)
+            .overlay(alignment: .topTrailing) {
+                if state.bagIsLive {
+                    Text("\(bagTotalCount)")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.red)
+                        .clipShape(Capsule())
+                        .offset(x: 4, y: -6)
+                }
+            }
+        }
+    }
+
+    private var bagTotalCount: Int {
+        state.bagPockets.flatMap { $0.entries }.reduce(0) { $0 + $1.count }
+    }
+
+    private func rowButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(PokemonXXStyle.labelFont(15))
+                .frame(maxWidth: .infinity)
+                .frame(height: 46)
+                .background(PokemonXXStyle.panel)
+                .foregroundColor(PokemonXXStyle.deepBlue)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(PokemonXXStyle.blue, lineWidth: 1.5)
+                )
+                .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 2)
+        }
+    }
+
+    // MARK: Battle command row — one slim row, nothing over the battle scene
+
+    private var battleCommandRow: some View {
+        HStack(spacing: 8) {
+            rowButton("FIGHT") { uiState.showingMoves = true }
+                .disabled(uiState.moveSendPending)
+            rowButton("BAG") {
+                PokemonXTouchSender.send(point: PokemonXTouchSender.Battle.bag)
+                uiState.screenOpen = .battleBag
+            }
+            .disabled(uiState.moveSendPending)
+            rowButton("POKEMON") {
+                PokemonXTouchSender.send(point: PokemonXTouchSender.Battle.pokemon)
+                uiState.screenOpen = .battleParty
+            }
+            .disabled(uiState.moveSendPending)
+            rowButton("RUN") {
+                PokemonXTouchSender.send(point: PokemonXTouchSender.Battle.run)
+            }
+            .disabled(uiState.moveSendPending)
+        }
+    }
+
+    // MARK: Move row — four live moves + back arrow, same slim row
+
+    private var moveRow: some View {
+        HStack(spacing: 6) {
+            Button(action: { uiState.showingMoves = false }) {
+                Text("‹")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .frame(width: 36, height: 46)
+                    .background(PokemonXXStyle.panel)
+                    .foregroundColor(PokemonXXStyle.deepBlue)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(PokemonXXStyle.blue, lineWidth: 1.5)
+                    )
+                    .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 2)
+            }
+            .disabled(uiState.moveSendPending)
+            ForEach(state.battleMoves) { slot in
+                moveChip(for: slot)
+            }
+        }
+    }
+
+    /// Move chip: live name + PP, driven by the battle read. Slot 3 has
+    /// NO measured centre — shown greyed and disabled, never a guessed
+    /// point. The best pick gets the gold highlight.
+    private func moveChip(for slot: PokemonXBattleMoveSlot) -> some View {
+        let isSlot3 = slot.id == 3
+        let isBest = state.bestMoveIndex == slot.id
+        return Button(action: {
+            guard slot.name != nil, !isSlot3 else { return }
+            uiState.moveSendPending = true
+            PokemonXTouchSender.sendMove(slotId: slot.id)
+            // After a move is picked the row goes back to commands for
+            // the next turn (~1.8s: the move tap fires at +1.0s).
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                uiState.showingMoves = false
+                uiState.moveSendPending = false
+            }
+        }) {
+            VStack(spacing: 1) {
+                Text(slot.name ?? "—")
+                    .font(PokemonXXStyle.labelFont(12))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                if let pp = slot.currentPP, let maxPP = slot.maxPP {
+                    Text("PP \(pp)/\(maxPP)")
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        .foregroundColor(PokemonXXStyle.deepBlue.opacity(0.7))
+                } else {
+                    Text(isSlot3 ? "unmeasured" : "PP —")
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        .foregroundColor(PokemonXXStyle.deepBlue.opacity(0.7))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 46)
+            .background(isBest ? PokemonXXStyle.gold.opacity(0.85) : PokemonXXStyle.panel)
+            .foregroundColor(PokemonXXStyle.deepBlue)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isBest ? PokemonXXStyle.gold : PokemonXXStyle.blue, lineWidth: 1.5)
+            )
+            .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 2)
+            .opacity(isSlot3 || slot.name == nil ? 0.55 : 1.0)
+        }
+        .disabled(isSlot3 || slot.name == nil || uiState.moveSendPending)
+    }
+}
+
+// MARK: - Minimap widget (top-right)
+
+/// Small minimap in the top-right corner, like PokeDaisy's: a schematic
+/// Kalos map with a small area label under it. Tap to expand to the full
+/// map card (the in-game Town Map is blocked — see the file header).
+struct PokemonXMinimapWidgetView: View {
+    @ObservedObject var state: PokemonXCompanionState
+    @ObservedObject var uiState: PokemonXOverlayUIState
+
+    var body: some View {
+        Button(action: { uiState.openCard = .map }) {
+            VStack(spacing: 2) {
+                ZStack {
+                    Color(red: 0.72, green: 0.84, blue: 0.94)
+                    KalosLandmassShape()
+                        .fill(Color(red: 0.55, green: 0.75, blue: 0.55))
+                    ForEach(Array(PokemonXCompanionCardView.kalosTowns.enumerated()), id: \.offset) { _, town in
+                        Circle()
+                            .fill(PokemonXXStyle.deepBlue)
+                            .frame(width: 4, height: 4)
+                            .position(x: 124 * town.x, y: 72 * town.y)
+                    }
+                }
+                .frame(width: 124, height: 72)
+                .cornerRadius(8)
+                Text(state.mapPosition?.areaLabel ?? "Kalos")
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                    .foregroundColor(PokemonXXStyle.deepBlue)
+                    .lineLimit(1)
+                    .frame(width: 124)
+            }
+            .padding(4)
+            .background(PokemonXXStyle.panel)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(PokemonXXStyle.blue, lineWidth: 1.5)
+            )
+            .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 2)
+        }
+    }
+}
+
+// MARK: - Party sprite box (bottom-left)
+
+/// Small dark rounded square with the lead Pokemon's sprite + HP bar,
+/// like PokeDaisy's. Tap to open the game's own party screen. Shows a
+/// Pokeball placeholder until the party read goes live — never a
+/// placeholder Pokemon.
+struct PokemonXSpriteBoxView: View {
+    @ObservedObject var state: PokemonXCompanionState
+    @ObservedObject var uiState: PokemonXOverlayUIState
+
+    private var leadSlot: PokemonXPartySlot? {
+        state.partySlots.first(where: { $0.speciesName != nil })
+    }
+
+    /// Dex id for the lead Pokemon's sprite, via the same name lookup
+    /// the party detail used. Nil when there is no live party yet.
+    private var leadSpeciesId: Int? {
+        guard let name = leadSlot?.speciesName else { return nil }
+        return PokemonXCompanionData.pokemon.first(where: { $0.name == name.lowercased() })?.id
+    }
+
+    var body: some View {
+        Button(action: {
+            uiState.openCard = nil
+            PokemonXGameDriver.openParty()
+            uiState.screenOpen = .party
+        }) {
+            VStack(spacing: 2) {
+                PokemonXSpriteView(speciesId: leadSpeciesId)
+                    .frame(width: 48, height: 48)
+                if let hp = leadSlot?.currentHP, let max = leadSlot?.maxHP, max > 0 {
+                    GeometryReader { geo in
+                        RoundedRectangle(cornerRadius: 2.5)
+                            .fill(PokemonXXStyle.hpColor(fraction: Double(hp) / Double(max)))
+                            .frame(width: geo.size.width * CGFloat(hp) / CGFloat(max))
+                    }
+                    .frame(width: 56, height: 5)
+                    .background(Color.white.opacity(0.25))
+                    .cornerRadius(2.5)
+                    Text("Lv. \(leadSlot?.level ?? 0)")
+                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                } else {
+                    Text("No party yet")
+                        .font(.system(size: 8, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.8))
+                }
+            }
+            .frame(width: 72, height: 84)
+            .background(Color(red: 0.13, green: 0.13, blue: 0.16).opacity(0.92))
+            .cornerRadius(10)
+            .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 2)
+        }
+    }
+}
+
+// MARK: - Back pill (a game screen is open)
+
+/// Tiny pill while one of the game's own screens is open: the overlay
+/// got out of the way, and this is the way back. Tapping it sends B
+/// presses to back out of the in-game screen (2 for field screens, 1
+/// for in-battle bag/party) and restores the field / battle row.
+struct PokemonXBackPillView: View {
+    @ObservedObject var uiState: PokemonXOverlayUIState
+
+    var body: some View {
+        Button(action: {
+            guard let screen = uiState.screenOpen else { return }
+            uiState.screenOpen = nil
+            PokemonXGameDriver.backOut(levels: screen.backPresses)
+        }) {
+            HStack(spacing: 4) {
+                Text("‹")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                Text("Back to game")
+                    .font(PokemonXXStyle.labelFont(14))
+            }
+            .frame(width: 150, height: 40)
+            .background(PokemonXXStyle.panel)
+            .foregroundColor(PokemonXXStyle.deepBlue)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(PokemonXXStyle.blue, lineWidth: 1.5)
+            )
+            .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 2)
+        }
+    }
+}
+
+// MARK: - Popup cards (GUIDE / MAP fallback / BATTLE info)
+
+/// Fullscreen host for the one open card: a light dim (tap outside to
+/// close) with a small centered X-styled card over the game — the game
+/// stays visible around it. Only one card ever opens; opening a card
+/// hides the row and widgets until it closes.
+struct PokemonXCardHostView: View {
+    @ObservedObject var state: PokemonXCompanionState
+    @ObservedObject var uiState: PokemonXOverlayUIState
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color.black.opacity(0.35)
+                    .onTapGesture { uiState.openCard = nil }
+                if let card = uiState.openCard {
+                    PokemonXCompanionCardView(state: state, uiState: uiState, card: card)
+                        .frame(maxWidth: min(520, geo.size.width - 48), maxHeight: geo.size.height * 0.78)
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+/// The card itself: X-blue header strip with title + close, white body
+/// with the reused tab content. Party / Bag / Dex have no card — those
+/// buttons open the game's own screens instead.
+struct PokemonXCompanionCardView: View {
+    @ObservedObject var state: PokemonXCompanionState
+    @ObservedObject var uiState: PokemonXOverlayUIState
+    var card: PokemonXOverlayCard
+
     @State private var selectedMapTown: String?
-    @State private var newRunName = ""
-    @State private var catchSpecies = ""
-    @State private var catchArea = ""
     @State private var lastBallNote: String?
 
-    // Pokemon X menu palette: navy header, white cards, pink battle accent.
-    private let navy = Color(red: 0.12, green: 0.22, blue: 0.42)
-    private let pink = Color(red: 0.96, green: 0.62, blue: 0.78)
+    private var title: String {
+        switch card {
+        case .guide: return "Guide"
+        case .map: return "Map"
+        case .battle: return "Battle"
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
-            header
-            tabBar
-            Divider()
+            HStack {
+                Text(title)
+                    .font(PokemonXXStyle.labelFont(17))
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: { uiState.openCard = nil }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.2))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(PokemonXXStyle.blue)
             ScrollView {
-                switch panelTab {
-                case .party: partyTab
-                case .bag: bagTab
-                case .map: mapTab
-                case .dex: dexTab
-                case .battle: battleTab
-                case .guide: guideTab
-                case .nuzlocke: nuzlockeTab
-                case .card: cardTab
-                }
-            }
-            multiInputFooter
-        }
-        .background(Color(UIColor.systemBackground))
-    }
-
-    // MARK: Header
-
-    private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Companion — Pokemon X")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Text(state.bridgeStatus)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.85))
-            }
-            Spacer()
-            Button(action: onClose) {
-                Text("Close")
-                    .font(.headline)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.2))
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-        }
-        .padding(14)
-        .background(navy)
-    }
-
-    // MARK: Tab bar (8 tabs in 320pt — horizontally scrollable, compact)
-
-    private var tabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
-                ForEach(PokemonXPanelTab.allCases) { tab in
-                    Button(action: { selectTab(tab) }) {
-                        Text(tab.title)
-                            .font(.subheadline)
-                            .fontWeight(panelTab == tab ? .bold : .regular)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 8)
-                            .background(panelTab == tab ? navy.opacity(0.12) : Color.clear)
-                            .foregroundColor(panelTab == tab ? navy : .primary)
-                            .cornerRadius(8)
-                    }
-                }
-            }
-            .padding(.horizontal, 8)
-        }
-        .padding(.vertical, 6)
-    }
-
-    private func selectTab(_ tab: PokemonXPanelTab) {
-        panelTab = tab
-        if let stateTab = tab.stateTab { state.selectedTab = stateTab }
-    }
-
-    // MARK: Party tab (live battle party; tap a slot for detail)
-
-    private var partyTab: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let detail = state.selectedPartyDetail {
-                partyDetailView(detail)
-            } else {
-                noLiveDataNote(text: state.isLiveDataAvailable
-                    ? "Live party data — HP, level, held item and ability update as you play. Tap a Pokemon for stats, moves and what it learns next. In battle, HP comes from the live battle read."
-                    : "Your party will appear here once the companion can read the game. No Pokemon are shown yet — nothing here is real data.")
-                ForEach(state.partySlots) { slot in
-                    Button(action: {
-                        if slot.speciesName != nil { state.selectedPartySlotIndex = slot.id }
-                    }) {
-                        HStack {
-                            Text("Slot \(slot.id + 1)")
-                                .font(.headline)
-                            Spacer()
-                            if let name = slot.speciesName {
-                                Text(name)
-                                if let level = slot.level { Text("Lv. \(level)") }
-                                if let hp = slot.currentHP, let max = slot.maxHP {
-                                    Text("HP \(hp)/\(max)")
-                                }
-                            } else if slot.isKnownEmpty {
-                                Text("Empty")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            } else {
-                                Text("No live data yet")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .padding(12)
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .cornerRadius(10)
-                    }
-                    .foregroundColor(.primary)
+                switch card {
+                case .map: mapCard
+                case .battle: battleCard
+                case .guide: guideCard
                 }
             }
         }
-        .padding(12)
+        .background(PokemonXXStyle.panel)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(PokemonXXStyle.blue, lineWidth: 1.5)
+        )
+        .shadow(color: .black.opacity(0.30), radius: 12, x: 0, y: 4)
     }
 
-    /// Tap-for-detail for one party slot (G9a): stats from +0xF6, types,
-    /// moves with PP, next moves to learn. Held item, ability, EXP and
-    /// the field stats (Atk/Def/SpA) are shown from the field read
-    /// (HUNTS-REPORT-2 §2.3 + REPORT-3 §4). IVs/EVs/nature stay unshown
-    /// — the model fields are nil and nothing is invented for them.
-    private func partyDetailView(_ detail: PokemonXPartyDetail) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Button(action: { state.selectedPartySlotIndex = nil }) {
-                Text("‹ Back to party")
-                    .font(.headline)
-                    .foregroundColor(navy)
-            }
-            Text(detail.speciesName)
-                .font(.title3)
-                .fontWeight(.bold)
-            HStack(spacing: 12) {
-                if let level = detail.level { Text("Lv. \(level)") }
-                if let hp = detail.currentHP, let max = detail.maxHP {
-                    Text("HP \(hp)/\(max)")
-                }
-            }
-            .font(.subheadline)
-            if let types = detail.types {
-                Text("Types: \(types.map { $0.capitalized }.joined(separator: ", "))")
-                    .font(.subheadline)
-            }
-            if let stats = detail.stats {
-                Text("Stats (in battle)")
-                    .font(.headline)
-                Text("Atk \(stats.attack) · Def \(stats.defense) · SpA \(stats.specialAttack) · SpD \(stats.specialDefense) · Spe \(stats.speed)")
-                    .font(.subheadline)
-            } else if detail.fieldAttack != nil || detail.fieldDefense != nil || detail.fieldSpecialAttack != nil {
-                Text("Stats (in the field)")
-                    .font(.headline)
-                Text("Atk \(detail.fieldAttack.map(String.init) ?? "—") · Def \(detail.fieldDefense.map(String.init) ?? "—") · SpA \(detail.fieldSpecialAttack.map(String.init) ?? "—")")
-                    .font(.subheadline)
-                Text("Speed and Sp. Def are not shown — their order in the field block is unproven (both 10 at Lv6 for this Chespin).")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            if detail.heldItemName != nil || detail.abilityName != nil || detail.currentExp != nil || detail.status != nil {
-                Text("Field data")
-                    .font(.headline)
-                if let held = detail.heldItemName {
-                    Text("Held item: \(held)")
-                        .font(.subheadline)
-                }
-                if let ability = detail.abilityName {
-                    Text("Ability: \(ability)")
-                        .font(.subheadline)
-                }
-                if let exp = detail.currentExp {
-                    Text("EXP: \(exp)")
-                        .font(.subheadline)
-                }
-                if let status = detail.status {
-                    Text("Status: \(status)")
-                        .font(.subheadline)
-                }
-                if let tid = detail.trainerId, let sid = detail.secretId {
-                    Text("Trainer ID \(tid) · Secret ID \(sid)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            Text("Moves")
-                .font(.headline)
-            ForEach(detail.moves) { move in
-                HStack {
-                    Text(move.name ?? "Move \(move.id + 1)")
-                        .font(.subheadline)
-                    Spacer()
-                    if let pp = move.currentPP, let maxPP = move.maxPP {
-                        Text("PP \(pp)/\(maxPP)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding(.vertical, 2)
-            }
-            if !detail.nextMovesToLearn.isEmpty {
-                Text("Learns next")
-                    .font(.headline)
-                ForEach(detail.nextMovesToLearn, id: \.self) { entry in
-                    Text("Lv. \(entry.level) — \(entry.name.capitalized)")
-                        .font(.subheadline)
-                }
-            }
-            Text("IVs, EVs and nature are unknown — those fields are not yet mapped (G9b/G9c/G9f), so they are not shown. Moves are shown only in battle (they are shuffle-dependent in the field).")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-    }
-
-    // MARK: Bag tab (live pockets; no use/give flows in the field)
-
-    private var bagTab: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            noLiveDataNote(text: state.bagStatus)
-            if state.bagIsLive {
-                ForEach(state.bagPockets) { pocket in
-                    Text(pocket.title)
-                        .font(.headline)
-                    if pocket.entries.isEmpty {
-                        Text("Empty")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(pocket.entries) { entry in
-                            HStack {
-                                Text(entry.resolvedName ?? "Item #\(entry.gameId)")
-                                    .font(.subheadline)
-                                Spacer()
-                                Text("×\(entry.count)")
-                                    .font(.subheadline)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-                Text("Items can't be used or given from here yet — using an item in the field needs the G7 write path, which is not proven. Use the Bag in the game menu.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else {
-                Text("No live bag yet — the bag read needs a live game session. Nothing is shown until the read passes its guard check.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(12)
-    }
-
-    // MARK: Map tab (schematic Kalos; live dot DISABLED — map-id mapping unconfirmed)
+    // MARK: Map card (fallback — the in-game Town Map is blocked)
 
     /// Town coordinates from KALOS-MAP-COORDS.md (normalized 0.0–1.0,
     /// x = east, y = south). Schematic reference positions, not ROM art.
-    private static let kalosTowns: [(name: String, short: String, x: CGFloat, y: CGFloat)] = [
+    static let kalosTowns: [(name: String, short: String, x: CGFloat, y: CGFloat)] = [
         ("Vaniville Town", "VA", 0.30, 0.82),
         ("Aquacorde Town", "AQ", 0.36, 0.76),
         ("Santalune City", "SA", 0.36, 0.60),
@@ -481,7 +745,7 @@ struct PokemonXCompanionView: View {
                     Button(action: { selectedMapTown = town.name }) {
                         HStack(spacing: 2) {
                             Circle()
-                                .fill(isLiveTown(town) ? pink : navy)
+                                .fill(isLiveTown(town) ? PokemonXXStyle.gold : PokemonXXStyle.deepBlue)
                                 .frame(width: isLiveTown(town) ? 11 : 7, height: isLiveTown(town) ? 11 : 7)
                             Text(town.short)
                                 .font(.system(size: 9))
@@ -497,8 +761,9 @@ struct PokemonXCompanionView: View {
         .cornerRadius(10)
     }
 
-    private var mapTab: some View {
+    private var mapCard: some View {
         VStack(alignment: .leading, spacing: 10) {
+            noLiveDataNote(text: "The in-game Town Map opens here for now: the Town Map item is not in your bag yet at this point in the story, so the map button cannot drive the game's own Town Map yet. It will once the item is obtained.")
             noLiveDataNote(text: state.mapStatus)
             kalosMapDrawing
             if let position = state.mapPosition {
@@ -537,103 +802,30 @@ struct PokemonXCompanionView: View {
         .padding(12)
     }
 
-    // MARK: Dex tab (full 721-species Dex + type matchups + locations)
+    // MARK: Battle card (live battle info; sends only during a live battle)
 
-    private var dexTab: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Full Gen 1–6 Pokedex — 721 Pokemon from PokeAPI. Tap one to see its type matchups and where it is found.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            TextField("Search Pokemon", text: $dexSearchText)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-            ForEach(filteredDex) { pokemon in
-                Button(action: {
-                    selectedDexPokemon = (selectedDexPokemon?.id == pokemon.id) ? nil : pokemon
-                }) {
-                    HStack {
-                        Text("#\(pokemon.id) \(pokemon.name.capitalized)")
-                            .font(.subheadline)
-                        Spacer()
-                        ForEach(pokemon.types, id: \.self) { type in
-                            Text(type.capitalized)
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(navy.opacity(0.12))
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-                .foregroundColor(.primary)
-                if selectedDexPokemon?.id == pokemon.id {
-                    typeMatchupView(for: pokemon)
-                }
-                Divider()
-            }
-        }
-        .padding(12)
-    }
-
-    private var filteredDex: [PokemonXStaticPokemon] {
-        let query = dexSearchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return PokemonXCompanionData.pokemon }
-        return PokemonXCompanionData.pokemon.filter {
-            $0.name.lowercased().contains(query) || String($0.id) == query
-        }
-    }
-
-    private func typeMatchupView(for pokemon: PokemonXStaticPokemon) -> some View {
-        let weak = PokemonXCompanionData.weaknesses(of: pokemon.types)
-        let resistant = PokemonXCompanionData.resistances(of: pokemon.types)
-        return VStack(alignment: .leading, spacing: 4) {
-            Text("Weak to: \(weak.isEmpty ? "none" : weak.map { $0.capitalized }.joined(separator: ", "))")
-                .font(.caption)
-            Text("Resistant to: \(resistant.isEmpty ? "none" : resistant.map { $0.capitalized }.joined(separator: ", "))")
-                .font(.caption)
-            if let detail = PokemonXCompanionData.pokemonDetail(id: pokemon.id),
-               !detail.encounterLocations.isEmpty {
-                Text("Found in:")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                ForEach(detail.encounterLocations, id: \.name) { location in
-                    Text(PokemonXCompanionData.displayAreaName(location.name))
-                        .font(.caption)
-                }
-            }
-            Text("Static type chart (PokeAPI). Not live battle data.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .padding(10)
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(8)
-    }
-
-    // MARK: Battle tab (live battle + sends via PokemonXTouchSender only)
-
-    private var battleTab: some View {
+    private var battleCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if state.isLiveDataAvailable {
-                if let foe = state.enemyActive {
-                    HStack {
-                        Text("Opponent")
-                            .font(.headline)
-                        Spacer()
-                        if let name = foe.speciesName { Text(name) }
-                        if let level = foe.level { Text("Lv. \(level)") }
-                        if let hp = foe.currentHP, let max = foe.maxHP {
-                            Text("HP \(hp)/\(max)")
-                        }
+            // Guarded on enemyActive, not just isLiveDataAvailable: the
+            // field party read makes isLiveDataAvailable true outside
+            // battle, and a FIGHT tap sent to the field bottom screen
+            // (PSS) would be a live-but-wrong send. The card is closed
+            // automatically when a battle starts, so this live branch is
+            // for a battle that began while the card was already open.
+            if let foe = state.enemyActive {
+                HStack {
+                    Text("Opponent")
+                        .font(.headline)
+                    Spacer()
+                    if let name = foe.speciesName { Text(name) }
+                    if let level = foe.level { Text("Lv. \(level)") }
+                    if let hp = foe.currentHP, let max = foe.maxHP {
+                        Text("HP \(hp)/\(max)")
                     }
-                    .padding(12)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(10)
-                } else {
-                    Text("Opponent: no live data yet")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
+                .padding(12)
+                .background(PokemonXXStyle.lightBlue)
+                .cornerRadius(10)
                 Text("Foe team")
                     .font(.headline)
                 ForEach(Array(state.enemyTeam.enumerated()), id: \.offset) { index, slot in
@@ -662,8 +854,7 @@ struct PokemonXCompanionView: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
                 }
-                // Four move slots, 2 x 2, like the bottom-screen move list —
-                // but drawn here, in the panel, so battles stay top-only.
+                // Four move slots, 2 x 2, like the bottom-screen move list.
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                     ForEach(state.battleMoves) { slot in
                         moveButton(for: slot)
@@ -699,7 +890,7 @@ struct PokemonXCompanionView: View {
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
-                                .background(pink.opacity(0.35))
+                                .background(PokemonXXStyle.gold.opacity(0.35))
                                 .cornerRadius(10)
                         }
                         if let note = lastBallNote {
@@ -743,9 +934,14 @@ struct PokemonXCompanionView: View {
 
     private func moveButton(for slot: PokemonXBattleMoveSlot) -> some View {
         // Slot 3 (id 3) has NO measured centre — disabled with honest text.
-        // Never send a guessed point for it.
+        // Never send a guessed point for it. Also disabled outside a live
+        // battle (see battleCard) so no tap ever goes to the field screen.
         let isSlot3 = slot.id == 3
-        return Button(action: { sendMove(slot: slot) }) {
+        let inBattle = state.enemyActive != nil
+        return Button(action: {
+            guard inBattle else { return }
+            PokemonXTouchSender.sendMove(slotId: slot.id)
+        }) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(slot.name ?? "Move \(slot.id + 1)")
                     .font(.headline)
@@ -777,10 +973,10 @@ struct PokemonXCompanionView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
-            .background(state.bestMoveIndex == slot.id ? pink.opacity(0.55) : pink.opacity(0.25))
+            .background(state.bestMoveIndex == slot.id ? PokemonXXStyle.gold.opacity(0.35) : PokemonXXStyle.lightBlue)
             .cornerRadius(10)
         }
-        .disabled(isSlot3 || slot.name == nil)
+        .disabled(isSlot3 || slot.name == nil || !inBattle)
     }
 
     private func battleActionButton(title: String, point: CGPoint) -> some View {
@@ -789,28 +985,10 @@ struct PokemonXCompanionView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(navy.opacity(0.15))
+                .background(PokemonXXStyle.blue.opacity(0.12))
                 .cornerRadius(10)
         }
-        .disabled(!state.isLiveDataAvailable)
-    }
-
-    /// Chained send: FIGHT first so the game opens the move list, then the
-    /// move-slot point after ~1s (after the 0.7s FIGHT hold has released).
-    /// Slot 3 is guarded out — the button is disabled, so this should never
-    /// run for it, but no guessed point is ever sent.
-    private func sendMove(slot: PokemonXBattleMoveSlot) {
-        guard slot.name != nil, slot.id >= 0, slot.id < 3 else { return }
-        let movePoints: [CGPoint] = [
-            PokemonXTouchSender.Battle.tackle,
-            PokemonXTouchSender.Battle.growl,
-            PokemonXTouchSender.Battle.vineWhip,
-        ]
-        PokemonXTouchSender.send(point: PokemonXTouchSender.Battle.fight)
-        let point = movePoints[slot.id]
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            PokemonXTouchSender.send(point: point)
-        }
+        .disabled(state.enemyActive == nil)
     }
 
     /// The last ball is offered ONLY when lastBallGameId != nil, the foe
@@ -837,9 +1015,9 @@ struct PokemonXCompanionView: View {
         state.recordLastBall(gameId: gameId)
     }
 
-    // MARK: Guide tab (static bosses + STUCK? + live area encounters)
+    // MARK: Guide card (static bosses + STUCK? + live area encounters)
 
-    private var guideTab: some View {
+    private var guideCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             if !state.guideAreaEncounters.isEmpty {
                 Text("What's in this area — \(state.mapAreaLabel)")
@@ -897,7 +1075,7 @@ struct PokemonXCompanionView: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(PokemonXXStyle.lightBlue)
         .cornerRadius(8)
     }
 
@@ -912,149 +1090,6 @@ struct PokemonXCompanionView: View {
         return parts.joined(separator: " · ")
     }
 
-    // MARK: Nuzlocke tab (runs, manual catch log, honest faint limits)
-
-    private var nuzlockeTab: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Faints are detected from battle HP. A faint outside battle needs the field party read (G1) — not detected yet.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            if let run = state.activeNuzlockeRun {
-                Text("Active run: \(run.name)")
-                    .font(.headline)
-                Text("Catches: \(run.catches.count) · Deaths: \(run.deaths.count)")
-                    .font(.subheadline)
-                TextField("Species caught", text: $catchSpecies)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                TextField("Area (e.g. Aquacorde Town)", text: $catchArea)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                Button(action: {
-                    let species = catchSpecies.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let area = catchArea.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !species.isEmpty, !area.isEmpty else { return }
-                    state.recordNuzlockeCatch(speciesName: species, areaLabel: area)
-                    catchSpecies = ""
-                    catchArea = ""
-                }) {
-                    Text("Log catch")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(navy.opacity(0.15))
-                        .cornerRadius(10)
-                }
-                Text("One catch per area — a second catch in the same area is not recorded.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                if !run.catches.isEmpty {
-                    Text("Catches")
-                        .font(.headline)
-                    ForEach(run.catches) { caught in
-                        HStack {
-                            Text(caught.speciesName)
-                                .font(.subheadline)
-                            Spacer()
-                            Text(caught.areaLabel)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.vertical, 2)
-                    }
-                }
-                if !run.deaths.isEmpty {
-                    Text("Deaths")
-                        .font(.headline)
-                    ForEach(run.deaths) { death in
-                        HStack {
-                            Text(death.speciesName)
-                                .font(.subheadline)
-                            if let level = death.level { Text("Lv. \(level)") }
-                            Spacer()
-                            Text(death.areaLabel)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.vertical, 2)
-                    }
-                }
-                Button(action: { state.endNuzlockeRun() }) {
-                    Text("End run")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color.red.opacity(0.12))
-                        .foregroundColor(.red)
-                        .cornerRadius(10)
-                }
-            } else {
-                TextField("Run name", text: $newRunName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                Button(action: {
-                    let name = newRunName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !name.isEmpty else { return }
-                    state.startNuzlockeRun(name: name)
-                    newRunName = ""
-                }) {
-                    Text("Start run")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(navy.opacity(0.15))
-                        .cornerRadius(10)
-                }
-                Text("No active run. Start one to log catches and deaths.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            if !state.nuzlockeRuns.isEmpty {
-                Text("All runs")
-                    .font(.headline)
-                ForEach(state.nuzlockeRuns) { run in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(run.name + (run.isActive ? " (active)" : ""))
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        Text("Catches \(run.catches.count) · Deaths \(run.deaths.count)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                }
-            }
-        }
-        .padding(12)
-    }
-
-    // MARK: Card tab (honest all-unknown placeholder)
-
-    private var cardTab: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            noLiveDataNote(text: PokemonXTrainerCard.unavailableNote)
-            cardRow(label: "Player name", value: state.trainerCard.playerName)
-            cardRow(label: "Trainer ID", value: state.trainerCard.trainerID)
-            cardRow(label: "Money", value: state.trainerCard.money.map { "\($0)" })
-            cardRow(label: "Play time", value: state.trainerCard.playTimeMinutes.map { "\($0) min" })
-            cardRow(label: "Badges", value: state.trainerCard.badges.map { "\($0)" })
-            cardRow(label: "Dex seen", value: state.trainerCard.dexSeen.map { "\($0)" })
-            cardRow(label: "Dex caught", value: state.trainerCard.dexCaught.map { "\($0)" })
-        }
-        .padding(12)
-    }
-
-    private func cardRow(label: String, value: String?) -> some View {
-        HStack {
-            Text(label)
-                .font(.subheadline)
-            Spacer()
-            Text(value ?? "unknown")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .padding(10)
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(8)
-    }
-
     // MARK: Shared bits
 
     private func noLiveDataNote(text: String) -> some View {
@@ -1062,15 +1097,133 @@ struct PokemonXCompanionView: View {
             .font(.caption)
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.yellow.opacity(0.18))
+            .background(PokemonXXStyle.lightBlue)
             .cornerRadius(8)
     }
+}
 
-    private var multiInputFooter: some View {
-        Text("Controller: keep playing with your GameSir — it still drives the game. Touch: tap here in the companion. On-screen controls stay hidden.")
-            .font(.caption)
-            .foregroundColor(.secondary)
-            .padding(12)
+// MARK: - Sprites (real PokeAPI X/Y sprites, cached)
+
+/// Loads one Pokemon sprite from PokeAPI (the X/Y sprite set first,
+/// then the default front sprite), cached in memory + on disk. Shows
+/// nothing until the load succeeds — the caller draws a Pokeball
+/// placeholder meanwhile.
+private final class PokemonXSpriteLoader: ObservableObject {
+    @Published var image: UIImage?
+    private static let memoryCache = NSCache<NSNumber, UIImage>()
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.urlCache = URLCache(memoryCapacity: 20 * 1024 * 1024,
+                                   diskCapacity: 100 * 1024 * 1024,
+                                   diskPath: "pokemon-x-sprites")
+        return URLSession(configuration: config)
+    }()
+
+    func load(id: Int) {
+        if let cached = Self.memoryCache.object(forKey: NSNumber(value: id)) {
+            image = cached
+            return
+        }
+        let xyURL = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/x-y/\(id).png")!
+        let fallbackURL = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(id).png")!
+        Self.session.dataTask(with: xyURL) { [weak self] data, _, _ in
+            if let data, let loaded = UIImage(data: data) {
+                self?.finish(id: id, image: loaded)
+            } else {
+                Self.session.dataTask(with: fallbackURL) { [weak self] fallbackData, _, _ in
+                    guard let fallbackData, let loaded = UIImage(data: fallbackData) else { return }
+                    self?.finish(id: id, image: loaded)
+                }.resume()
+            }
+        }.resume()
+    }
+
+    private func finish(id: Int, image: UIImage) {
+        Self.memoryCache.setObject(image, forKey: NSNumber(value: id))
+        DispatchQueue.main.async { [weak self] in
+            self?.image = image
+        }
+    }
+}
+
+/// A Pokemon sprite by Dex id, or a Pokeball placeholder while it loads
+/// / when there is no Pokemon yet. Nearest-neighbour scaling keeps the
+/// pixel art crisp.
+struct PokemonXSpriteView: View {
+    let speciesId: Int?
+    @StateObject private var loader = PokemonXSpriteLoader()
+
+    var body: some View {
+        Group {
+            if let image = loader.image {
+                Image(uiImage: image)
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFit()
+            } else {
+                PokemonXPokeballGlyph()
+            }
+        }
+        .onAppear {
+            if let id = speciesId { loader.load(id: id) }
+        }
+        .onChange(of: speciesId) { id in
+            loader.image = nil
+            if let id { loader.load(id: id) }
+        }
+    }
+}
+
+/// Simple Pokeball glyph (red top, white bottom, black band + button).
+struct PokemonXPokeballGlyph: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+            Circle()
+                .fill(Color(red: 0.90, green: 0.20, blue: 0.20))
+                .mask(
+                    VStack(spacing: 0) {
+                        Rectangle()
+                        Spacer()
+                    }
+                )
+            Rectangle()
+                .fill(Color.black)
+                .frame(height: 3)
+            Circle()
+                .fill(Color.white)
+                .frame(width: 12, height: 12)
+                .overlay(Circle().stroke(Color.black, lineWidth: 2))
+        }
+        .clipShape(Circle())
+    }
+}
+
+/// Simple backpack glyph for the BAG button (brown body, top handle,
+/// front pocket, clasp) — the bag icon from the game's own menu.
+struct PokemonXBagGlyph: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(red: 0.55, green: 0.35, blue: 0.15))
+                .frame(width: 16, height: 14)
+                .offset(y: 2)
+            Path { path in
+                path.move(to: CGPoint(x: 5, y: 7))
+                path.addQuadCurve(to: CGPoint(x: 13, y: 7), control: CGPoint(x: 9, y: 0))
+            }
+            .stroke(Color(red: 0.55, green: 0.35, blue: 0.15), lineWidth: 2.5)
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color(red: 0.72, green: 0.50, blue: 0.25))
+                .frame(width: 10, height: 7)
+                .offset(y: 5)
+            Circle()
+                .fill(Color(red: 0.95, green: 0.80, blue: 0.30))
+                .frame(width: 3, height: 3)
+                .offset(y: 2)
+        }
+        .frame(width: 18, height: 18)
     }
 }
 
