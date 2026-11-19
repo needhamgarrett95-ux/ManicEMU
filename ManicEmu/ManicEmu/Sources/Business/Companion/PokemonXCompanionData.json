@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18",
+ "generated": "2026-11-19",
  "moves": [
   {
    "accuracy": 100,
@@ -202,8 +202,5509 @@
    "url": "https://pokeapi.co/api/v2/move/93/"
   }
  ],
- "note": "Static reference data only. No live game data. Pokemon list is a small early-game Gen 6 sample, not a full Pokedex.",
+ "note": "Static reference data only. No live game data. Full Gen 1-6 Pokedex (721 species) from PokeAPI.",
  "pokemon": [
+  {
+   "id": 1,
+   "name": "bulbasaur",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/1/"
+  },
+  {
+   "id": 2,
+   "name": "ivysaur",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/2/"
+  },
+  {
+   "id": 3,
+   "name": "venusaur",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/3/"
+  },
+  {
+   "id": 4,
+   "name": "charmander",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/4/"
+  },
+  {
+   "id": 5,
+   "name": "charmeleon",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/5/"
+  },
+  {
+   "id": 6,
+   "name": "charizard",
+   "types": [
+    "fire",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/6/"
+  },
+  {
+   "id": 7,
+   "name": "squirtle",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/7/"
+  },
+  {
+   "id": 8,
+   "name": "wartortle",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/8/"
+  },
+  {
+   "id": 9,
+   "name": "blastoise",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/9/"
+  },
+  {
+   "id": 10,
+   "name": "caterpie",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/10/"
+  },
+  {
+   "id": 11,
+   "name": "metapod",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/11/"
+  },
+  {
+   "id": 12,
+   "name": "butterfree",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/12/"
+  },
+  {
+   "id": 13,
+   "name": "weedle",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/13/"
+  },
+  {
+   "id": 14,
+   "name": "kakuna",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/14/"
+  },
+  {
+   "id": 15,
+   "name": "beedrill",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/15/"
+  },
+  {
+   "id": 16,
+   "name": "pidgey",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/16/"
+  },
+  {
+   "id": 17,
+   "name": "pidgeotto",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/17/"
+  },
+  {
+   "id": 18,
+   "name": "pidgeot",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/18/"
+  },
+  {
+   "id": 19,
+   "name": "rattata",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/19/"
+  },
+  {
+   "id": 20,
+   "name": "raticate",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/20/"
+  },
+  {
+   "id": 21,
+   "name": "spearow",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/21/"
+  },
+  {
+   "id": 22,
+   "name": "fearow",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/22/"
+  },
+  {
+   "id": 23,
+   "name": "ekans",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/23/"
+  },
+  {
+   "id": 24,
+   "name": "arbok",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/24/"
+  },
+  {
+   "id": 25,
+   "name": "pikachu",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/25/"
+  },
+  {
+   "id": 26,
+   "name": "raichu",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/26/"
+  },
+  {
+   "id": 27,
+   "name": "sandshrew",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/27/"
+  },
+  {
+   "id": 28,
+   "name": "sandslash",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/28/"
+  },
+  {
+   "id": 29,
+   "name": "nidoran-f",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/29/"
+  },
+  {
+   "id": 30,
+   "name": "nidorina",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/30/"
+  },
+  {
+   "id": 31,
+   "name": "nidoqueen",
+   "types": [
+    "poison",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/31/"
+  },
+  {
+   "id": 32,
+   "name": "nidoran-m",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/32/"
+  },
+  {
+   "id": 33,
+   "name": "nidorino",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/33/"
+  },
+  {
+   "id": 34,
+   "name": "nidoking",
+   "types": [
+    "poison",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/34/"
+  },
+  {
+   "id": 35,
+   "name": "clefairy",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/35/"
+  },
+  {
+   "id": 36,
+   "name": "clefable",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/36/"
+  },
+  {
+   "id": 37,
+   "name": "vulpix",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/37/"
+  },
+  {
+   "id": 38,
+   "name": "ninetales",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/38/"
+  },
+  {
+   "id": 39,
+   "name": "jigglypuff",
+   "types": [
+    "normal",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/39/"
+  },
+  {
+   "id": 40,
+   "name": "wigglytuff",
+   "types": [
+    "normal",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/40/"
+  },
+  {
+   "id": 41,
+   "name": "zubat",
+   "types": [
+    "poison",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/41/"
+  },
+  {
+   "id": 42,
+   "name": "golbat",
+   "types": [
+    "poison",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/42/"
+  },
+  {
+   "id": 43,
+   "name": "oddish",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/43/"
+  },
+  {
+   "id": 44,
+   "name": "gloom",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/44/"
+  },
+  {
+   "id": 45,
+   "name": "vileplume",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/45/"
+  },
+  {
+   "id": 46,
+   "name": "paras",
+   "types": [
+    "bug",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/46/"
+  },
+  {
+   "id": 47,
+   "name": "parasect",
+   "types": [
+    "bug",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/47/"
+  },
+  {
+   "id": 48,
+   "name": "venonat",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/48/"
+  },
+  {
+   "id": 49,
+   "name": "venomoth",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/49/"
+  },
+  {
+   "id": 50,
+   "name": "diglett",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/50/"
+  },
+  {
+   "id": 51,
+   "name": "dugtrio",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/51/"
+  },
+  {
+   "id": 52,
+   "name": "meowth",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/52/"
+  },
+  {
+   "id": 53,
+   "name": "persian",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/53/"
+  },
+  {
+   "id": 54,
+   "name": "psyduck",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/54/"
+  },
+  {
+   "id": 55,
+   "name": "golduck",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/55/"
+  },
+  {
+   "id": 56,
+   "name": "mankey",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/56/"
+  },
+  {
+   "id": 57,
+   "name": "primeape",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/57/"
+  },
+  {
+   "id": 58,
+   "name": "growlithe",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/58/"
+  },
+  {
+   "id": 59,
+   "name": "arcanine",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/59/"
+  },
+  {
+   "id": 60,
+   "name": "poliwag",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/60/"
+  },
+  {
+   "id": 61,
+   "name": "poliwhirl",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/61/"
+  },
+  {
+   "id": 62,
+   "name": "poliwrath",
+   "types": [
+    "water",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/62/"
+  },
+  {
+   "id": 63,
+   "name": "abra",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/63/"
+  },
+  {
+   "id": 64,
+   "name": "kadabra",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/64/"
+  },
+  {
+   "id": 65,
+   "name": "alakazam",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/65/"
+  },
+  {
+   "id": 66,
+   "name": "machop",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/66/"
+  },
+  {
+   "id": 67,
+   "name": "machoke",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/67/"
+  },
+  {
+   "id": 68,
+   "name": "machamp",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/68/"
+  },
+  {
+   "id": 69,
+   "name": "bellsprout",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/69/"
+  },
+  {
+   "id": 70,
+   "name": "weepinbell",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/70/"
+  },
+  {
+   "id": 71,
+   "name": "victreebel",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/71/"
+  },
+  {
+   "id": 72,
+   "name": "tentacool",
+   "types": [
+    "water",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/72/"
+  },
+  {
+   "id": 73,
+   "name": "tentacruel",
+   "types": [
+    "water",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/73/"
+  },
+  {
+   "id": 74,
+   "name": "geodude",
+   "types": [
+    "rock",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/74/"
+  },
+  {
+   "id": 75,
+   "name": "graveler",
+   "types": [
+    "rock",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/75/"
+  },
+  {
+   "id": 76,
+   "name": "golem",
+   "types": [
+    "rock",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/76/"
+  },
+  {
+   "id": 77,
+   "name": "ponyta",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/77/"
+  },
+  {
+   "id": 78,
+   "name": "rapidash",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/78/"
+  },
+  {
+   "id": 79,
+   "name": "slowpoke",
+   "types": [
+    "water",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/79/"
+  },
+  {
+   "id": 80,
+   "name": "slowbro",
+   "types": [
+    "water",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/80/"
+  },
+  {
+   "id": 81,
+   "name": "magnemite",
+   "types": [
+    "electric",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/81/"
+  },
+  {
+   "id": 82,
+   "name": "magneton",
+   "types": [
+    "electric",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/82/"
+  },
+  {
+   "id": 83,
+   "name": "farfetchd",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/83/"
+  },
+  {
+   "id": 84,
+   "name": "doduo",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/84/"
+  },
+  {
+   "id": 85,
+   "name": "dodrio",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/85/"
+  },
+  {
+   "id": 86,
+   "name": "seel",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/86/"
+  },
+  {
+   "id": 87,
+   "name": "dewgong",
+   "types": [
+    "water",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/87/"
+  },
+  {
+   "id": 88,
+   "name": "grimer",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/88/"
+  },
+  {
+   "id": 89,
+   "name": "muk",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/89/"
+  },
+  {
+   "id": 90,
+   "name": "shellder",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/90/"
+  },
+  {
+   "id": 91,
+   "name": "cloyster",
+   "types": [
+    "water",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/91/"
+  },
+  {
+   "id": 92,
+   "name": "gastly",
+   "types": [
+    "ghost",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/92/"
+  },
+  {
+   "id": 93,
+   "name": "haunter",
+   "types": [
+    "ghost",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/93/"
+  },
+  {
+   "id": 94,
+   "name": "gengar",
+   "types": [
+    "ghost",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/94/"
+  },
+  {
+   "id": 95,
+   "name": "onix",
+   "types": [
+    "rock",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/95/"
+  },
+  {
+   "id": 96,
+   "name": "drowzee",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/96/"
+  },
+  {
+   "id": 97,
+   "name": "hypno",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/97/"
+  },
+  {
+   "id": 98,
+   "name": "krabby",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/98/"
+  },
+  {
+   "id": 99,
+   "name": "kingler",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/99/"
+  },
+  {
+   "id": 100,
+   "name": "voltorb",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/100/"
+  },
+  {
+   "id": 101,
+   "name": "electrode",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/101/"
+  },
+  {
+   "id": 102,
+   "name": "exeggcute",
+   "types": [
+    "grass",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/102/"
+  },
+  {
+   "id": 103,
+   "name": "exeggutor",
+   "types": [
+    "grass",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/103/"
+  },
+  {
+   "id": 104,
+   "name": "cubone",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/104/"
+  },
+  {
+   "id": 105,
+   "name": "marowak",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/105/"
+  },
+  {
+   "id": 106,
+   "name": "hitmonlee",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/106/"
+  },
+  {
+   "id": 107,
+   "name": "hitmonchan",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/107/"
+  },
+  {
+   "id": 108,
+   "name": "lickitung",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/108/"
+  },
+  {
+   "id": 109,
+   "name": "koffing",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/109/"
+  },
+  {
+   "id": 110,
+   "name": "weezing",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/110/"
+  },
+  {
+   "id": 111,
+   "name": "rhyhorn",
+   "types": [
+    "ground",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/111/"
+  },
+  {
+   "id": 112,
+   "name": "rhydon",
+   "types": [
+    "ground",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/112/"
+  },
+  {
+   "id": 113,
+   "name": "chansey",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/113/"
+  },
+  {
+   "id": 114,
+   "name": "tangela",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/114/"
+  },
+  {
+   "id": 115,
+   "name": "kangaskhan",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/115/"
+  },
+  {
+   "id": 116,
+   "name": "horsea",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/116/"
+  },
+  {
+   "id": 117,
+   "name": "seadra",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/117/"
+  },
+  {
+   "id": 118,
+   "name": "goldeen",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/118/"
+  },
+  {
+   "id": 119,
+   "name": "seaking",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/119/"
+  },
+  {
+   "id": 120,
+   "name": "staryu",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/120/"
+  },
+  {
+   "id": 121,
+   "name": "starmie",
+   "types": [
+    "water",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/121/"
+  },
+  {
+   "id": 122,
+   "name": "mr-mime",
+   "types": [
+    "psychic",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/122/"
+  },
+  {
+   "id": 123,
+   "name": "scyther",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/123/"
+  },
+  {
+   "id": 124,
+   "name": "jynx",
+   "types": [
+    "ice",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/124/"
+  },
+  {
+   "id": 125,
+   "name": "electabuzz",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/125/"
+  },
+  {
+   "id": 126,
+   "name": "magmar",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/126/"
+  },
+  {
+   "id": 127,
+   "name": "pinsir",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/127/"
+  },
+  {
+   "id": 128,
+   "name": "tauros",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/128/"
+  },
+  {
+   "id": 129,
+   "name": "magikarp",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/129/"
+  },
+  {
+   "id": 130,
+   "name": "gyarados",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/130/"
+  },
+  {
+   "id": 131,
+   "name": "lapras",
+   "types": [
+    "water",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/131/"
+  },
+  {
+   "id": 132,
+   "name": "ditto",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/132/"
+  },
+  {
+   "id": 133,
+   "name": "eevee",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/133/"
+  },
+  {
+   "id": 134,
+   "name": "vaporeon",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/134/"
+  },
+  {
+   "id": 135,
+   "name": "jolteon",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/135/"
+  },
+  {
+   "id": 136,
+   "name": "flareon",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/136/"
+  },
+  {
+   "id": 137,
+   "name": "porygon",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/137/"
+  },
+  {
+   "id": 138,
+   "name": "omanyte",
+   "types": [
+    "rock",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/138/"
+  },
+  {
+   "id": 139,
+   "name": "omastar",
+   "types": [
+    "rock",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/139/"
+  },
+  {
+   "id": 140,
+   "name": "kabuto",
+   "types": [
+    "rock",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/140/"
+  },
+  {
+   "id": 141,
+   "name": "kabutops",
+   "types": [
+    "rock",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/141/"
+  },
+  {
+   "id": 142,
+   "name": "aerodactyl",
+   "types": [
+    "rock",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/142/"
+  },
+  {
+   "id": 143,
+   "name": "snorlax",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/143/"
+  },
+  {
+   "id": 144,
+   "name": "articuno",
+   "types": [
+    "ice",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/144/"
+  },
+  {
+   "id": 145,
+   "name": "zapdos",
+   "types": [
+    "electric",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/145/"
+  },
+  {
+   "id": 146,
+   "name": "moltres",
+   "types": [
+    "fire",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/146/"
+  },
+  {
+   "id": 147,
+   "name": "dratini",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/147/"
+  },
+  {
+   "id": 148,
+   "name": "dragonair",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/148/"
+  },
+  {
+   "id": 149,
+   "name": "dragonite",
+   "types": [
+    "dragon",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/149/"
+  },
+  {
+   "id": 150,
+   "name": "mewtwo",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/150/"
+  },
+  {
+   "id": 151,
+   "name": "mew",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/151/"
+  },
+  {
+   "id": 152,
+   "name": "chikorita",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/152/"
+  },
+  {
+   "id": 153,
+   "name": "bayleef",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/153/"
+  },
+  {
+   "id": 154,
+   "name": "meganium",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/154/"
+  },
+  {
+   "id": 155,
+   "name": "cyndaquil",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/155/"
+  },
+  {
+   "id": 156,
+   "name": "quilava",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/156/"
+  },
+  {
+   "id": 157,
+   "name": "typhlosion",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/157/"
+  },
+  {
+   "id": 158,
+   "name": "totodile",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/158/"
+  },
+  {
+   "id": 159,
+   "name": "croconaw",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/159/"
+  },
+  {
+   "id": 160,
+   "name": "feraligatr",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/160/"
+  },
+  {
+   "id": 161,
+   "name": "sentret",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/161/"
+  },
+  {
+   "id": 162,
+   "name": "furret",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/162/"
+  },
+  {
+   "id": 163,
+   "name": "hoothoot",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/163/"
+  },
+  {
+   "id": 164,
+   "name": "noctowl",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/164/"
+  },
+  {
+   "id": 165,
+   "name": "ledyba",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/165/"
+  },
+  {
+   "id": 166,
+   "name": "ledian",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/166/"
+  },
+  {
+   "id": 167,
+   "name": "spinarak",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/167/"
+  },
+  {
+   "id": 168,
+   "name": "ariados",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/168/"
+  },
+  {
+   "id": 169,
+   "name": "crobat",
+   "types": [
+    "poison",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/169/"
+  },
+  {
+   "id": 170,
+   "name": "chinchou",
+   "types": [
+    "water",
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/170/"
+  },
+  {
+   "id": 171,
+   "name": "lanturn",
+   "types": [
+    "water",
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/171/"
+  },
+  {
+   "id": 172,
+   "name": "pichu",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/172/"
+  },
+  {
+   "id": 173,
+   "name": "cleffa",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/173/"
+  },
+  {
+   "id": 174,
+   "name": "igglybuff",
+   "types": [
+    "normal",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/174/"
+  },
+  {
+   "id": 175,
+   "name": "togepi",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/175/"
+  },
+  {
+   "id": 176,
+   "name": "togetic",
+   "types": [
+    "fairy",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/176/"
+  },
+  {
+   "id": 177,
+   "name": "natu",
+   "types": [
+    "psychic",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/177/"
+  },
+  {
+   "id": 178,
+   "name": "xatu",
+   "types": [
+    "psychic",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/178/"
+  },
+  {
+   "id": 179,
+   "name": "mareep",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/179/"
+  },
+  {
+   "id": 180,
+   "name": "flaaffy",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/180/"
+  },
+  {
+   "id": 181,
+   "name": "ampharos",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/181/"
+  },
+  {
+   "id": 182,
+   "name": "bellossom",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/182/"
+  },
+  {
+   "id": 183,
+   "name": "marill",
+   "types": [
+    "water",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/183/"
+  },
+  {
+   "id": 184,
+   "name": "azumarill",
+   "types": [
+    "water",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/184/"
+  },
+  {
+   "id": 185,
+   "name": "sudowoodo",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/185/"
+  },
+  {
+   "id": 186,
+   "name": "politoed",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/186/"
+  },
+  {
+   "id": 187,
+   "name": "hoppip",
+   "types": [
+    "grass",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/187/"
+  },
+  {
+   "id": 188,
+   "name": "skiploom",
+   "types": [
+    "grass",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/188/"
+  },
+  {
+   "id": 189,
+   "name": "jumpluff",
+   "types": [
+    "grass",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/189/"
+  },
+  {
+   "id": 190,
+   "name": "aipom",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/190/"
+  },
+  {
+   "id": 191,
+   "name": "sunkern",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/191/"
+  },
+  {
+   "id": 192,
+   "name": "sunflora",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/192/"
+  },
+  {
+   "id": 193,
+   "name": "yanma",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/193/"
+  },
+  {
+   "id": 194,
+   "name": "wooper",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/194/"
+  },
+  {
+   "id": 195,
+   "name": "quagsire",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/195/"
+  },
+  {
+   "id": 196,
+   "name": "espeon",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/196/"
+  },
+  {
+   "id": 197,
+   "name": "umbreon",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/197/"
+  },
+  {
+   "id": 198,
+   "name": "murkrow",
+   "types": [
+    "dark",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/198/"
+  },
+  {
+   "id": 199,
+   "name": "slowking",
+   "types": [
+    "water",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/199/"
+  },
+  {
+   "id": 200,
+   "name": "misdreavus",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/200/"
+  },
+  {
+   "id": 201,
+   "name": "unown",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/201/"
+  },
+  {
+   "id": 202,
+   "name": "wobbuffet",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/202/"
+  },
+  {
+   "id": 203,
+   "name": "girafarig",
+   "types": [
+    "normal",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/203/"
+  },
+  {
+   "id": 204,
+   "name": "pineco",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/204/"
+  },
+  {
+   "id": 205,
+   "name": "forretress",
+   "types": [
+    "bug",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/205/"
+  },
+  {
+   "id": 206,
+   "name": "dunsparce",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/206/"
+  },
+  {
+   "id": 207,
+   "name": "gligar",
+   "types": [
+    "ground",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/207/"
+  },
+  {
+   "id": 208,
+   "name": "steelix",
+   "types": [
+    "steel",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/208/"
+  },
+  {
+   "id": 209,
+   "name": "snubbull",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/209/"
+  },
+  {
+   "id": 210,
+   "name": "granbull",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/210/"
+  },
+  {
+   "id": 211,
+   "name": "qwilfish",
+   "types": [
+    "water",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/211/"
+  },
+  {
+   "id": 212,
+   "name": "scizor",
+   "types": [
+    "bug",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/212/"
+  },
+  {
+   "id": 213,
+   "name": "shuckle",
+   "types": [
+    "bug",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/213/"
+  },
+  {
+   "id": 214,
+   "name": "heracross",
+   "types": [
+    "bug",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/214/"
+  },
+  {
+   "id": 215,
+   "name": "sneasel",
+   "types": [
+    "dark",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/215/"
+  },
+  {
+   "id": 216,
+   "name": "teddiursa",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/216/"
+  },
+  {
+   "id": 217,
+   "name": "ursaring",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/217/"
+  },
+  {
+   "id": 218,
+   "name": "slugma",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/218/"
+  },
+  {
+   "id": 219,
+   "name": "magcargo",
+   "types": [
+    "fire",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/219/"
+  },
+  {
+   "id": 220,
+   "name": "swinub",
+   "types": [
+    "ice",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/220/"
+  },
+  {
+   "id": 221,
+   "name": "piloswine",
+   "types": [
+    "ice",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/221/"
+  },
+  {
+   "id": 222,
+   "name": "corsola",
+   "types": [
+    "water",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/222/"
+  },
+  {
+   "id": 223,
+   "name": "remoraid",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/223/"
+  },
+  {
+   "id": 224,
+   "name": "octillery",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/224/"
+  },
+  {
+   "id": 225,
+   "name": "delibird",
+   "types": [
+    "ice",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/225/"
+  },
+  {
+   "id": 226,
+   "name": "mantine",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/226/"
+  },
+  {
+   "id": 227,
+   "name": "skarmory",
+   "types": [
+    "steel",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/227/"
+  },
+  {
+   "id": 228,
+   "name": "houndour",
+   "types": [
+    "dark",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/228/"
+  },
+  {
+   "id": 229,
+   "name": "houndoom",
+   "types": [
+    "dark",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/229/"
+  },
+  {
+   "id": 230,
+   "name": "kingdra",
+   "types": [
+    "water",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/230/"
+  },
+  {
+   "id": 231,
+   "name": "phanpy",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/231/"
+  },
+  {
+   "id": 232,
+   "name": "donphan",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/232/"
+  },
+  {
+   "id": 233,
+   "name": "porygon2",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/233/"
+  },
+  {
+   "id": 234,
+   "name": "stantler",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/234/"
+  },
+  {
+   "id": 235,
+   "name": "smeargle",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/235/"
+  },
+  {
+   "id": 236,
+   "name": "tyrogue",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/236/"
+  },
+  {
+   "id": 237,
+   "name": "hitmontop",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/237/"
+  },
+  {
+   "id": 238,
+   "name": "smoochum",
+   "types": [
+    "ice",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/238/"
+  },
+  {
+   "id": 239,
+   "name": "elekid",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/239/"
+  },
+  {
+   "id": 240,
+   "name": "magby",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/240/"
+  },
+  {
+   "id": 241,
+   "name": "miltank",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/241/"
+  },
+  {
+   "id": 242,
+   "name": "blissey",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/242/"
+  },
+  {
+   "id": 243,
+   "name": "raikou",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/243/"
+  },
+  {
+   "id": 244,
+   "name": "entei",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/244/"
+  },
+  {
+   "id": 245,
+   "name": "suicune",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/245/"
+  },
+  {
+   "id": 246,
+   "name": "larvitar",
+   "types": [
+    "rock",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/246/"
+  },
+  {
+   "id": 247,
+   "name": "pupitar",
+   "types": [
+    "rock",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/247/"
+  },
+  {
+   "id": 248,
+   "name": "tyranitar",
+   "types": [
+    "rock",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/248/"
+  },
+  {
+   "id": 249,
+   "name": "lugia",
+   "types": [
+    "psychic",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/249/"
+  },
+  {
+   "id": 250,
+   "name": "ho-oh",
+   "types": [
+    "fire",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/250/"
+  },
+  {
+   "id": 251,
+   "name": "celebi",
+   "types": [
+    "psychic",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/251/"
+  },
+  {
+   "id": 252,
+   "name": "treecko",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/252/"
+  },
+  {
+   "id": 253,
+   "name": "grovyle",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/253/"
+  },
+  {
+   "id": 254,
+   "name": "sceptile",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/254/"
+  },
+  {
+   "id": 255,
+   "name": "torchic",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/255/"
+  },
+  {
+   "id": 256,
+   "name": "combusken",
+   "types": [
+    "fire",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/256/"
+  },
+  {
+   "id": 257,
+   "name": "blaziken",
+   "types": [
+    "fire",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/257/"
+  },
+  {
+   "id": 258,
+   "name": "mudkip",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/258/"
+  },
+  {
+   "id": 259,
+   "name": "marshtomp",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/259/"
+  },
+  {
+   "id": 260,
+   "name": "swampert",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/260/"
+  },
+  {
+   "id": 261,
+   "name": "poochyena",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/261/"
+  },
+  {
+   "id": 262,
+   "name": "mightyena",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/262/"
+  },
+  {
+   "id": 263,
+   "name": "zigzagoon",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/263/"
+  },
+  {
+   "id": 264,
+   "name": "linoone",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/264/"
+  },
+  {
+   "id": 265,
+   "name": "wurmple",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/265/"
+  },
+  {
+   "id": 266,
+   "name": "silcoon",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/266/"
+  },
+  {
+   "id": 267,
+   "name": "beautifly",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/267/"
+  },
+  {
+   "id": 268,
+   "name": "cascoon",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/268/"
+  },
+  {
+   "id": 269,
+   "name": "dustox",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/269/"
+  },
+  {
+   "id": 270,
+   "name": "lotad",
+   "types": [
+    "water",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/270/"
+  },
+  {
+   "id": 271,
+   "name": "lombre",
+   "types": [
+    "water",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/271/"
+  },
+  {
+   "id": 272,
+   "name": "ludicolo",
+   "types": [
+    "water",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/272/"
+  },
+  {
+   "id": 273,
+   "name": "seedot",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/273/"
+  },
+  {
+   "id": 274,
+   "name": "nuzleaf",
+   "types": [
+    "grass",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/274/"
+  },
+  {
+   "id": 275,
+   "name": "shiftry",
+   "types": [
+    "grass",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/275/"
+  },
+  {
+   "id": 276,
+   "name": "taillow",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/276/"
+  },
+  {
+   "id": 277,
+   "name": "swellow",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/277/"
+  },
+  {
+   "id": 278,
+   "name": "wingull",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/278/"
+  },
+  {
+   "id": 279,
+   "name": "pelipper",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/279/"
+  },
+  {
+   "id": 280,
+   "name": "ralts",
+   "types": [
+    "psychic",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/280/"
+  },
+  {
+   "id": 281,
+   "name": "kirlia",
+   "types": [
+    "psychic",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/281/"
+  },
+  {
+   "id": 282,
+   "name": "gardevoir",
+   "types": [
+    "psychic",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/282/"
+  },
+  {
+   "id": 283,
+   "name": "surskit",
+   "types": [
+    "bug",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/283/"
+  },
+  {
+   "id": 284,
+   "name": "masquerain",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/284/"
+  },
+  {
+   "id": 285,
+   "name": "shroomish",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/285/"
+  },
+  {
+   "id": 286,
+   "name": "breloom",
+   "types": [
+    "grass",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/286/"
+  },
+  {
+   "id": 287,
+   "name": "slakoth",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/287/"
+  },
+  {
+   "id": 288,
+   "name": "vigoroth",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/288/"
+  },
+  {
+   "id": 289,
+   "name": "slaking",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/289/"
+  },
+  {
+   "id": 290,
+   "name": "nincada",
+   "types": [
+    "bug",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/290/"
+  },
+  {
+   "id": 291,
+   "name": "ninjask",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/291/"
+  },
+  {
+   "id": 292,
+   "name": "shedinja",
+   "types": [
+    "bug",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/292/"
+  },
+  {
+   "id": 293,
+   "name": "whismur",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/293/"
+  },
+  {
+   "id": 294,
+   "name": "loudred",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/294/"
+  },
+  {
+   "id": 295,
+   "name": "exploud",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/295/"
+  },
+  {
+   "id": 296,
+   "name": "makuhita",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/296/"
+  },
+  {
+   "id": 297,
+   "name": "hariyama",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/297/"
+  },
+  {
+   "id": 298,
+   "name": "azurill",
+   "types": [
+    "normal",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/298/"
+  },
+  {
+   "id": 299,
+   "name": "nosepass",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/299/"
+  },
+  {
+   "id": 300,
+   "name": "skitty",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/300/"
+  },
+  {
+   "id": 301,
+   "name": "delcatty",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/301/"
+  },
+  {
+   "id": 302,
+   "name": "sableye",
+   "types": [
+    "dark",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/302/"
+  },
+  {
+   "id": 303,
+   "name": "mawile",
+   "types": [
+    "steel",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/303/"
+  },
+  {
+   "id": 304,
+   "name": "aron",
+   "types": [
+    "steel",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/304/"
+  },
+  {
+   "id": 305,
+   "name": "lairon",
+   "types": [
+    "steel",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/305/"
+  },
+  {
+   "id": 306,
+   "name": "aggron",
+   "types": [
+    "steel",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/306/"
+  },
+  {
+   "id": 307,
+   "name": "meditite",
+   "types": [
+    "fighting",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/307/"
+  },
+  {
+   "id": 308,
+   "name": "medicham",
+   "types": [
+    "fighting",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/308/"
+  },
+  {
+   "id": 309,
+   "name": "electrike",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/309/"
+  },
+  {
+   "id": 310,
+   "name": "manectric",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/310/"
+  },
+  {
+   "id": 311,
+   "name": "plusle",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/311/"
+  },
+  {
+   "id": 312,
+   "name": "minun",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/312/"
+  },
+  {
+   "id": 313,
+   "name": "volbeat",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/313/"
+  },
+  {
+   "id": 314,
+   "name": "illumise",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/314/"
+  },
+  {
+   "id": 315,
+   "name": "roselia",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/315/"
+  },
+  {
+   "id": 316,
+   "name": "gulpin",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/316/"
+  },
+  {
+   "id": 317,
+   "name": "swalot",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/317/"
+  },
+  {
+   "id": 318,
+   "name": "carvanha",
+   "types": [
+    "water",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/318/"
+  },
+  {
+   "id": 319,
+   "name": "sharpedo",
+   "types": [
+    "water",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/319/"
+  },
+  {
+   "id": 320,
+   "name": "wailmer",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/320/"
+  },
+  {
+   "id": 321,
+   "name": "wailord",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/321/"
+  },
+  {
+   "id": 322,
+   "name": "numel",
+   "types": [
+    "fire",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/322/"
+  },
+  {
+   "id": 323,
+   "name": "camerupt",
+   "types": [
+    "fire",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/323/"
+  },
+  {
+   "id": 324,
+   "name": "torkoal",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/324/"
+  },
+  {
+   "id": 325,
+   "name": "spoink",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/325/"
+  },
+  {
+   "id": 326,
+   "name": "grumpig",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/326/"
+  },
+  {
+   "id": 327,
+   "name": "spinda",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/327/"
+  },
+  {
+   "id": 328,
+   "name": "trapinch",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/328/"
+  },
+  {
+   "id": 329,
+   "name": "vibrava",
+   "types": [
+    "ground",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/329/"
+  },
+  {
+   "id": 330,
+   "name": "flygon",
+   "types": [
+    "ground",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/330/"
+  },
+  {
+   "id": 331,
+   "name": "cacnea",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/331/"
+  },
+  {
+   "id": 332,
+   "name": "cacturne",
+   "types": [
+    "grass",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/332/"
+  },
+  {
+   "id": 333,
+   "name": "swablu",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/333/"
+  },
+  {
+   "id": 334,
+   "name": "altaria",
+   "types": [
+    "dragon",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/334/"
+  },
+  {
+   "id": 335,
+   "name": "zangoose",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/335/"
+  },
+  {
+   "id": 336,
+   "name": "seviper",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/336/"
+  },
+  {
+   "id": 337,
+   "name": "lunatone",
+   "types": [
+    "rock",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/337/"
+  },
+  {
+   "id": 338,
+   "name": "solrock",
+   "types": [
+    "rock",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/338/"
+  },
+  {
+   "id": 339,
+   "name": "barboach",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/339/"
+  },
+  {
+   "id": 340,
+   "name": "whiscash",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/340/"
+  },
+  {
+   "id": 341,
+   "name": "corphish",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/341/"
+  },
+  {
+   "id": 342,
+   "name": "crawdaunt",
+   "types": [
+    "water",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/342/"
+  },
+  {
+   "id": 343,
+   "name": "baltoy",
+   "types": [
+    "ground",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/343/"
+  },
+  {
+   "id": 344,
+   "name": "claydol",
+   "types": [
+    "ground",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/344/"
+  },
+  {
+   "id": 345,
+   "name": "lileep",
+   "types": [
+    "rock",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/345/"
+  },
+  {
+   "id": 346,
+   "name": "cradily",
+   "types": [
+    "rock",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/346/"
+  },
+  {
+   "id": 347,
+   "name": "anorith",
+   "types": [
+    "rock",
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/347/"
+  },
+  {
+   "id": 348,
+   "name": "armaldo",
+   "types": [
+    "rock",
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/348/"
+  },
+  {
+   "id": 349,
+   "name": "feebas",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/349/"
+  },
+  {
+   "id": 350,
+   "name": "milotic",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/350/"
+  },
+  {
+   "id": 351,
+   "name": "castform",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/351/"
+  },
+  {
+   "id": 352,
+   "name": "kecleon",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/352/"
+  },
+  {
+   "id": 353,
+   "name": "shuppet",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/353/"
+  },
+  {
+   "id": 354,
+   "name": "banette",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/354/"
+  },
+  {
+   "id": 355,
+   "name": "duskull",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/355/"
+  },
+  {
+   "id": 356,
+   "name": "dusclops",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/356/"
+  },
+  {
+   "id": 357,
+   "name": "tropius",
+   "types": [
+    "grass",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/357/"
+  },
+  {
+   "id": 358,
+   "name": "chimecho",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/358/"
+  },
+  {
+   "id": 359,
+   "name": "absol",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/359/"
+  },
+  {
+   "id": 360,
+   "name": "wynaut",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/360/"
+  },
+  {
+   "id": 361,
+   "name": "snorunt",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/361/"
+  },
+  {
+   "id": 362,
+   "name": "glalie",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/362/"
+  },
+  {
+   "id": 363,
+   "name": "spheal",
+   "types": [
+    "ice",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/363/"
+  },
+  {
+   "id": 364,
+   "name": "sealeo",
+   "types": [
+    "ice",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/364/"
+  },
+  {
+   "id": 365,
+   "name": "walrein",
+   "types": [
+    "ice",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/365/"
+  },
+  {
+   "id": 366,
+   "name": "clamperl",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/366/"
+  },
+  {
+   "id": 367,
+   "name": "huntail",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/367/"
+  },
+  {
+   "id": 368,
+   "name": "gorebyss",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/368/"
+  },
+  {
+   "id": 369,
+   "name": "relicanth",
+   "types": [
+    "water",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/369/"
+  },
+  {
+   "id": 370,
+   "name": "luvdisc",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/370/"
+  },
+  {
+   "id": 371,
+   "name": "bagon",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/371/"
+  },
+  {
+   "id": 372,
+   "name": "shelgon",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/372/"
+  },
+  {
+   "id": 373,
+   "name": "salamence",
+   "types": [
+    "dragon",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/373/"
+  },
+  {
+   "id": 374,
+   "name": "beldum",
+   "types": [
+    "steel",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/374/"
+  },
+  {
+   "id": 375,
+   "name": "metang",
+   "types": [
+    "steel",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/375/"
+  },
+  {
+   "id": 376,
+   "name": "metagross",
+   "types": [
+    "steel",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/376/"
+  },
+  {
+   "id": 377,
+   "name": "regirock",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/377/"
+  },
+  {
+   "id": 378,
+   "name": "regice",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/378/"
+  },
+  {
+   "id": 379,
+   "name": "registeel",
+   "types": [
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/379/"
+  },
+  {
+   "id": 380,
+   "name": "latias",
+   "types": [
+    "dragon",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/380/"
+  },
+  {
+   "id": 381,
+   "name": "latios",
+   "types": [
+    "dragon",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/381/"
+  },
+  {
+   "id": 382,
+   "name": "kyogre",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/382/"
+  },
+  {
+   "id": 383,
+   "name": "groudon",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/383/"
+  },
+  {
+   "id": 384,
+   "name": "rayquaza",
+   "types": [
+    "dragon",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/384/"
+  },
+  {
+   "id": 385,
+   "name": "jirachi",
+   "types": [
+    "steel",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/385/"
+  },
+  {
+   "id": 386,
+   "name": "deoxys-normal",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/386/"
+  },
+  {
+   "id": 387,
+   "name": "turtwig",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/387/"
+  },
+  {
+   "id": 388,
+   "name": "grotle",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/388/"
+  },
+  {
+   "id": 389,
+   "name": "torterra",
+   "types": [
+    "grass",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/389/"
+  },
+  {
+   "id": 390,
+   "name": "chimchar",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/390/"
+  },
+  {
+   "id": 391,
+   "name": "monferno",
+   "types": [
+    "fire",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/391/"
+  },
+  {
+   "id": 392,
+   "name": "infernape",
+   "types": [
+    "fire",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/392/"
+  },
+  {
+   "id": 393,
+   "name": "piplup",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/393/"
+  },
+  {
+   "id": 394,
+   "name": "prinplup",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/394/"
+  },
+  {
+   "id": 395,
+   "name": "empoleon",
+   "types": [
+    "water",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/395/"
+  },
+  {
+   "id": 396,
+   "name": "starly",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/396/"
+  },
+  {
+   "id": 397,
+   "name": "staravia",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/397/"
+  },
+  {
+   "id": 398,
+   "name": "staraptor",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/398/"
+  },
+  {
+   "id": 399,
+   "name": "bidoof",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/399/"
+  },
+  {
+   "id": 400,
+   "name": "bibarel",
+   "types": [
+    "normal",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/400/"
+  },
+  {
+   "id": 401,
+   "name": "kricketot",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/401/"
+  },
+  {
+   "id": 402,
+   "name": "kricketune",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/402/"
+  },
+  {
+   "id": 403,
+   "name": "shinx",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/403/"
+  },
+  {
+   "id": 404,
+   "name": "luxio",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/404/"
+  },
+  {
+   "id": 405,
+   "name": "luxray",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/405/"
+  },
+  {
+   "id": 406,
+   "name": "budew",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/406/"
+  },
+  {
+   "id": 407,
+   "name": "roserade",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/407/"
+  },
+  {
+   "id": 408,
+   "name": "cranidos",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/408/"
+  },
+  {
+   "id": 409,
+   "name": "rampardos",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/409/"
+  },
+  {
+   "id": 410,
+   "name": "shieldon",
+   "types": [
+    "rock",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/410/"
+  },
+  {
+   "id": 411,
+   "name": "bastiodon",
+   "types": [
+    "rock",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/411/"
+  },
+  {
+   "id": 412,
+   "name": "burmy",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/412/"
+  },
+  {
+   "id": 413,
+   "name": "wormadam-plant",
+   "types": [
+    "bug",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/413/"
+  },
+  {
+   "id": 414,
+   "name": "mothim",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/414/"
+  },
+  {
+   "id": 415,
+   "name": "combee",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/415/"
+  },
+  {
+   "id": 416,
+   "name": "vespiquen",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/416/"
+  },
+  {
+   "id": 417,
+   "name": "pachirisu",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/417/"
+  },
+  {
+   "id": 418,
+   "name": "buizel",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/418/"
+  },
+  {
+   "id": 419,
+   "name": "floatzel",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/419/"
+  },
+  {
+   "id": 420,
+   "name": "cherubi",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/420/"
+  },
+  {
+   "id": 421,
+   "name": "cherrim",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/421/"
+  },
+  {
+   "id": 422,
+   "name": "shellos",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/422/"
+  },
+  {
+   "id": 423,
+   "name": "gastrodon",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/423/"
+  },
+  {
+   "id": 424,
+   "name": "ambipom",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/424/"
+  },
+  {
+   "id": 425,
+   "name": "drifloon",
+   "types": [
+    "ghost",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/425/"
+  },
+  {
+   "id": 426,
+   "name": "drifblim",
+   "types": [
+    "ghost",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/426/"
+  },
+  {
+   "id": 427,
+   "name": "buneary",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/427/"
+  },
+  {
+   "id": 428,
+   "name": "lopunny",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/428/"
+  },
+  {
+   "id": 429,
+   "name": "mismagius",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/429/"
+  },
+  {
+   "id": 430,
+   "name": "honchkrow",
+   "types": [
+    "dark",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/430/"
+  },
+  {
+   "id": 431,
+   "name": "glameow",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/431/"
+  },
+  {
+   "id": 432,
+   "name": "purugly",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/432/"
+  },
+  {
+   "id": 433,
+   "name": "chingling",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/433/"
+  },
+  {
+   "id": 434,
+   "name": "stunky",
+   "types": [
+    "poison",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/434/"
+  },
+  {
+   "id": 435,
+   "name": "skuntank",
+   "types": [
+    "poison",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/435/"
+  },
+  {
+   "id": 436,
+   "name": "bronzor",
+   "types": [
+    "steel",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/436/"
+  },
+  {
+   "id": 437,
+   "name": "bronzong",
+   "types": [
+    "steel",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/437/"
+  },
+  {
+   "id": 438,
+   "name": "bonsly",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/438/"
+  },
+  {
+   "id": 439,
+   "name": "mime-jr",
+   "types": [
+    "psychic",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/439/"
+  },
+  {
+   "id": 440,
+   "name": "happiny",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/440/"
+  },
+  {
+   "id": 441,
+   "name": "chatot",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/441/"
+  },
+  {
+   "id": 442,
+   "name": "spiritomb",
+   "types": [
+    "ghost",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/442/"
+  },
+  {
+   "id": 443,
+   "name": "gible",
+   "types": [
+    "dragon",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/443/"
+  },
+  {
+   "id": 444,
+   "name": "gabite",
+   "types": [
+    "dragon",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/444/"
+  },
+  {
+   "id": 445,
+   "name": "garchomp",
+   "types": [
+    "dragon",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/445/"
+  },
+  {
+   "id": 446,
+   "name": "munchlax",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/446/"
+  },
+  {
+   "id": 447,
+   "name": "riolu",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/447/"
+  },
+  {
+   "id": 448,
+   "name": "lucario",
+   "types": [
+    "fighting",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/448/"
+  },
+  {
+   "id": 449,
+   "name": "hippopotas",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/449/"
+  },
+  {
+   "id": 450,
+   "name": "hippowdon",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/450/"
+  },
+  {
+   "id": 451,
+   "name": "skorupi",
+   "types": [
+    "poison",
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/451/"
+  },
+  {
+   "id": 452,
+   "name": "drapion",
+   "types": [
+    "poison",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/452/"
+  },
+  {
+   "id": 453,
+   "name": "croagunk",
+   "types": [
+    "poison",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/453/"
+  },
+  {
+   "id": 454,
+   "name": "toxicroak",
+   "types": [
+    "poison",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/454/"
+  },
+  {
+   "id": 455,
+   "name": "carnivine",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/455/"
+  },
+  {
+   "id": 456,
+   "name": "finneon",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/456/"
+  },
+  {
+   "id": 457,
+   "name": "lumineon",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/457/"
+  },
+  {
+   "id": 458,
+   "name": "mantyke",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/458/"
+  },
+  {
+   "id": 459,
+   "name": "snover",
+   "types": [
+    "grass",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/459/"
+  },
+  {
+   "id": 460,
+   "name": "abomasnow",
+   "types": [
+    "grass",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/460/"
+  },
+  {
+   "id": 461,
+   "name": "weavile",
+   "types": [
+    "dark",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/461/"
+  },
+  {
+   "id": 462,
+   "name": "magnezone",
+   "types": [
+    "electric",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/462/"
+  },
+  {
+   "id": 463,
+   "name": "lickilicky",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/463/"
+  },
+  {
+   "id": 464,
+   "name": "rhyperior",
+   "types": [
+    "ground",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/464/"
+  },
+  {
+   "id": 465,
+   "name": "tangrowth",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/465/"
+  },
+  {
+   "id": 466,
+   "name": "electivire",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/466/"
+  },
+  {
+   "id": 467,
+   "name": "magmortar",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/467/"
+  },
+  {
+   "id": 468,
+   "name": "togekiss",
+   "types": [
+    "fairy",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/468/"
+  },
+  {
+   "id": 469,
+   "name": "yanmega",
+   "types": [
+    "bug",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/469/"
+  },
+  {
+   "id": 470,
+   "name": "leafeon",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/470/"
+  },
+  {
+   "id": 471,
+   "name": "glaceon",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/471/"
+  },
+  {
+   "id": 472,
+   "name": "gliscor",
+   "types": [
+    "ground",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/472/"
+  },
+  {
+   "id": 473,
+   "name": "mamoswine",
+   "types": [
+    "ice",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/473/"
+  },
+  {
+   "id": 474,
+   "name": "porygon-z",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/474/"
+  },
+  {
+   "id": 475,
+   "name": "gallade",
+   "types": [
+    "psychic",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/475/"
+  },
+  {
+   "id": 476,
+   "name": "probopass",
+   "types": [
+    "rock",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/476/"
+  },
+  {
+   "id": 477,
+   "name": "dusknoir",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/477/"
+  },
+  {
+   "id": 478,
+   "name": "froslass",
+   "types": [
+    "ice",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/478/"
+  },
+  {
+   "id": 479,
+   "name": "rotom",
+   "types": [
+    "electric",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/479/"
+  },
+  {
+   "id": 480,
+   "name": "uxie",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/480/"
+  },
+  {
+   "id": 481,
+   "name": "mesprit",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/481/"
+  },
+  {
+   "id": 482,
+   "name": "azelf",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/482/"
+  },
+  {
+   "id": 483,
+   "name": "dialga",
+   "types": [
+    "steel",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/483/"
+  },
+  {
+   "id": 484,
+   "name": "palkia",
+   "types": [
+    "water",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/484/"
+  },
+  {
+   "id": 485,
+   "name": "heatran",
+   "types": [
+    "fire",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/485/"
+  },
+  {
+   "id": 486,
+   "name": "regigigas",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/486/"
+  },
+  {
+   "id": 487,
+   "name": "giratina-altered",
+   "types": [
+    "ghost",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/487/"
+  },
+  {
+   "id": 488,
+   "name": "cresselia",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/488/"
+  },
+  {
+   "id": 489,
+   "name": "phione",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/489/"
+  },
+  {
+   "id": 490,
+   "name": "manaphy",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/490/"
+  },
+  {
+   "id": 491,
+   "name": "darkrai",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/491/"
+  },
+  {
+   "id": 492,
+   "name": "shaymin-land",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/492/"
+  },
+  {
+   "id": 493,
+   "name": "arceus",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/493/"
+  },
+  {
+   "id": 494,
+   "name": "victini",
+   "types": [
+    "psychic",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/494/"
+  },
+  {
+   "id": 495,
+   "name": "snivy",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/495/"
+  },
+  {
+   "id": 496,
+   "name": "servine",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/496/"
+  },
+  {
+   "id": 497,
+   "name": "serperior",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/497/"
+  },
+  {
+   "id": 498,
+   "name": "tepig",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/498/"
+  },
+  {
+   "id": 499,
+   "name": "pignite",
+   "types": [
+    "fire",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/499/"
+  },
+  {
+   "id": 500,
+   "name": "emboar",
+   "types": [
+    "fire",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/500/"
+  },
+  {
+   "id": 501,
+   "name": "oshawott",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/501/"
+  },
+  {
+   "id": 502,
+   "name": "dewott",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/502/"
+  },
+  {
+   "id": 503,
+   "name": "samurott",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/503/"
+  },
+  {
+   "id": 504,
+   "name": "patrat",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/504/"
+  },
+  {
+   "id": 505,
+   "name": "watchog",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/505/"
+  },
+  {
+   "id": 506,
+   "name": "lillipup",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/506/"
+  },
+  {
+   "id": 507,
+   "name": "herdier",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/507/"
+  },
+  {
+   "id": 508,
+   "name": "stoutland",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/508/"
+  },
+  {
+   "id": 509,
+   "name": "purrloin",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/509/"
+  },
+  {
+   "id": 510,
+   "name": "liepard",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/510/"
+  },
+  {
+   "id": 511,
+   "name": "pansage",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/511/"
+  },
+  {
+   "id": 512,
+   "name": "simisage",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/512/"
+  },
+  {
+   "id": 513,
+   "name": "pansear",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/513/"
+  },
+  {
+   "id": 514,
+   "name": "simisear",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/514/"
+  },
+  {
+   "id": 515,
+   "name": "panpour",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/515/"
+  },
+  {
+   "id": 516,
+   "name": "simipour",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/516/"
+  },
+  {
+   "id": 517,
+   "name": "munna",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/517/"
+  },
+  {
+   "id": 518,
+   "name": "musharna",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/518/"
+  },
+  {
+   "id": 519,
+   "name": "pidove",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/519/"
+  },
+  {
+   "id": 520,
+   "name": "tranquill",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/520/"
+  },
+  {
+   "id": 521,
+   "name": "unfezant",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/521/"
+  },
+  {
+   "id": 522,
+   "name": "blitzle",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/522/"
+  },
+  {
+   "id": 523,
+   "name": "zebstrika",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/523/"
+  },
+  {
+   "id": 524,
+   "name": "roggenrola",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/524/"
+  },
+  {
+   "id": 525,
+   "name": "boldore",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/525/"
+  },
+  {
+   "id": 526,
+   "name": "gigalith",
+   "types": [
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/526/"
+  },
+  {
+   "id": 527,
+   "name": "woobat",
+   "types": [
+    "psychic",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/527/"
+  },
+  {
+   "id": 528,
+   "name": "swoobat",
+   "types": [
+    "psychic",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/528/"
+  },
+  {
+   "id": 529,
+   "name": "drilbur",
+   "types": [
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/529/"
+  },
+  {
+   "id": 530,
+   "name": "excadrill",
+   "types": [
+    "ground",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/530/"
+  },
+  {
+   "id": 531,
+   "name": "audino",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/531/"
+  },
+  {
+   "id": 532,
+   "name": "timburr",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/532/"
+  },
+  {
+   "id": 533,
+   "name": "gurdurr",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/533/"
+  },
+  {
+   "id": 534,
+   "name": "conkeldurr",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/534/"
+  },
+  {
+   "id": 535,
+   "name": "tympole",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/535/"
+  },
+  {
+   "id": 536,
+   "name": "palpitoad",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/536/"
+  },
+  {
+   "id": 537,
+   "name": "seismitoad",
+   "types": [
+    "water",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/537/"
+  },
+  {
+   "id": 538,
+   "name": "throh",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/538/"
+  },
+  {
+   "id": 539,
+   "name": "sawk",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/539/"
+  },
+  {
+   "id": 540,
+   "name": "sewaddle",
+   "types": [
+    "bug",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/540/"
+  },
+  {
+   "id": 541,
+   "name": "swadloon",
+   "types": [
+    "bug",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/541/"
+  },
+  {
+   "id": 542,
+   "name": "leavanny",
+   "types": [
+    "bug",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/542/"
+  },
+  {
+   "id": 543,
+   "name": "venipede",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/543/"
+  },
+  {
+   "id": 544,
+   "name": "whirlipede",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/544/"
+  },
+  {
+   "id": 545,
+   "name": "scolipede",
+   "types": [
+    "bug",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/545/"
+  },
+  {
+   "id": 546,
+   "name": "cottonee",
+   "types": [
+    "grass",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/546/"
+  },
+  {
+   "id": 547,
+   "name": "whimsicott",
+   "types": [
+    "grass",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/547/"
+  },
+  {
+   "id": 548,
+   "name": "petilil",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/548/"
+  },
+  {
+   "id": 549,
+   "name": "lilligant",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/549/"
+  },
+  {
+   "id": 550,
+   "name": "basculin-red-striped",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/550/"
+  },
+  {
+   "id": 551,
+   "name": "sandile",
+   "types": [
+    "ground",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/551/"
+  },
+  {
+   "id": 552,
+   "name": "krokorok",
+   "types": [
+    "ground",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/552/"
+  },
+  {
+   "id": 553,
+   "name": "krookodile",
+   "types": [
+    "ground",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/553/"
+  },
+  {
+   "id": 554,
+   "name": "darumaka",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/554/"
+  },
+  {
+   "id": 555,
+   "name": "darmanitan-standard",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/555/"
+  },
+  {
+   "id": 556,
+   "name": "maractus",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/556/"
+  },
+  {
+   "id": 557,
+   "name": "dwebble",
+   "types": [
+    "bug",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/557/"
+  },
+  {
+   "id": 558,
+   "name": "crustle",
+   "types": [
+    "bug",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/558/"
+  },
+  {
+   "id": 559,
+   "name": "scraggy",
+   "types": [
+    "dark",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/559/"
+  },
+  {
+   "id": 560,
+   "name": "scrafty",
+   "types": [
+    "dark",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/560/"
+  },
+  {
+   "id": 561,
+   "name": "sigilyph",
+   "types": [
+    "psychic",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/561/"
+  },
+  {
+   "id": 562,
+   "name": "yamask",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/562/"
+  },
+  {
+   "id": 563,
+   "name": "cofagrigus",
+   "types": [
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/563/"
+  },
+  {
+   "id": 564,
+   "name": "tirtouga",
+   "types": [
+    "water",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/564/"
+  },
+  {
+   "id": 565,
+   "name": "carracosta",
+   "types": [
+    "water",
+    "rock"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/565/"
+  },
+  {
+   "id": 566,
+   "name": "archen",
+   "types": [
+    "rock",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/566/"
+  },
+  {
+   "id": 567,
+   "name": "archeops",
+   "types": [
+    "rock",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/567/"
+  },
+  {
+   "id": 568,
+   "name": "trubbish",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/568/"
+  },
+  {
+   "id": 569,
+   "name": "garbodor",
+   "types": [
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/569/"
+  },
+  {
+   "id": 570,
+   "name": "zorua",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/570/"
+  },
+  {
+   "id": 571,
+   "name": "zoroark",
+   "types": [
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/571/"
+  },
+  {
+   "id": 572,
+   "name": "minccino",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/572/"
+  },
+  {
+   "id": 573,
+   "name": "cinccino",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/573/"
+  },
+  {
+   "id": 574,
+   "name": "gothita",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/574/"
+  },
+  {
+   "id": 575,
+   "name": "gothorita",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/575/"
+  },
+  {
+   "id": 576,
+   "name": "gothitelle",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/576/"
+  },
+  {
+   "id": 577,
+   "name": "solosis",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/577/"
+  },
+  {
+   "id": 578,
+   "name": "duosion",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/578/"
+  },
+  {
+   "id": 579,
+   "name": "reuniclus",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/579/"
+  },
+  {
+   "id": 580,
+   "name": "ducklett",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/580/"
+  },
+  {
+   "id": 581,
+   "name": "swanna",
+   "types": [
+    "water",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/581/"
+  },
+  {
+   "id": 582,
+   "name": "vanillite",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/582/"
+  },
+  {
+   "id": 583,
+   "name": "vanillish",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/583/"
+  },
+  {
+   "id": 584,
+   "name": "vanilluxe",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/584/"
+  },
+  {
+   "id": 585,
+   "name": "deerling",
+   "types": [
+    "normal",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/585/"
+  },
+  {
+   "id": 586,
+   "name": "sawsbuck",
+   "types": [
+    "normal",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/586/"
+  },
+  {
+   "id": 587,
+   "name": "emolga",
+   "types": [
+    "electric",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/587/"
+  },
+  {
+   "id": 588,
+   "name": "karrablast",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/588/"
+  },
+  {
+   "id": 589,
+   "name": "escavalier",
+   "types": [
+    "bug",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/589/"
+  },
+  {
+   "id": 590,
+   "name": "foongus",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/590/"
+  },
+  {
+   "id": 591,
+   "name": "amoonguss",
+   "types": [
+    "grass",
+    "poison"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/591/"
+  },
+  {
+   "id": 592,
+   "name": "frillish-male",
+   "types": [
+    "water",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/592/"
+  },
+  {
+   "id": 593,
+   "name": "jellicent-male",
+   "types": [
+    "water",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/593/"
+  },
+  {
+   "id": 594,
+   "name": "alomomola",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/594/"
+  },
+  {
+   "id": 595,
+   "name": "joltik",
+   "types": [
+    "bug",
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/595/"
+  },
+  {
+   "id": 596,
+   "name": "galvantula",
+   "types": [
+    "bug",
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/596/"
+  },
+  {
+   "id": 597,
+   "name": "ferroseed",
+   "types": [
+    "grass",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/597/"
+  },
+  {
+   "id": 598,
+   "name": "ferrothorn",
+   "types": [
+    "grass",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/598/"
+  },
+  {
+   "id": 599,
+   "name": "klink",
+   "types": [
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/599/"
+  },
+  {
+   "id": 600,
+   "name": "klang",
+   "types": [
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/600/"
+  },
+  {
+   "id": 601,
+   "name": "klinklang",
+   "types": [
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/601/"
+  },
+  {
+   "id": 602,
+   "name": "tynamo",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/602/"
+  },
+  {
+   "id": 603,
+   "name": "eelektrik",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/603/"
+  },
+  {
+   "id": 604,
+   "name": "eelektross",
+   "types": [
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/604/"
+  },
+  {
+   "id": 605,
+   "name": "elgyem",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/605/"
+  },
+  {
+   "id": 606,
+   "name": "beheeyem",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/606/"
+  },
+  {
+   "id": 607,
+   "name": "litwick",
+   "types": [
+    "ghost",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/607/"
+  },
+  {
+   "id": 608,
+   "name": "lampent",
+   "types": [
+    "ghost",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/608/"
+  },
+  {
+   "id": 609,
+   "name": "chandelure",
+   "types": [
+    "ghost",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/609/"
+  },
+  {
+   "id": 610,
+   "name": "axew",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/610/"
+  },
+  {
+   "id": 611,
+   "name": "fraxure",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/611/"
+  },
+  {
+   "id": 612,
+   "name": "haxorus",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/612/"
+  },
+  {
+   "id": 613,
+   "name": "cubchoo",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/613/"
+  },
+  {
+   "id": 614,
+   "name": "beartic",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/614/"
+  },
+  {
+   "id": 615,
+   "name": "cryogonal",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/615/"
+  },
+  {
+   "id": 616,
+   "name": "shelmet",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/616/"
+  },
+  {
+   "id": 617,
+   "name": "accelgor",
+   "types": [
+    "bug"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/617/"
+  },
+  {
+   "id": 618,
+   "name": "stunfisk",
+   "types": [
+    "ground",
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/618/"
+  },
+  {
+   "id": 619,
+   "name": "mienfoo",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/619/"
+  },
+  {
+   "id": 620,
+   "name": "mienshao",
+   "types": [
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/620/"
+  },
+  {
+   "id": 621,
+   "name": "druddigon",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/621/"
+  },
+  {
+   "id": 622,
+   "name": "golett",
+   "types": [
+    "ground",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/622/"
+  },
+  {
+   "id": 623,
+   "name": "golurk",
+   "types": [
+    "ground",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/623/"
+  },
+  {
+   "id": 624,
+   "name": "pawniard",
+   "types": [
+    "dark",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/624/"
+  },
+  {
+   "id": 625,
+   "name": "bisharp",
+   "types": [
+    "dark",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/625/"
+  },
+  {
+   "id": 626,
+   "name": "bouffalant",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/626/"
+  },
+  {
+   "id": 627,
+   "name": "rufflet",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/627/"
+  },
+  {
+   "id": 628,
+   "name": "braviary",
+   "types": [
+    "normal",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/628/"
+  },
+  {
+   "id": 629,
+   "name": "vullaby",
+   "types": [
+    "dark",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/629/"
+  },
+  {
+   "id": 630,
+   "name": "mandibuzz",
+   "types": [
+    "dark",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/630/"
+  },
+  {
+   "id": 631,
+   "name": "heatmor",
+   "types": [
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/631/"
+  },
+  {
+   "id": 632,
+   "name": "durant",
+   "types": [
+    "bug",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/632/"
+  },
+  {
+   "id": 633,
+   "name": "deino",
+   "types": [
+    "dark",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/633/"
+  },
+  {
+   "id": 634,
+   "name": "zweilous",
+   "types": [
+    "dark",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/634/"
+  },
+  {
+   "id": 635,
+   "name": "hydreigon",
+   "types": [
+    "dark",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/635/"
+  },
+  {
+   "id": 636,
+   "name": "larvesta",
+   "types": [
+    "bug",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/636/"
+  },
+  {
+   "id": 637,
+   "name": "volcarona",
+   "types": [
+    "bug",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/637/"
+  },
+  {
+   "id": 638,
+   "name": "cobalion",
+   "types": [
+    "steel",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/638/"
+  },
+  {
+   "id": 639,
+   "name": "terrakion",
+   "types": [
+    "rock",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/639/"
+  },
+  {
+   "id": 640,
+   "name": "virizion",
+   "types": [
+    "grass",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/640/"
+  },
+  {
+   "id": 641,
+   "name": "tornadus-incarnate",
+   "types": [
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/641/"
+  },
+  {
+   "id": 642,
+   "name": "thundurus-incarnate",
+   "types": [
+    "electric",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/642/"
+  },
+  {
+   "id": 643,
+   "name": "reshiram",
+   "types": [
+    "dragon",
+    "fire"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/643/"
+  },
+  {
+   "id": 644,
+   "name": "zekrom",
+   "types": [
+    "dragon",
+    "electric"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/644/"
+  },
+  {
+   "id": 645,
+   "name": "landorus-incarnate",
+   "types": [
+    "ground",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/645/"
+  },
+  {
+   "id": 646,
+   "name": "kyurem",
+   "types": [
+    "dragon",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/646/"
+  },
+  {
+   "id": 647,
+   "name": "keldeo-ordinary",
+   "types": [
+    "water",
+    "fighting"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/647/"
+  },
+  {
+   "id": 648,
+   "name": "meloetta-aria",
+   "types": [
+    "normal",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/648/"
+  },
+  {
+   "id": 649,
+   "name": "genesect",
+   "types": [
+    "bug",
+    "steel"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/649/"
+  },
   {
    "id": 650,
    "name": "chespin",
@@ -367,23 +5868,6 @@
    "url": "https://pokeapi.co/api/v2/pokemon/668/"
   },
   {
-   "id": 25,
-   "name": "pikachu",
-   "types": [
-    "electric"
-   ],
-   "url": "https://pokeapi.co/api/v2/pokemon/25/"
-  },
-  {
-   "id": 16,
-   "name": "pidgey",
-   "types": [
-    "normal",
-    "flying"
-   ],
-   "url": "https://pokeapi.co/api/v2/pokemon/16/"
-  },
-  {
    "id": 669,
    "name": "flabebe",
    "types": [
@@ -416,12 +5900,427 @@
    "url": "https://pokeapi.co/api/v2/pokemon/672/"
   },
   {
+   "id": 673,
+   "name": "gogoat",
+   "types": [
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/673/"
+  },
+  {
    "id": 674,
    "name": "pancham",
    "types": [
     "fighting"
    ],
    "url": "https://pokeapi.co/api/v2/pokemon/674/"
+  },
+  {
+   "id": 675,
+   "name": "pangoro",
+   "types": [
+    "fighting",
+    "dark"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/675/"
+  },
+  {
+   "id": 676,
+   "name": "furfrou",
+   "types": [
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/676/"
+  },
+  {
+   "id": 677,
+   "name": "espurr",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/677/"
+  },
+  {
+   "id": 678,
+   "name": "meowstic-male",
+   "types": [
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/678/"
+  },
+  {
+   "id": 679,
+   "name": "honedge",
+   "types": [
+    "steel",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/679/"
+  },
+  {
+   "id": 680,
+   "name": "doublade",
+   "types": [
+    "steel",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/680/"
+  },
+  {
+   "id": 681,
+   "name": "aegislash-shield",
+   "types": [
+    "steel",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/681/"
+  },
+  {
+   "id": 682,
+   "name": "spritzee",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/682/"
+  },
+  {
+   "id": 683,
+   "name": "aromatisse",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/683/"
+  },
+  {
+   "id": 684,
+   "name": "swirlix",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/684/"
+  },
+  {
+   "id": 685,
+   "name": "slurpuff",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/685/"
+  },
+  {
+   "id": 686,
+   "name": "inkay",
+   "types": [
+    "dark",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/686/"
+  },
+  {
+   "id": 687,
+   "name": "malamar",
+   "types": [
+    "dark",
+    "psychic"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/687/"
+  },
+  {
+   "id": 688,
+   "name": "binacle",
+   "types": [
+    "rock",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/688/"
+  },
+  {
+   "id": 689,
+   "name": "barbaracle",
+   "types": [
+    "rock",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/689/"
+  },
+  {
+   "id": 690,
+   "name": "skrelp",
+   "types": [
+    "poison",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/690/"
+  },
+  {
+   "id": 691,
+   "name": "dragalge",
+   "types": [
+    "poison",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/691/"
+  },
+  {
+   "id": 692,
+   "name": "clauncher",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/692/"
+  },
+  {
+   "id": 693,
+   "name": "clawitzer",
+   "types": [
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/693/"
+  },
+  {
+   "id": 694,
+   "name": "helioptile",
+   "types": [
+    "electric",
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/694/"
+  },
+  {
+   "id": 695,
+   "name": "heliolisk",
+   "types": [
+    "electric",
+    "normal"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/695/"
+  },
+  {
+   "id": 696,
+   "name": "tyrunt",
+   "types": [
+    "rock",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/696/"
+  },
+  {
+   "id": 697,
+   "name": "tyrantrum",
+   "types": [
+    "rock",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/697/"
+  },
+  {
+   "id": 698,
+   "name": "amaura",
+   "types": [
+    "rock",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/698/"
+  },
+  {
+   "id": 699,
+   "name": "aurorus",
+   "types": [
+    "rock",
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/699/"
+  },
+  {
+   "id": 700,
+   "name": "sylveon",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/700/"
+  },
+  {
+   "id": 701,
+   "name": "hawlucha",
+   "types": [
+    "fighting",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/701/"
+  },
+  {
+   "id": 702,
+   "name": "dedenne",
+   "types": [
+    "electric",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/702/"
+  },
+  {
+   "id": 703,
+   "name": "carbink",
+   "types": [
+    "rock",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/703/"
+  },
+  {
+   "id": 704,
+   "name": "goomy",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/704/"
+  },
+  {
+   "id": 705,
+   "name": "sliggoo",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/705/"
+  },
+  {
+   "id": 706,
+   "name": "goodra",
+   "types": [
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/706/"
+  },
+  {
+   "id": 707,
+   "name": "klefki",
+   "types": [
+    "steel",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/707/"
+  },
+  {
+   "id": 708,
+   "name": "phantump",
+   "types": [
+    "ghost",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/708/"
+  },
+  {
+   "id": 709,
+   "name": "trevenant",
+   "types": [
+    "ghost",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/709/"
+  },
+  {
+   "id": 710,
+   "name": "pumpkaboo-average",
+   "types": [
+    "ghost",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/710/"
+  },
+  {
+   "id": 711,
+   "name": "gourgeist-average",
+   "types": [
+    "ghost",
+    "grass"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/711/"
+  },
+  {
+   "id": 712,
+   "name": "bergmite",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/712/"
+  },
+  {
+   "id": 713,
+   "name": "avalugg",
+   "types": [
+    "ice"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/713/"
+  },
+  {
+   "id": 714,
+   "name": "noibat",
+   "types": [
+    "flying",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/714/"
+  },
+  {
+   "id": 715,
+   "name": "noivern",
+   "types": [
+    "flying",
+    "dragon"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/715/"
+  },
+  {
+   "id": 716,
+   "name": "xerneas",
+   "types": [
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/716/"
+  },
+  {
+   "id": 717,
+   "name": "yveltal",
+   "types": [
+    "dark",
+    "flying"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/717/"
+  },
+  {
+   "id": 718,
+   "name": "zygarde-50",
+   "types": [
+    "dragon",
+    "ground"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/718/"
+  },
+  {
+   "id": 719,
+   "name": "diancie",
+   "types": [
+    "rock",
+    "fairy"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/719/"
+  },
+  {
+   "id": 720,
+   "name": "hoopa",
+   "types": [
+    "psychic",
+    "ghost"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/720/"
+  },
+  {
+   "id": 721,
+   "name": "volcanion",
+   "types": [
+    "fire",
+    "water"
+   ],
+   "url": "https://pokeapi.co/api/v2/pokemon/721/"
   }
  ],
  "source": "https://pokeapi.co/api/v2/",
