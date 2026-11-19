@@ -2,12 +2,18 @@
 //  PokemonXCompanionView.swift
 //  ManicEmu
 //
-//  PokeDaisy-style companion overlay for Pokemon X — UI SHELL ONLY.
+//  PokeDaisy-style companion overlay for Pokemon X.
 //  Party / Bag / Map / Dex / Battle tabs, drawn in Pokemon X's menu style
-//  (navy header, white cards, pink battle accent). Live Party, Bag and Battle
-//  contents are placeholders until the memory bridge is wired to verified X
-//  offsets; they are never filled with invented Pokemon, moves or HP.
-//  The Dex tab and type chart use static PokeAPI reference data only.
+//  (navy header, white cards, pink battle accent). Party is LIVE (species,
+//  level, HP) and the Battle tab shows live moves plus the active opponent,
+//  read from the verified battle structs through HUDMemoryBridge — never
+//  filled with invented Pokemon, moves or HP. Bag and Map are still
+//  placeholders (no verified offsets yet). The Battle tab buttons stay
+//  disabled: tapping a move does NOT choose it in battle yet, because the
+//  send path (touch synthesis) is blocked in the top-only layout — the
+//  core's framebuffer layout has no bottom screen for a tap to land on
+//  (see WIRING-REPORT-2026-11-19.md). The Dex tab is the full 721-species
+//  Gen 1-6 Pokedex from static PokeAPI reference data.
 //
 //  MULTI-INPUT (Switch-style, per Garrett):
 //  - Controller (GameSir X5 Lite) keeps driving the game — movement, menus,
@@ -180,7 +186,7 @@ struct PokemonXCompanionView: View {
     private var partyTab: some View {
         VStack(alignment: .leading, spacing: 10) {
             noLiveDataNote(text: state.isLiveDataAvailable
-                ? "Live battle data — HP updates as the battle goes. Level is not shown yet (not verified in the battle data)."
+                ? "Live battle data — HP and level update as the battle goes."
                 : "Your party will appear here once the companion can read the game. No Pokemon are shown yet — nothing here is real data.")
             ForEach(state.partySlots) { slot in
                 HStack {
@@ -250,7 +256,7 @@ struct PokemonXCompanionView: View {
 
     private var dexTab: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Sample list — 26 early-game Pokemon from PokeAPI. Not a full Pokedex. Tap one to see its type matchups.")
+            Text("Full Gen 1–6 Pokedex — 721 Pokemon from PokeAPI. Tap one to see its type matchups.")
                 .font(.caption)
                 .foregroundColor(.secondary)
             TextField("Search Pokemon", text: $dexSearchText)
@@ -314,8 +320,29 @@ struct PokemonXCompanionView: View {
     private var battleTab: some View {
         VStack(alignment: .leading, spacing: 12) {
             noLiveDataNote(text: state.isLiveDataAvailable
-                ? "Live battle moves for your active Pokemon. Tapping a move does not choose it yet — use the bottom screen for now."
+                ? "Live battle — your moves below, opponent above. Tapping a move does not choose it yet: the bottom screen is hidden in top-only mode and the game can't receive taps there. Use the bottom screen for now."
                 : "No live battle yet. These four move slots and the Fight / Pokemon / Bag / Run buttons will light up once the companion can read the battle state. They do nothing yet — tapping them sends nothing to the game.")
+            if state.isLiveDataAvailable {
+                if let foe = state.enemyActive {
+                    HStack {
+                        Text("Opponent")
+                            .font(.headline)
+                        Spacer()
+                        if let name = foe.speciesName { Text(name) }
+                        if let level = foe.level { Text("Lv. \(level)") }
+                        if let hp = foe.currentHP, let max = foe.maxHP {
+                            Text("HP \(hp)/\(max)")
+                        }
+                    }
+                    .padding(12)
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
+                } else {
+                    Text("Opponent: no live data yet")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
             // Four move slots, 2 x 2, like the bottom-screen move list —
             // but drawn here, on the top screen, so battles stay top-only.
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -360,7 +387,7 @@ struct PokemonXCompanionView: View {
                     .disabled(true)
                 }
             }
-            Text("When live data lands, tapping a move here will choose it in battle — no bottom screen needed.")
+            Text("Tapping a move doesn't choose it in battle yet — the send path is blocked while the bottom screen is hidden. Use the bottom screen for now.")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
