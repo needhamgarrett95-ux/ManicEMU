@@ -5,11 +5,15 @@
 //  PokeDaisy-style companion for Pokemon X (Gen 6) — data models and state.
 //  LIVE PARTY READ (2026-11-18): PokemonXLivePartyReader reads the verified
 //  DllBattle battle structs through HUDMemoryBridge (see PokemonXBattleRead
-//  below and PAGE-TABLE-MAPPING-2026-11-18.md). Party and Battle tabs fill
-//  from live battle data when a battle is running and the species check
-//  passes; otherwise they stay on honest placeholders. Bag stays a
-//  placeholder (no verified bag offsets). Static reference data (type chart,
-//  sample Pokemon/moves) comes from PokeAPI (https://pokeapi.co/api/v2/) via
+//  below and PAGE-TABLE-MAPPING-2026-11-18.md). The structs are reached
+//  through the pinned party-pointer arrays (STABLE-CHAIN-HUNT-2026-11-18.md):
+//  the reader reads the 6 slot pointers from the player array at
+//  0x081FD3CC, then each slot's battle struct at the pointer it holds —
+//  never a hardcoded struct base VA. Party and Battle tabs fill from live
+//  battle data when a battle is running and the species check passes;
+//  otherwise they stay on honest placeholders. Bag stays a placeholder
+//  (no verified bag offsets). Static reference data (type chart, sample
+//  Pokemon/moves) comes from PokeAPI (https://pokeapi.co/api/v2/) via
 //  PokemonXCompanionData.json, with the generated literals in
 //  PokemonXCompanionStaticData.swift as fallback.
 //
@@ -260,11 +264,19 @@ final class PokemonXCompanionState: ObservableObject {
 
 /// Verified live read for Pokemon X battles.
 ///
-/// The DllBattle battle-Pokemon structs live in the 3DS heap. Their VAs are
-/// stable across the three dumps of the Shauna battle, but the base VA is
-/// heap-allocated, so EVERY poll validates slot 0's species before trusting
-/// anything. Outside battle (or if the heap base moved) the read fails the
-/// species check and the UI stays on the placeholder — never stale data.
+/// The DllBattle battle-Pokemon structs live in the 3DS heap. They are
+/// reached through the party-pointer arrays pinned by the stable-chain hunt
+/// (STABLE-CHAIN-HUNT-2026-11-18.md): player array VA 0x081FD3CC, enemy
+/// array VA 0x081FEB14, each holding 6 consecutive u32 pointers to the
+/// battle structs (slot 0 = Chespin 0x081FD418 / Froakie 0x081FEB60 in the
+/// Shauna battle). Both array VAs are stable across the three dumps of that
+/// battle, but they are heap-allocated, so EVERY poll validates slot 0's
+/// species before trusting anything. Outside battle (or if the heap moved)
+/// the read fails the species check and the UI stays on the placeholder —
+/// never stale data. No complete stable-global pointer chain to the arrays
+/// exists via stored pointers (the two referrer objects that hold the array
+/// pointers are themselves referenced by nothing), so the pinned array VAs
+/// + species check are the wiring, with a durable-chain hunt as later work.
 ///
 /// BATTLE struct offsets (NOT PK6), verified in three Azahar dumps with HP
 /// liveness proven by the post-damage test (see PAGE-TABLE-MAPPING-2026-11-18.md):
@@ -275,8 +287,13 @@ final class PokemonXCompanionState: ObservableObject {
 /// +0x18, is unproven — both battlers in the test battle are Lv5, so it cannot
 /// be distinguished from any other field that happens to be 5) and is left nil.
 private enum PokemonXBattleRead {
-    static let playerBaseVA: UInt32 = 0x081fd418
-    static let structStride: UInt32 = 0x1E4
+    /// Player party array: 6 consecutive u32 pointers to battle structs.
+    static let playerPartyArrayVA: UInt32 = 0x081FD3CC
+    /// Enemy party array: same layout. Pinned, not yet read — no UI consumes
+    /// the enemy party in v1 (Party tab is the player's party; Battle tab
+    /// shows the player's moves).
+    static let enemyPartyArrayVA: UInt32 = 0x081FEB14
+    static let partySlotCount = 6
     static let structLength: UInt32 = 0x1E4
 
     static let speciesOffset = 0x0C
@@ -302,20 +319,36 @@ private struct PokemonXLiveSlot {
 }
 
 private enum PokemonXLivePartyReader {
-    /// Reads the six player battle structs. Returns nil when the read is
-    /// untrusted as a whole (slot 0 unreadable, or slot 0's species is not a
-    /// plausible Pokemon — the heap base moved or no battle is running).
-    /// Slots 1-5 that fail to read or hold no plausible species come back as
-    /// nil (empty slot), not as a failure of the whole party.
+    /// Reads the six player battle structs through the pinned party-pointer
+    /// array: read the 6 slot pointers at 0x081FD3CC, then each slot's struct
+    /// at the pointer it holds. Returns nil when the read is untrusted as a
+    /// whole (array unreadable, slot 0 pointer null, slot 0 struct
+    /// unreadable, or slot 0's species not a plausible Pokemon — the heap
+    /// moved or no battle is running). Slots 1-5 that fail to read or hold
+    /// no plausible species come back as nil (empty slot), not as a failure
+    /// of the whole party.
     static func readPlayerParty() -> [PokemonXLiveSlot?]? {
         let bridge = HUDMemoryBridge.shared()
         guard bridge.hasLiveDataSource else { return nil }
+        // The array itself: 6 little-endian u32 pointers (24 bytes).
+        guard let arrayData = bridge.readBytes(atAddress: PokemonXBattleRead.playerPartyArrayVA,
+                                               length: UInt32(PokemonXBattleRead.partySlotCount * 4)),
+              arrayData.count == PokemonXBattleRead.partySlotCount * 4 else {
+            return nil
+        }
         var slots: [PokemonXLiveSlot?] = []
-        for index in 0..<6 {
-            let address = PokemonXBattleRead.playerBaseVA + UInt32(index) * PokemonXBattleRead.structStride
-            guard let data = bridge.readBytes(atAddress: address, length: PokemonXBattleRead.structLength),
+        for index in 0..<PokemonXBattleRead.partySlotCount {
+            let structVA = u32LE(arrayData, index * 4)
+            guard structVA != 0 else {
+                // Null slot pointer = no Pokemon in this slot. Slot 0 null
+                // means the array itself is not a live party: trust nothing.
+                if index == 0 { return nil }
+                slots.append(nil)
+                continue
+            }
+            guard let data = bridge.readBytes(atAddress: structVA, length: PokemonXBattleRead.structLength),
                   data.count == Int(PokemonXBattleRead.structLength) else {
-                // Slot 0 unreadable = the base VA is wrong: trust nothing.
+                // Slot 0 unreadable = the array VA is wrong: trust nothing.
                 // Any later slot unreadable = that slot is empty.
                 if index == 0 { return nil }
                 slots.append(nil)
@@ -344,5 +377,10 @@ private enum PokemonXLivePartyReader {
 
     private static func u16LE(_ data: Data, _ offset: Int) -> UInt16 {
         UInt16(data[offset]) | (UInt16(data[offset + 1]) << 8)
+    }
+
+    private static func u32LE(_ data: Data, _ offset: Int) -> UInt32 {
+        UInt32(data[offset]) | (UInt32(data[offset + 1]) << 8)
+            | (UInt32(data[offset + 2]) << 16) | (UInt32(data[offset + 3]) << 24)
     }
 }
