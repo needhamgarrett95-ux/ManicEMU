@@ -1,0 +1,80 @@
+diff --git a/ui/drivers/LibretroCore.m b/ui/drivers/LibretroCore.m
+--- a/ui/drivers/LibretroCore.m
++++ b/ui/drivers/LibretroCore.m
+@@ -666,6 +666,52 @@ static void netplay_start_task_pump_if_paused(BOOL advertise)
+     [[self getRetroArch] resetCheatCode];
+ }
+ 
++- (BOOL)readGuestMemoryAtAddress:(uint32_t)address
++                          length:(uint32_t)length
++                      intoBuffer:(uint8_t * _Nonnull)buffer
++{
++    if (!buffer || length == 0)
++        return NO;
++
++    /* The running core's memory maps, published via
++     * RETRO_ENVIRONMENT_SET_MEMORY_MAPS and stored by RetroArch's runloop
++     * (runloop.c). Each descriptor maps a guest VA range to a host buffer:
++     * when select is non-zero the descriptor claims an address iff
++     * (addr & select) == start; when select is zero the region is exactly
++     * [start, start + len). Translation per libretro.h emu_to_host:
++     * host = ptr + (addr & ~disconnect) - start. */
++    rarch_system_info_t *sys_info = &runloop_state_get_ptr()->system;
++    if (!sys_info || sys_info->mmaps.num_descriptors == 0)
++        return NO;
++
++    for (unsigned i = 0; i < sys_info->mmaps.num_descriptors; i++)
++    {
++        const struct retro_memory_descriptor *desc =
++            &sys_info->mmaps.descriptors[i].core;
++
++        if (!desc->ptr || desc->len == 0)
++            continue;
++
++        BOOL claimed = NO;
++        if (desc->select != 0)
++            claimed = (((uint64_t)address & desc->select) == desc->start);
++        else
++            claimed = ((uint64_t)address >= desc->start &&
++                       (uint64_t)address < desc->start + desc->len);
++        if (!claimed)
++            continue;
++
++        uint64_t offset = ((uint64_t)address & ~desc->disconnect) - desc->start;
++        if (offset + length > desc->len)
++            return NO;
++
++        memcpy(buffer, (const uint8_t *)desc->ptr + offset, length);
++        return YES;
++    }
++
++    return NO;
++}
++
+ - (RetroArch_iOS *)getRetroArch {
+ #if !TARGET_IPHONE_SIMULATOR
+     return (RetroArch_iOS *)self.retroArch_iOS;
+diff --git a/ui/drivers/cocoa/LibretroCore.h b/ui/drivers/cocoa/LibretroCore.h
+--- a/ui/drivers/cocoa/LibretroCore.h
++++ b/ui/drivers/cocoa/LibretroCore.h
+@@ -160,6 +160,20 @@ typedef NS_ENUM(NSInteger, LibretroNetplayEvent) {
+ - (void)appendShader:(NSString *_Nonnull)path prepend:(BOOL)prepend;
+ - (void)addCheatCode:(NSString *_Nonnull)code index:(unsigned)index enable:(BOOL)enable;
+ - (void)resetCheatCode;
++
++/// Reads `length` bytes from the emulated console's address space into `buffer`.
++/// The read goes through the libretro memory maps the running core published
++/// via RETRO_ENVIRONMENT_SET_MEMORY_MAPS (the Azahar 3DS core publishes its
++/// heap / linear heap / VRAM this way; its retro_get_memory_data returns NULL,
++/// so there is no other read path). Returns YES on success.
++/// Returns NO when no core is running, no memory map covers the address, or
++/// the read would run past the mapped region. Never writes to `buffer` on
++/// failure. Safe to call from any thread while a game is running; the maps
++/// only change when a core loads or unloads.
++/// Manic addition (Pokemon X companion): the guest-memory read path.
++- (BOOL)readGuestMemoryAtAddress:(uint32_t)address
++                          length:(uint32_t)length
++                      intoBuffer:(uint8_t * _Nonnull)buffer;
+ + (BOOL)JITAvailable;
+ - (NSString * _Nullable)coreConfigValue:(NSString * _Nonnull)coreName key:(NSString * _Nonnull)key;
+ - (NSString * _Nullable)libretroConfigValue:(NSString * _Nonnull)key;
