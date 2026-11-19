@@ -3154,7 +3154,13 @@ extension PlayViewController {
     /// options as updated so the next retro_run re-parses it
     /// (ParseCoreOptions -> ApplySettings -> UpdateLayout).
     private func setAzaharSwapScreen(_ value: String) {
-        let configs = ["citra_swap_screen": value]
+        // STAGE1-X (build #20 follow-up): citra_swap_screen_mode "Hold"
+        // rides along so a stray L3 click only inverts the screens while
+        // held instead of toggling them (shipped Azahar.opt default was
+        // "Toggle"; see SCREEN-SELECTION-2026-11-19.md §1.5). Same
+        // persist + push + flag pattern as the swap value itself, so it
+        // applies to the running core on the next retro_run re-parse.
+        let configs = ["citra_swap_screen": value, "citra_swap_screen_mode": "Hold"]
         LibretroCore.sharedInstance().updateLibretroConfigs(configs)
         if Self.isGaming {
             LibretroCore.sharedInstance().updateRuningLibretroConfigs(configs)
