@@ -26,8 +26,13 @@
 //  exists via stored pointers; the pinned array VAs + the runtime species
 //  check are the wiring. BATTLE offsets species u16 +0x0C, HP max u16
 //  +0x0E, HP current u16 +0x10 (LIVE — +0x0E is max, not current), moves
-//  4 x 0xE at +0x116. HP liveness proven by the post-damage test (Chespin
-//  21 -> 18 at +0x10). The verified addresses live in
+//  4 x 0xE at +0x116, level u8 +0x18 (PROVEN 2026-11-19, LEVEL-HUNT-
+//  2026-11-19.md: Slot 8 fanfare dump, Chespin 6 vs Froakie 5 in the same
+//  dump; +0x08 is the current-level EXP threshold, NOT current EXP, and is
+//  never read). The enemy array is read the same way (BATTLE-SEND-HUNT-
+//  2026-11-19.md: Froakie HP 20->14 live, Bubble PP 30->29 live). HP
+//  liveness proven by the post-damage test (Chespin 21 -> 18 at +0x10).
+//  The verified addresses live in
 //  PokemonXCompanionModels.swift (PokemonXBattleRead) and are validated at
 //  runtime by a species check (1...721) on every poll — this bridge stays
 //  address-agnostic by design.
