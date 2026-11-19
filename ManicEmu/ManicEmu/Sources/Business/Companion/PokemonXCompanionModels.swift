@@ -6,10 +6,15 @@
 //  LIVE PARTY READ (2026-11-18/19): PokemonXLivePartyReader reads the verified
 //  DllBattle battle structs through HUDMemoryBridge (see PokemonXBattleRead
 //  below and PAGE-TABLE-MAPPING-2026-11-18.md). The structs are reached
-//  through the pinned party-pointer arrays (STABLE-CHAIN-HUNT-2026-11-18.md):
-//  the reader reads the 6 slot pointers from the player array at
-//  0x081FD3CC (enemy array 0x081FEB14), then each slot's battle struct at
-//  the pointer it holds — never a hardcoded struct base VA. Party and Battle
+//  through the party-pointer arrays at 0x081FD3CC (player) / 0x081FEB14
+//  (enemy) — BUT those VAs are SESSION-UNSTABLE (HUNTS-REPORT-2026-11-19.md
+//  §0a): after a VM restart + state reload the same VAs hold pointer-structs,
+//  not battle structs, and the Lv5 Chespin pattern is absent from live RAM
+//  during the visible Shauna battle. This read is a GUARDED FALLBACK ONLY:
+//  the per-slot species (1...721) + level (1...100) checks gate it, and any
+//  failure shows the placeholder, never stale data. A dynamic-discovery spec
+//  (signature scan / pointer chain from a stable global) is pending from a
+//  follow-up hunt — swap this implementation when it lands. Party and Battle
 //  tabs fill from live battle data when a battle is running and the species
 //  check passes; otherwise they stay on honest placeholders. Level is u8 at
 //  battle-struct +0x18, PROVEN by the Slot 8 fanfare dump (LEVEL-HUNT-
@@ -26,12 +31,13 @@
 //  re-walked from the singleton slot at VA 0x005AE748 every poll — never
 //  cached intermediates — grid X = f32 at position+0x04, grid Z = f32 at
 //  position+0x0C (1.0/tile, north = -Z, east = +X). Map ID is u8 at
-//  fieldmap-proc+0x0E0 (PROVISIONAL: Aquacorde 8, Vaniville 0, bedroom 2)
-//  with mid+0x01A u16 as the secondary id. Grid (x, z) is LOCAL to the
-//  current map (bedroom is (3,12), Aquacorde is (460,555)), so the live
-//  dot is plotted by MAP ID -> town, never by a global coordinate
-//  transform; an unmapped map ID shows "Unknown area (map id N)" with no
-//  dot. BAG LIVE READ (BAG-VA-HUNT-2026-11-19.md): bag block base VA
+//  fieldmap-proc+0x0E0, shown RAW as provisional/unconfirmed — the
+//  three-sample town table (Aquacorde 8, Vaniville 0, bedroom 2) was
+//  DISPROVED by the hunts (HUNTS-REPORT-2026-11-19.md §0d: Route 1 also
+//  reads map ID 2), so NO town name is derived from +0x0E0 and the live
+//  dot is DISABLED until a confirmed mapping exists. Grid (x, z) is LOCAL
+//  to the current map (bedroom is (3,12), Aquacorde is (460,555)).
+//  BAG LIVE READ (BAG-VA-HUNT-2026-11-19.md): bag block base VA
 //  0x08C67554, pockets Items +0x000 (400 entries), Key +0x640 (96), TM
 //  +0x7C0 (106), Medicine +0x968 (64), Berry +0xA68 (72), 4-byte entries
 //  (item_id u16 LE, count u16 LE). Guard: u32 at VA+0x640 must equal
@@ -39,12 +45,13 @@
 //  bag" — never stale counts. Bag item ids are the GAME's internal ids;
 //  names resolve through itemIdMap (game id -> PokeAPI id) into the items
 //  table; unmapped ids show "Item #<gameId>", never a guessed name.
-//  The battle SEND path does NOT exist: touch synthesis is blocked in the
-//  top-only layout (the core's framebuffer layout has no bottom screen —
-//  see WIRING-REPORT-2026-11-19.md), so the Battle tab buttons stay
-//  disabled and tapping a move sends nothing. The measured touch centres
-//  (PokemonXBattleFlow) are constants for the View only; the touch sender
-//  itself is another agent's job.
+//  BATTLE SEND (widescreen layout): the core gets identical top/bottom
+//  rects + citra_swap_screen="Bottom", so injected touches pass the
+//  IsWithinTouchscreen gate while only the top screen is displayed — the
+//  Battle tab buttons send through PokemonXTouchSender (see
+//  PokemonXCompanionView.swift). Move slot 3 has no measured centre and
+//  stays disabled; Growl / Vine Whip positions are estimated, not
+//  lab-measured.
 //  NOT BUILT, honestly: G11 Mega (no Mega Stone in the lab, no button
 //  centre measured, needs the G9d held-item field) and G12 multi-target
 //  (no target centres measured) — nothing is exposed for them. G9b–G9g
@@ -493,47 +500,46 @@ struct PokemonXPartyDetail {
 
 /// One live position poll. Grid (x, z) is LOCAL to the current map — each
 /// map has its own origin (bedroom (3,12), Aquacorde (460,555)) — so the
-/// View plots the dot by MAP ID -> town, never by a global transform.
+/// coordinates are never plotted by a global transform. The live dot is
+/// DISABLED: the map-ID -> town mapping was disproved (see mapId below).
 struct PokemonXMapPosition: Hashable {
     let gridX: Float
     let gridZ: Float
-    /// u8 at fieldmap-proc+0x0E0. PROVISIONAL (three maps sampled):
-    /// Aquacorde 8, Vaniville 0, bedroom 2.
+    /// u8 at fieldmap-proc+0x0E0. UNCONFIRMED — do NOT map it to a town.
+    /// The three-sample table (Aquacorde 8, Vaniville 0, bedroom 2) was
+    /// DISPROVED by the hunts (HUNTS-REPORT-2026-11-19.md §0d): Route 1
+    /// also reads map ID 2. The raw value is shown as provisional only
+    /// until a fourth map / the game's map table confirms what +0x0E0 is.
     let mapId: Int
     /// u16 at mid+0x01A (secondary: Aquacorde 421, Vaniville 2009,
-    /// bedroom 1380). Read and exposed so the phone test can confirm
-    /// which id tracks the map; not used for the label.
+    /// bedroom 1380 — same three-sample caveat as mapId). Read and
+    /// exposed so the phone test can confirm which id tracks the map;
+    /// not used for any label.
     let secondaryMapId: Int
 
     var areaLabel: String { Self.areaLabel(forMapId: mapId) }
 
-    /// Provisional map-ID -> town mapping. Unknown ids get an honest label
-    /// and no dot — never a guessed town.
+    /// No town-name mapping from +0x0E0 (disproved — see mapId comment).
+    /// The label is the raw value, marked unconfirmed.
     static func areaLabel(forMapId mapId: Int) -> String {
-        switch mapId {
-        case 0: return "Vaniville Town"
-        case 2: return "Vaniville Town (bedroom)"
-        case 8: return "Aquacorde Town"
-        default: return "Unknown area (map id \(mapId))"
-        }
+        "Map \(mapId) (unconfirmed)"
     }
 
-    /// Whether the live dot may be plotted. Only the outdoor town maps
-    /// get a dot: the bedroom (2) is indoors, and unknown ids have no
-    /// town to plot on (G20 dot rule).
+    /// Whether the live dot may be plotted. NEVER true for now: with no
+    /// confirmed map-ID -> town mapping there is no town to plot the dot
+    /// on (G20 dot rule). Re-enable only when a confirmed mapping lands.
     static func dotVisible(forMapId mapId: Int) -> Bool {
-        mapId == 0 || mapId == 8
+        _ = mapId
+        return false
     }
 
     /// PokeAPI location-area name for the current map, for the Guide tab's
-    /// live "what's in this area" list. Nil indoors (bedroom) and for
-    /// unknown ids — the Guide then shows no encounter list, not a wrong one.
+    /// live "what's in this area" list. Always nil until a confirmed
+    /// map-ID -> area mapping exists — the Guide then shows no encounter
+    /// list, not a wrong area's list.
     static func rawAreaName(forMapId mapId: Int) -> String? {
-        switch mapId {
-        case 0: return "vaniville-town-area"
-        case 8: return "aquacorde-town-area"
-        default: return nil
-        }
+        _ = mapId
+        return nil
     }
 }
 
@@ -803,8 +809,9 @@ final class PokemonXCompanionState: ObservableObject {
         return PokemonXMapPosition.dotVisible(forMapId: position.mapId)
     }
     /// G8 live half: wild encounters for the current area, from the
-    /// enriched Dex. Empty indoors, in unknown areas, and with no live
-    /// position — never a wrong area's list.
+    /// enriched Dex. Currently always empty: the map-ID -> area mapping
+    /// was disproved (HUNTS-REPORT-2026-11-19.md §0d), so rawAreaName
+    /// returns nil for every map rather than a wrong area's list.
     var guideAreaEncounters: [PokemonXGuideEncounter] {
         guard let position = mapPosition,
               let rawArea = PokemonXMapPosition.rawAreaName(forMapId: position.mapId) else { return [] }
@@ -1117,21 +1124,24 @@ private enum PokemonXGuestMemory {
     }
 }
 
-/// Verified live read for Pokemon X battles.
+/// Guarded-fallback live read for Pokemon X battles.
 ///
 /// The DllBattle battle-Pokemon structs live in the 3DS heap. They are
-/// reached through the party-pointer arrays pinned by the stable-chain hunt
-/// (STABLE-CHAIN-HUNT-2026-11-18.md): player array VA 0x081FD3CC, enemy
-/// array VA 0x081FEB14, each holding 6 consecutive u32 pointers to the
+/// reached through the party-pointer arrays at VA 0x081FD3CC (player) /
+/// 0x081FEB14 (enemy), each holding 6 consecutive u32 pointers to the
 /// battle structs (slot 0 = Chespin 0x081FD418 / Froakie 0x081FEB60 in the
-/// Shauna battle). Both array VAs are stable across the three dumps of that
-/// battle, but they are heap-allocated, so EVERY poll validates slot 0's
-/// species before trusting anything. Outside battle (or if the heap moved)
-/// the read fails the species check and the UI stays on the placeholder —
-/// never stale data. No complete stable-global pointer chain to the arrays
-/// exists via stored pointers (the two referrer objects that hold the array
-/// pointers are themselves referenced by nothing), so the pinned array VAs
-/// + species check are the wiring, with a durable-chain hunt as later work.
+/// Shauna battle of the ORIGINAL session). SESSION-UNSTABLE
+/// (HUNTS-REPORT-2026-11-19.md §0a): after a VM restart + state reload
+/// those VAs hold pointer-structs, not battle structs — the "stable across
+/// three dumps" claim held within one session only. So this read is a
+/// GUARDED FALLBACK: EVERY poll validates slot 0's species (1...721) and
+/// level (1...100) before trusting anything, and any failure shows the
+/// placeholder, never stale data. A dynamic-discovery spec (signature scan
+/// / pointer chain from a stable global) is pending from a follow-up hunt;
+/// swap this implementation when it lands. No complete stable-global
+/// pointer chain to the arrays exists via stored pointers (the two
+/// referrer objects that hold the array pointers are themselves referenced
+/// by nothing).
 ///
 /// BATTLE struct offsets (NOT PK6), verified in three Azahar dumps with HP
 /// liveness proven by the post-damage test (see PAGE-TABLE-MAPPING-2026-11-18.md):

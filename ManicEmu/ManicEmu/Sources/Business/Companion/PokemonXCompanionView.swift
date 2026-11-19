@@ -398,7 +398,7 @@ struct PokemonXCompanionView: View {
         .padding(12)
     }
 
-    // MARK: Map tab (schematic Kalos + live dot by map id)
+    // MARK: Map tab (schematic Kalos; live dot DISABLED — map-id mapping unconfirmed)
 
     /// Town coordinates from KALOS-MAP-COORDS.md (normalized 0.0–1.0,
     /// x = east, y = south). Schematic reference positions, not ROM art.
@@ -422,15 +422,15 @@ struct PokemonXCompanionView: View {
         ("Pokemon League", "PL", 0.42, 0.28),
     ]
 
-    /// Whether this town is the live position: the dot is plotted by MAP
-    /// ID -> town only (grid coords are local to each map, never global).
+    /// Whether this town is the live position. ALWAYS false for now: the
+    /// map-ID -> town mapping was DISPROVED (HUNTS-REPORT-2026-11-19.md
+    /// §0d — Route 1 also reads map ID 2, so the old 0=Vaniville /
+    /// 8=Aquacorde table is untrusted), so there is no town to plot the
+    /// dot on. The grid coords are local to each map, never global.
+    /// Re-enable only when a confirmed mapping lands.
     private func isLiveTown(_ town: (name: String, short: String, x: CGFloat, y: CGFloat)) -> Bool {
-        guard let position = state.mapPosition, state.mapDotVisible else { return false }
-        switch position.mapId {
-        case 0: return town.name == "Vaniville Town"
-        case 8: return town.name == "Aquacorde Town"
-        default: return false
-        }
+        _ = town
+        return false
     }
 
     private var kalosMapDrawing: some View {
@@ -467,11 +467,11 @@ struct PokemonXCompanionView: View {
                 Text("\(position.areaLabel) — tile (\(Int(position.gridX)), \(Int(position.gridZ)))")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                Text("Map id \(position.mapId) (provisional) · secondary id \(position.secondaryMapId).")
+                Text("Map id \(position.mapId) (unconfirmed) · secondary id \(position.secondaryMapId).")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 if !state.mapDotVisible {
-                    Text("No dot for this map — indoors (bedroom) or unknown area.")
+                    Text("No dot for this map — the map-id-to-town mapping is unconfirmed (Route 1 also reads map id 2).")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
