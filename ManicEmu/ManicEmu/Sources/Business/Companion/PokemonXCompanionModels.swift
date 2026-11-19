@@ -3,29 +3,36 @@
 //  ManicEmu
 //
 //  PokeDaisy-style companion for Pokemon X (Gen 6) — data models and state.
-//  LIVE PARTY READ (2026-11-18/19): PokemonXLivePartyReader reads the verified
-//  DllBattle battle structs through HUDMemoryBridge (see PokemonXBattleRead
-//  below and PAGE-TABLE-MAPPING-2026-11-18.md). The structs are reached
-//  through the party-pointer arrays at 0x081FD3CC (player) / 0x081FEB14
-//  (enemy) — BUT those VAs are SESSION-UNSTABLE (HUNTS-REPORT-2026-11-19.md
-//  §0a): after a VM restart + state reload the same VAs hold pointer-structs,
-//  not battle structs, and the Lv5 Chespin pattern is absent from live RAM
-//  during the visible Shauna battle. This read is a GUARDED FALLBACK ONLY:
-//  the per-slot species (1...721) + level (1...100) checks gate it, and any
-//  failure shows the placeholder, never stale data. A dynamic-discovery spec
-//  (signature scan / pointer chain from a stable global) is pending from a
-//  follow-up hunt — swap this implementation when it lands. Party and Battle
-//  tabs fill from live battle data when a battle is running and the species
-//  check passes; otherwise they stay on honest placeholders. Level is u8 at
-//  battle-struct +0x18, PROVEN by the Slot 8 fanfare dump (LEVEL-HUNT-
-//  2026-11-19.md: Chespin 6, Froakie 5 in the same dump); +0x08 is the
-//  current-level EXP threshold, NOT current EXP, and is never read. The
-//  enemy read uses the same path on the enemy array (BATTLE-SEND-HUNT-
-//  2026-11-19.md: Froakie HP 20→14 live, Bubble PP 30→29 live). Stats are
-//  5 x u16 at +0xF6..+0xFE (ATK/DEF/SPA/SPD/SPE, LEVEL-HUNT-2026-11-19.md
-//  §2a/§6a); foe types are two u8 game type ids at +0x100 (audit G15:
-//  Froakie 10/10 = Water/Water — see the note on PokemonXBattleRead;
-//  the battle-data hunt report itself does not document +0x100, so the
+//  LIVE PARTY READ (2026-11-19): the FIELD party read (G1, PROVEN —
+//  HUNTS-REPORT-2-2026-11-19.md §2.3) is the Party tab's base data:
+//  pointer table 0x08CE1C5C -> wrapper+0x04 -> 232-byte XOR-encrypted
+//  PKM blob, validated by sanity (+0x04 == 0) + checksum (+0x06 == sum
+//  of u16s over the XOR-decrypted 0x08–0xE7) + species 1...721. Fixed
+//  block-A fields: species +0x40, held item +0x42, TID/SID +0x44,
+//  EXP +0x48, ability +0x4C, PID +0x50. Level is derived from EXP via
+//  the species' growth rate — the blob does not store level. HP IS
+//  wired from the field: the wrapper's +0x08 24-byte block (HUNTS-
+//  REPORT-3-2026-11-19.md §4), decrypted with the same LCRNG keystream
+//  seeded by enc_const, words 0..11 — status +0x00, level +0x04 (cross-
+//  checked against the EXP-derived level), HP cur +0x08, HP max +0x0A,
+//  Atk +0x0C, Def +0x0E, SpA +0x12. The block is OUTSIDE-BATTLE HP: it
+//  holds PRE-BATTLE HP during a battle, so the poll overrides the active
+//  slot's HP with the battle struct's live HP. Nickname/moves/PP are
+//  shuffle-dependent (only idx 1 + 9 mapped) and are shown only in
+//  battle; IVs/EVs/nature are unconfirmed. The BATTLE read (§1.4)
+//  is the stat structs at base 0x082059D8 (player +0, enemy +0x244,
+//  mirrors +0x488/+0x6CC), validated per struct (species 1...721,
+//  level 1...100, HP max > 0, HP cur <= HP max) — the pinned arrays at
+//  0x081FD3CC / 0x081FEB14 hold wrappers, NOT structs, and are never
+//  read. Both reads have a structural/heap scan fallback (throttled,
+//  cached). Battle HP/moves/stats/types come from the battle structs
+//  only, and enrich the Party tab's active slot (matched by species).
+//  Level is u8 at battle-struct +0x18; +0x08 is the current-level EXP
+//  threshold, NOT current EXP, and is never read. Stats are 5 x u16 at
+//  +0xF6..+0xFE (ATK/DEF/SPA/SPD/SPE, LEVEL-HUNT-2026-11-19.md §2a/§6a);
+//  foe types are two u8 game type ids at +0x100 (audit G15: Froakie
+//  10/10 = Water/Water — see the note on PokemonXBattleRead; the
+//  battle-data hunt report itself does not document +0x100, so the
 //  read validates both bytes 0...17 and yields nil types on failure).
 //  MAP LIVE READ (MAP-LIVE-READ-2026-11-19.md): the position chain is
 //  re-walked from the singleton slot at VA 0x005AE748 every poll — never
@@ -53,22 +60,25 @@
 //  stays disabled; Growl / Vine Whip positions are estimated, not
 //  lab-measured.
 //  NOT BUILT, honestly: G11 Mega (no Mega Stone in the lab, no button
-//  centre measured, needs the G9d held-item field) and G12 multi-target
-//  (no target centres measured) — nothing is exposed for them. G9b–G9g
-//  (IVs/EVs, status, held item, ability, nature, EXP) are unmapped fields
-//  with no ground truth in the lab; the model fields stay nil. G10
-//  active-battler tracking is NOT done (the index field is unhunted) —
-//  slot 0 stays the assumed active battler, labelled as an assumption.
-//  G6 Card data and G2 Dex flags need the save-buffer hunt (not landed);
-//  the Card tab is an honest all-unknown placeholder. G7 Boxes, G19 Fly,
-//  G21 field items, G26 shiny, G24/G25/G28/G30 are not in this file.
+//  centre measured) and G12 multi-target (no target centres measured) —
+//  nothing is exposed for them. G9b/G9c/G9f (IVs/EVs, status, nature)
+//  stay nil — shuffle-dependent, unconfirmed, no ground truth. G9d held
+//  item, G9e ability and G9g EXP ARE wired now, from the field blob's
+//  fixed block-A fields (HUNTS-REPORT-2 §2.3). G10 active-battler
+//  tracking: the active slot is found by matching the battle struct's
+//  species against the field party (no index field is hunted) — when the
+//  field read fails, slot 0 stays the assumed active battler, labelled
+//  as an assumption. G6 Card data and G2 Dex flags need the trainer-info
+//  RAM object (not located — the disk-format save buffer does not exist
+//  in RAM); the Card tab is an honest all-unknown placeholder. G7 Boxes,
+//  G19 Fly, G21 field items, G26 shiny, G24/G25/G28/G30 are not in this file.
 //  Static reference data (type chart, full 721-species enriched Dex,
-//  621 moves, 762 items, game-ID item map) comes from PokeAPI
-//  (https://pokeapi.co/api/v2/) via PokemonXCompanionData.json, with the
-//  generated 26-species/20-move literals in
-//  PokemonXCompanionStaticData.swift as fallback — the fallback is the
-//  ORIGINAL 26-species/20-move sample only; the JSON is the source of
-//  truth and is NOT regenerated into Swift (too big).
+//  621 moves, 762 items, game-ID item map, 721 growth rates, 374 ability
+//  names) comes from PokeAPI (https://pokeapi.co/api/v2/) via
+//  PokemonXCompanionData.json, with the generated 26-species/20-move
+//  literals in PokemonXCompanionStaticData.swift as fallback — the
+//  fallback is the ORIGINAL 26-species/20-move sample only; the JSON is
+//  the source of truth and is NOT regenerated into Swift (too big).
 //
 //  SPDX-License-Identifier: AGPL-3.0-or-later
 //
@@ -249,11 +259,20 @@ struct PokemonXStaticDataFile: Decodable {
     /// Enriched detail per species, decoded from the same "pokemon" array.
     /// Empty when the JSON has no enriched entries — detail views hide.
     let enrichedPokemon: [PokemonXEnrichedPokemon]
+    /// Growth rate per species id (as a string key) -> PokeAPI growth-rate
+    /// name ("medium-slow" etc.). 721 entries. Drives the field-party
+    /// EXP -> level derivation (HUNTS-REPORT-2 §2.3 step 6).
+    let growthRates: [String: String]
+    /// Ability id (as a string key) -> PokeAPI ability name. 374 entries.
+    /// Resolves the field blob's ability id (+0x4C) to a display name.
+    let abilities: [String: String]
 
     enum CodingKeys: String, CodingKey {
         case types, pokemon, moves, items
         case typeChart = "type_chart"
         case itemIdMap = "item_id_map"
+        case growthRates = "growth_rates"
+        case abilities
     }
 
     init(from decoder: Decoder) throws {
@@ -264,6 +283,8 @@ struct PokemonXStaticDataFile: Decodable {
         moves = try container.decode([PokemonXStaticMove].self, forKey: .moves)
         items = try container.decodeIfPresent([PokemonXStaticItem].self, forKey: .items) ?? []
         itemIdMap = try container.decodeIfPresent([String: Int].self, forKey: .itemIdMap) ?? [:]
+        growthRates = try container.decodeIfPresent([String: String].self, forKey: .growthRates) ?? [:]
+        abilities = try container.decodeIfPresent([String: String].self, forKey: .abilities) ?? [:]
         let enriched: [PokemonXEnrichedPokemon]? = try? container.decode([PokemonXEnrichedPokemon].self, forKey: .pokemon)
         enrichedPokemon = enriched ?? []
     }
@@ -308,6 +329,42 @@ enum PokemonXCompanionData {
         for detail in enrichedPokemon { out[detail.id] = detail }
         return out
     }()
+
+    /// Growth rate per species id (PokeAPI name). Empty when the bundled
+    /// JSON is the old shape — the field party then cannot derive levels.
+    static let growthRates: [String: String] = {
+        if let file = bundledFile() { return file.growthRates }
+        return [:]
+    }()
+
+    /// Ability id -> name. Empty when the bundled JSON is the old shape —
+    /// the field party then shows the ability id, not a name.
+    static let abilities: [String: String] = {
+        if let file = bundledFile() { return file.abilities }
+        return [:]
+    }()
+
+    /// Growth-rate name for a species, or nil when the JSON has none.
+    static func growthRate(forSpecies speciesId: Int) -> String? {
+        growthRates[String(speciesId)]
+    }
+
+    /// Display name for a game ability id (field blob +0x4C), or the
+    /// honest placeholder "Ability #<id>" when the table has no name.
+    static func displayAbilityName(forId abilityId: Int) -> String {
+        if let name = abilities[String(abilityId)] { return name.capitalized }
+        return "Ability #\(abilityId)"
+    }
+
+    /// Level for a total EXP and a species, via the standard Gen 6
+    /// EXP -> level table for that species' growth rate
+    /// (HUNTS-REPORT-2-2026-11-19.md §2.3 step 6). The blob stores EXP,
+    /// never level. Nil when the growth rate is unknown — never a guessed
+    /// level. Chespin (medium-slow): EXP 135 -> Lv5, 179 -> Lv6, 202 -> Lv6.
+    static func level(forExp exp: Int, speciesId: Int) -> Int? {
+        guard let rate = growthRate(forSpecies: speciesId) else { return nil }
+        return PokemonXGrowthRate.level(forExp: exp, growthRate: rate)
+    }
 
     static func bundledFile() -> PokemonXStaticDataFile? {
         guard let url = Bundle.main.url(forResource: "PokemonXCompanionData", withExtension: "json"),
@@ -409,6 +466,66 @@ enum PokemonXCompanionData {
     }
 }
 
+// MARK: - Gen 6 EXP -> level (growth rates)
+
+/// Standard Gen 6 EXP thresholds, per growth rate (Bulbapedia).
+/// PokeAPI growth-rate names: "fast", "medium" (= Medium Fast),
+/// "medium-slow", "slow", "slow-then-very-fast" (= Erratic),
+/// "fast-then-very-slow" (= Fluctuating). All arithmetic is integer and
+/// all values are positive for level >= 1, so Swift's truncating division
+/// matches the floor division of the reference formulas. Verified in
+/// Python before this was written: medium-slow Lv5=135, Lv6=179, Lv7=236;
+/// Lv100 anchors fast 800,000 / medium 1,000,000 / medium-slow 1,059,860 /
+/// slow 1,250,000 / erratic 600,000 / fluctuating 1,640,000.
+enum PokemonXGrowthRate {
+    /// EXP needed to reach `level` (1...100) for a growth rate. Level 1
+    /// needs 0 by definition (the medium-slow formula goes negative at
+    /// level 1, so the result is clamped at 0).
+    static func expThreshold(level: Int, growthRate: String) -> Int {
+        guard level > 1 else { return 0 }
+        let n = level
+        let raw: Int
+        switch growthRate {
+        case "fast":
+            raw = (4 * n * n * n) / 5
+        case "medium":
+            raw = n * n * n
+        case "medium-slow":
+            raw = (6 * n * n * n) / 5 - 15 * n * n + 100 * n - 140
+        case "slow":
+            raw = (5 * n * n * n) / 4
+        case "slow-then-very-fast": // Erratic
+            if n <= 50 { raw = (n * n * n * (100 - n)) / 50 }
+            else if n <= 68 { raw = (n * n * n * (150 - n)) / 100 }
+            else if n <= 98 { raw = (n * n * n * ((1911 - 10 * n) / 3)) / 500 }
+            else { raw = (n * n * n * (160 - n)) / 100 }
+        case "fast-then-very-slow": // Fluctuating
+            if n <= 15 { raw = (n * n * n * ((n + 1) / 3 + 24)) / 50 }
+            else if n <= 35 { raw = (n * n * n * (n + 14)) / 50 }
+            else { raw = (n * n * n * (n / 2 + 32)) / 50 }
+        default:
+            // Unknown growth rate: Medium Fast is the most common
+            // (296/721) and the only safe fallback — the caller only
+            // reaches here when the JSON has no rate for the species.
+            raw = n * n * n
+        }
+        return max(0, raw)
+    }
+
+    /// Highest level (1...100) whose threshold is <= `exp`.
+    static func level(forExp exp: Int, growthRate: String) -> Int {
+        var level = 1
+        for candidate in 2...100 {
+            if expThreshold(level: candidate, growthRate: growthRate) <= exp {
+                level = candidate
+            } else {
+                break
+            }
+        }
+        return level
+    }
+}
+
 // MARK: - Live data models (empty until the memory bridge is wired)
 
 /// The five battle-struct stats, in the struct's order ATK/DEF/SPA/SPD/SPE
@@ -442,17 +559,32 @@ struct PokemonXPartySlot: Identifiable {
     /// This slot's live moves (ids + PP), with matchup data filled in by
     /// the poll when the foe's types are known. Empty outside battle.
     var moves: [PokemonXBattleMoveSlot] = []
-    // G9b–G9g — UNMAPPED battle-struct fields. All stay nil: the IV/EV,
-    // status, held-item, ability, nature and current-EXP fields have no
-    // verified offsets, and the lab has no known-IV/nature ground truth to
-    // hunt them against (COMPANION-AUDIT-2026-11-19.md G9b–G9g). Do not
-    // wire +0x08 as EXP — it is the level EXP threshold, not current EXP.
+    // G9b–G9g — PARTLY WIRED from the field blob (HUNTS-REPORT-2 §2.3):
+    // held item (+0x42), ability (+0x4C) and current EXP (+0x48) are
+    // FIXED block-A offsets and ARE filled by the field party read.
+    // IVs/EVs/nature stay nil: their offsets are shuffle-dependent
+    // candidates, unconfirmed (stat cross-checks off by 1). Do not wire
+    // +0x08 as EXP — it is the level EXP threshold, not current EXP.
     var ivs: [Int]? = nil
     var evs: [Int]? = nil
     var heldItemName: String? = nil
     var abilityName: String? = nil
     var natureName: String? = nil
     var currentExp: Int? = nil
+    /// Trainer ID / Secret ID / Personality value from the field blob
+    /// (TID/SID u32 +0x44, PID u32 +0x50). Shown in the detail view;
+    /// the shiny formula needs them (G26) but no shiny alert is wired —
+    /// there is no shiny test case, so a positive alert is unproven.
+    var trainerId: Int? = nil
+    var secretId: Int? = nil
+    var personalityId: Int? = nil
+    /// Field stats from the wrapper's +0x08 block (HUNTS-REPORT-3 §4):
+    /// Atk +0x0C, Def +0x0E, SpA +0x12. The +0x10/+0x14 pair (Speed vs
+    /// Sp. Def) is NOT wired — their order is unproven. Shown in the
+    /// detail view when the battle stats are nil (outside battle).
+    var fieldAttack: Int? = nil
+    var fieldDefense: Int? = nil
+    var fieldSpecialAttack: Int? = nil
 
     static func empty(id: Int) -> PokemonXPartySlot {
         PokemonXPartySlot(id: id, speciesName: nil, level: nil, currentHP: nil, maxHP: nil, status: nil)
@@ -481,8 +613,12 @@ struct PokemonXBattleMoveSlot: Identifiable {
 }
 
 /// Tap-for-detail data for one party slot (G9a): stats + moves + what the
-/// species learns next. The G9b–G9g fields are nil by design (see
-/// PokemonXPartySlot) — the detail view shows them as unknown, not zero.
+/// species learns next. The G9d held item, G9e ability and G9g EXP are
+/// filled from the field blob (HUNTS-REPORT-2 §2.3); the field stats
+/// (Atk/Def/SpA) come from the wrapper's +0x08 block (HUNTS-REPORT-3 §4)
+/// and are shown only when the battle stats are nil (outside battle).
+/// IVs/EVs/nature stay nil by design (unconfirmed) — the detail view
+/// shows them as unknown, not zero.
 struct PokemonXPartyDetail {
     let slotId: Int
     let speciesId: Int?
@@ -494,6 +630,16 @@ struct PokemonXPartyDetail {
     let types: [String]?
     let moves: [PokemonXBattleMoveSlot]
     let nextMovesToLearn: [PokemonXLevelUpMoveEntry]
+    let status: String?
+    let heldItemName: String?
+    let abilityName: String?
+    let currentExp: Int?
+    let trainerId: Int?
+    let secretId: Int?
+    let personalityId: Int?
+    let fieldAttack: Int?
+    let fieldDefense: Int?
+    let fieldSpecialAttack: Int?
 }
 
 // MARK: - Map live position (MAP-LIVE-READ-2026-11-19.md)
@@ -754,23 +900,23 @@ final class PokemonXCompanionState: ObservableObject {
     @Published var selectedTab: Tab = .party
     @Published var partySlots: [PokemonXPartySlot] = (0..<6).map { PokemonXPartySlot.empty(id: $0) }
     @Published var battleMoves: [PokemonXBattleMoveSlot] = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
-    /// The active opponent (enemy party slot 0) during a battle, from the
-    /// enemy array read. Nil when no battle is running or the enemy read
+    /// The active opponent during a battle, from the enemy battle struct
+    /// (base+0x244). Nil when no battle is running or the enemy read
     /// fails validation — the Battle tab hides the opponent card then.
     @Published var enemyActive: PokemonXPartySlot?
-    /// G16 foe team: all 6 enemy slots. A nil slot is UNKNOWN — the audit
-    /// says it is unverified whether slots 1-5 populate before send-out,
-    /// so the View shows unknown for them until a multi-Pokemon battle is
-    /// observed populating them. Never shown as empty.
+    /// G16 foe team: only the ACTIVE foe is readable (the battle struct
+    /// gives one enemy struct, not a 6-slot array — the old array held
+    /// wrappers, not structs). Slots 1-5 stay nil (UNKNOWN) until a
+    /// multi-Pokemon foe-team read is proven; never shown as empty.
     @Published var enemyTeam: [PokemonXPartySlot?] = [nil, nil, nil, nil, nil, nil]
 
-    /// G10 active-battler index. The hunt for the index field is NOT done,
-    /// so this stays 0 (the Shauna battle's active battler) with the
-    /// assumption labelled in `activeBattlerNote`. After a switch the moves
-    /// shown may be wrong — the View must say so, not hide it.
+    /// G10 active-battler index. Found by matching the battle struct's
+    /// species against the field party (no index field is hunted). When
+    /// the field party cannot be read, this stays 0 (the Shauna battle's
+    /// active battler) — the assumption labelled in `activeBattlerNote`.
     @Published var activeBattlerIndex = 0
     var activeBattlerNote: String {
-        "Active battler assumed to be slot 1 — switch tracking needs the G10 hunt, so after a switch the moves shown may be the wrong Pokemon's."
+        "Active battler matched by species against your party — when the party read fails, slot 1 is assumed instead, so after a switch the moves shown may be the wrong Pokemon's."
     }
 
     /// G15/G17: best-pick state for the active battler's moves. Nil when
@@ -873,7 +1019,17 @@ final class PokemonXCompanionState: ObservableObject {
             stats: slot.stats,
             types: slot.types,
             moves: slot.moves,
-            nextMovesToLearn: speciesId.map { PokemonXCompanionData.nextMovesToLearn(speciesId: $0, level: level) } ?? [])
+            nextMovesToLearn: speciesId.map { PokemonXCompanionData.nextMovesToLearn(speciesId: $0, level: level) } ?? [],
+            status: slot.status,
+            heldItemName: slot.heldItemName,
+            abilityName: slot.abilityName,
+            currentExp: slot.currentExp,
+            trainerId: slot.trainerId,
+            secretId: slot.secretId,
+            personalityId: slot.personalityId,
+            fieldAttack: slot.fieldAttack,
+            fieldDefense: slot.fieldDefense,
+            fieldSpecialAttack: slot.fieldSpecialAttack)
     }
 
     /// True only once the bridge has a real read callback AND a read returned data.
@@ -905,8 +1061,22 @@ final class PokemonXCompanionState: ObservableObject {
         // clear them on any failed validation — never stale data.
         pollMapOnce()
         pollBagOnce()
-        guard let liveSlots = PokemonXLivePartyReader.readPlayerParty() else {
-            // No battle running, or the heap base moved: never show stale data.
+
+        // Field party (G1 + field HP, HUNTS-REPORT-2 §2.3 + REPORT-3 §4):
+        // the 6 slots' species/level/held/ability/EXP/TID/SID/PID + HP.
+        // The Party tab's base data, in the field AND in battle.
+        // Fallback: the heap scan (checksum-validated blobs + wrapper
+        // search for the HP block). Nil only when the table is unreadable
+        // AND the scan finds nothing.
+        let fieldSlots = PokemonXFieldPartyReader.readFieldParty()
+            ?? PokemonXFieldPartyReader.scanForParty()
+
+        // Battle structs (§1.4): active player + active foe, with live
+        // HP / moves / stats / types. Nil when no battle is running.
+        let battle = PokemonXBattleStructReader.readBattleStructs()
+
+        // Nothing live at all: clear everything, never stale data.
+        guard fieldSlots != nil || battle.player != nil || battle.enemy != nil else {
             if isLiveDataAvailable {
                 isLiveDataAvailable = false
                 partySlots = (0..<6).map { PokemonXPartySlot.empty(id: $0) }
@@ -919,29 +1089,23 @@ final class PokemonXCompanionState: ObservableObject {
                 switchSuggestionNote = nil
                 previousBattleHP = [:]
             }
-            bridgeStatus = "No live battle right now — open a battle to see your party."
+            bridgeStatus = "No live data yet — start the game to see your party."
             return
         }
         isLiveDataAvailable = true
-        bridgeStatus = "Live — reading your party from the battle."
-        // Enemy first: the foe's types drive every matchup (G15/G17).
-        // Independent read — if it fails validation, hide the opponent
-        // card but keep the player party (the arrays are separate reads).
-        let enemySlots: [PokemonXLiveSlot?] = PokemonXLivePartyReader.readEnemyParty()
-            ?? [nil, nil, nil, nil, nil, nil]
-        let foeTypes: [String] = enemySlots[0]?.types ?? []
-        enemyTeam = enemySlots.enumerated().map { index, live in
-            guard let live else { return nil }
-            var slot = PokemonXPartySlot.empty(id: index)
-            slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == live.species })?.name.capitalized ?? "#\(live.species)"
-            slot.level = live.level
-            slot.currentHP = live.currentHP
-            slot.maxHP = live.maxHP
-            slot.stats = live.stats
-            slot.types = live.types
-            return slot
+        if fieldSlots != nil && battle.player != nil {
+            bridgeStatus = "Live — party + battle."
+        } else if fieldSlots != nil {
+            bridgeStatus = "Live — reading your party from the field."
+        } else {
+            bridgeStatus = "Live — reading the battle (party read unavailable)."
         }
-        if let foe = enemySlots[0] {
+
+        // The foe's types drive every matchup (G15/G17). The battle read
+        // gives the ACTIVE foe only — the other enemy slots are unknown
+        // (the old 6-slot enemy array held wrappers, not structs).
+        let foeTypes: [String] = battle.enemy?.types ?? []
+        if let foe = battle.enemy {
             var slot = PokemonXPartySlot.empty(id: 0)
             slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == foe.species })?.name.capitalized ?? "#\(foe.species)"
             slot.level = foe.level
@@ -950,48 +1114,83 @@ final class PokemonXCompanionState: ObservableObject {
             slot.stats = foe.stats
             slot.types = foe.types
             enemyActive = slot
+            enemyTeam = [slot, nil, nil, nil, nil, nil]
         } else {
             enemyActive = nil
+            enemyTeam = [nil, nil, nil, nil, nil, nil]
         }
-        partySlots = liveSlots.enumerated().map { index, live in
-            guard let live else {
-                var slot = PokemonXPartySlot.empty(id: index)
-                slot.isKnownEmpty = true
-                return slot
-            }
-            var slot = PokemonXPartySlot.empty(id: index)
-            slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == live.species })?.name.capitalized ?? "#\(live.species)"
-            slot.level = live.level
-            slot.currentHP = live.currentHP
-            slot.maxHP = live.maxHP
-            slot.stats = live.stats
-            slot.types = live.types
-            slot.moves = live.moves.enumerated().map { moveIndex, move in
-                var moveSlot = PokemonXBattleMoveSlot.empty(id: moveIndex)
-                if move.id != 0 {
-                    let known = PokemonXCompanionData.moves.first(where: { $0.id == move.id })
-                    moveSlot.name = known?.name.capitalized ?? "Move #\(move.id)"
-                    moveSlot.type = known?.type
-                    moveSlot.power = known?.power
-                    moveSlot.currentPP = move.pp
-                    moveSlot.maxPP = move.maxPP
-                    // G15 matchup: effectiveness vs the foe's types, from
-                    // the full G4 move table + the verified type chart.
-                    if let type = known?.type, !foeTypes.isEmpty {
-                        let effectiveness = PokemonXCompanionData.effectiveness(attacking: type, defending: foeTypes)
-                        moveSlot.effectiveness = effectiveness
-                        if let power = known?.power {
-                            moveSlot.score = effectiveness * Double(power)
-                        }
-                    }
+
+        // Party slots from the field read; the battle struct enriches the
+        // active slot (matched by species) with live HP/moves/stats/types.
+        var newPartySlots: [PokemonXPartySlot] = (0..<6).map { PokemonXPartySlot.empty(id: $0) }
+        if let fieldSlots {
+            for (index, field) in fieldSlots.enumerated() {
+                guard let field else {
+                    newPartySlots[index].isKnownEmpty = true
+                    continue
                 }
-                return moveSlot
+                var slot = PokemonXPartySlot.empty(id: index)
+                slot.speciesName = PokemonXCompanionData.pokemon.first(where: { $0.id == field.species })?.name.capitalized ?? "#\(field.species)"
+                slot.level = field.level
+                slot.currentHP = field.currentHP
+                slot.maxHP = field.maxHP
+                // Status 0 = healthy (no status to show). A nonzero code
+                // is shown raw — only 0 was observed live, so no condition
+                // name is guessed (HUNTS-REPORT-3 §5).
+                if let statusCode = field.statusCode, statusCode != 0 {
+                    slot.status = "Status #\(statusCode)"
+                }
+                slot.heldItemName = PokemonXCompanionData.displayItemName(forGameId: field.heldItemGameId)
+                slot.abilityName = PokemonXCompanionData.displayAbilityName(forId: field.abilityId)
+                slot.currentExp = field.exp
+                slot.trainerId = field.trainerId
+                slot.secretId = field.secretId
+                slot.personalityId = field.personalityId
+                slot.fieldAttack = field.fieldAttack
+                slot.fieldDefense = field.fieldDefense
+                slot.fieldSpecialAttack = field.fieldSpecialAttack
+                newPartySlots[index] = slot
             }
-            return slot
         }
-        // G27 death detection: a party member's HP hitting 0 in battle is
-        // a faint. (Out-of-battle faint state needs the field party, G1 —
-        // not detectable from the battle read.)
+        // Battle enrichment (G10 by species match — no index field is
+        // hunted). During battle the field block holds PRE-BATTLE HP, so
+        // the active slot's HP comes from the battle struct; benched slots
+        // keep their field HP (unchanged in battle). When the field read
+        // fails entirely, the active battler is slot 0 by assumption
+        // (labelled in the View); when the species does not match any
+        // field slot, no party slot is enriched — the Battle tab still
+        // shows the active battler.
+        if let player = battle.player {
+            let playerName = PokemonXCompanionData.pokemon.first(where: { $0.id == player.species })?.name.capitalized ?? "#\(player.species)"
+            var activeIndex = 0
+            if let match = newPartySlots.firstIndex(where: { $0.speciesName == playerName }) {
+                activeIndex = match
+            } else if fieldSlots == nil {
+                var slot = PokemonXPartySlot.empty(id: 0)
+                slot.speciesName = playerName
+                slot.level = player.level
+                newPartySlots[0] = slot
+            }
+            if newPartySlots[activeIndex].speciesName == playerName {
+                var slot = newPartySlots[activeIndex]
+                slot.currentHP = player.currentHP
+                slot.maxHP = player.maxHP
+                slot.stats = player.stats
+                slot.types = player.types
+                slot.moves = movesWithMatchups(player.moves, foeTypes: foeTypes)
+                newPartySlots[activeIndex] = slot
+            }
+            activeBattlerIndex = activeIndex
+            battleMoves = movesWithMatchups(player.moves, foeTypes: foeTypes)
+        } else {
+            battleMoves = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
+        }
+        partySlots = newPartySlots
+
+        // G27 death detection: a party member's HP hitting 0 is a faint.
+        // During battle the active slot's HP is the live battle-struct
+        // HP, so a faint is caught the poll it happens; benched slots
+        // carry field HP (unchanged in battle), so they cannot false-fire.
         for (index, slot) in partySlots.enumerated() {
             if let previous = previousBattleHP[index], previous > 0,
                let current = slot.currentHP, current == 0 {
@@ -999,16 +1198,32 @@ final class PokemonXCompanionState: ObservableObject {
             }
             previousBattleHP[index] = slot.currentHP
         }
-        // Battle tab: the active battler is slot 0 in the Shauna battle (the
-        // first Pokemon sent out). G10 is NOT done — if the player switches
-        // mid-battle, slot 0 is no longer the active battler; the View must
-        // show `activeBattlerNote` so the moves are not presented as fact.
-        if activeBattlerIndex < partySlots.count {
-            battleMoves = partySlots[activeBattlerIndex].moves
-        } else {
-            battleMoves = (0..<4).map { PokemonXBattleMoveSlot.empty(id: $0) }
-        }
         updateBestPick(foeTypes: foeTypes)
+    }
+
+    /// Builds Battle tab move slots from a battle struct's moves, with
+    /// G15 matchup data (effectiveness vs the foe's types, from the full
+    /// G4 move table + the verified type chart) and the G17 score.
+    private func movesWithMatchups(_ moves: [(id: Int, pp: Int, maxPP: Int)], foeTypes: [String]) -> [PokemonXBattleMoveSlot] {
+        moves.enumerated().map { moveIndex, move in
+            var moveSlot = PokemonXBattleMoveSlot.empty(id: moveIndex)
+            if move.id != 0 {
+                let known = PokemonXCompanionData.moves.first(where: { $0.id == move.id })
+                moveSlot.name = known?.name.capitalized ?? "Move #\(move.id)"
+                moveSlot.type = known?.type
+                moveSlot.power = known?.power
+                moveSlot.currentPP = move.pp
+                moveSlot.maxPP = move.maxPP
+                if let type = known?.type, !foeTypes.isEmpty {
+                    let effectiveness = PokemonXCompanionData.effectiveness(attacking: type, defending: foeTypes)
+                    moveSlot.effectiveness = effectiveness
+                    if let power = known?.power {
+                        moveSlot.score = effectiveness * Double(power)
+                    }
+                }
+            }
+            return moveSlot
+        }
     }
 
     /// G17 best pick: score = effectiveness x power per move; highlight the
@@ -1124,48 +1339,46 @@ private enum PokemonXGuestMemory {
     }
 }
 
-/// Guarded-fallback live read for Pokemon X battles.
+/// Live read for Pokemon X battles — stat structs (HUNTS-REPORT-2 §1.4).
 ///
-/// The DllBattle battle-Pokemon structs live in the 3DS heap. They are
-/// reached through the party-pointer arrays at VA 0x081FD3CC (player) /
-/// 0x081FEB14 (enemy), each holding 6 consecutive u32 pointers to the
-/// battle structs (slot 0 = Chespin 0x081FD418 / Froakie 0x081FEB60 in the
-/// Shauna battle of the ORIGINAL session). SESSION-UNSTABLE
-/// (HUNTS-REPORT-2026-11-19.md §0a): after a VM restart + state reload
-/// those VAs hold pointer-structs, not battle structs — the "stable across
-/// three dumps" claim held within one session only. So this read is a
-/// GUARDED FALLBACK: EVERY poll validates slot 0's species (1...721) and
-/// level (1...100) before trusting anything, and any failure shows the
-/// placeholder, never stale data. A dynamic-discovery spec (signature scan
-/// / pointer chain from a stable global) is pending from a follow-up hunt;
-/// swap this implementation when it lands. No complete stable-global
-/// pointer chain to the arrays exists via stored pointers (the two
-/// referrer objects that hold the array pointers are themselves referenced
-/// by nothing).
+/// The battle stat structs live in the 3DS heap as a contiguous 4 x 0x244
+/// array at base VA 0x082059D8: player = base+0, enemy = base+0x244, and
+/// mirrored copies at +0x488 (player) / +0x6CC (enemy). Both copies are
+/// live-mirrored (HUNTS-REPORT-2 §1.3: Tackle damage + PP decrement show
+/// in both). The pinned battle ARRAYS at 0x081FD3CC / 0x081FEB14 are NOT
+/// the read target — they hold wrapper objects (pointer-structs), not
+/// battle structs (HUNTS-REPORT-2 §1.1, re-verified live). Never read them.
 ///
-/// BATTLE struct offsets (NOT PK6), verified in three Azahar dumps with HP
-/// liveness proven by the post-damage test (see PAGE-TABLE-MAPPING-2026-11-18.md):
-/// species u16 +0x0C, HP max u16 +0x0E, HP current u16 +0x10 (LIVE — +0x0E is
-/// max, not current; reading +0x0E as "HP" would show a permanently-full bar),
-/// level u8 +0x18 (PROVEN — LEVEL-HUNT-2026-11-19.md: Slot 8 fanfare dump,
-/// Chespin 6 vs Froakie 5 in the same dump; valid range 1–100), moves 4 x 0xE
-/// at +0x116 (move ID u16 +0, PP cur u8 +2, PP max u8 +3; the second live PP
-/// copy is at slot+8 and its max at slot+9 per LEVEL-HUNT §6c — the wiring
-/// reads slot+2/+3 only). Stats 5 x u16 at +0xF6..+0xFE (ATK/DEF/SPA/SPD/
-/// SPE — LEVEL-HUNT §2a/§6a: Lv6 Chespin 13/14/12/10/10). Types are two u8
-/// game type ids at +0x100 (audit G15: Froakie 10/10 = Water/Water — the
-/// battle-data hunt report does not document +0x100 itself, so both bytes
-/// are validated 0...17 and yield nil types on failure). The 7-byte field
-/// +0x104 (06x7 consume marker) is unchanged and unread. +0x08 is the
-/// current-level EXP threshold (179 at Lv6), NOT current EXP, and is never read.
+/// BATTLE struct offsets (NOT PK6), confirmed live in the Shauna battle
+/// (HUNTS-REPORT-2 §1.2): species u16 +0x0C, HP max u16 +0x0E, HP current
+/// u16 +0x10 (LIVE — +0x0E is max, not current), level u8 +0x18, moves
+/// 4 x 0xE at +0x116 (move ID u16 +0, PP cur u8 +8 = +0x11E — the LIVE PP
+/// copy per §1.4 — PP max u8 +9; the slot+2/+3 copies hold the same values
+/// per LEVEL-HUNT §6c). Stats 5 x u16 at +0xF6..+0xFE (ATK/DEF/SPA/SPD/
+/// SPE). Types are two u8 game type ids at +0x100 (audit G15: Froakie
+/// 10/10 = Water/Water — the battle-data hunt report does not document
+/// +0x100 itself, so both bytes are validated 0...17 and yield nil types
+/// on failure). +0x08 is the current-level EXP threshold (179 at Lv6),
+/// NOT current EXP, and is never read.
+///
+/// Validation (every poll, every struct): species 1...721, level 1...100,
+/// HP max > 0, HP cur <= HP max. Primary copy first, mirror on failure;
+/// both failing means no battle (or the structs moved) — placeholder,
+/// never stale data. If the pinned base fails, a structural scan of
+/// 0x08200000–0x08210000 (throttled to once per 30 s, result cached)
+/// finds the 0x244-strided mirrored pair; the 4-struct layout is the
+/// signature, a single struct match is not enough. Fresh-boot stability
+/// is UNPROVEN for all VAs — validation + scan fallback is the
+/// mitigation; the phone test (G34) is the decider.
 private enum PokemonXBattleRead {
-    /// Player party array: 6 consecutive u32 pointers to battle structs.
-    static let playerPartyArrayVA: UInt32 = 0x081FD3CC
-    /// Enemy party array: same layout. Read by readEnemyParty(); the Battle
-    /// tab shows the active opponent (slot 0) from it.
-    static let enemyPartyArrayVA: UInt32 = 0x081FEB14
+    /// Battle stat-struct array base: player = base, enemy = base+0x244.
+    static let structBaseVA: UInt32 = 0x082059D8
+    /// Stride between the four structs (player, enemy, player mirror,
+    /// enemy mirror). Also the read length per struct.
+    static let structStride: UInt32 = 0x244
+    /// Mirror offset: player mirror = base+0x488, enemy mirror = base+0x6CC.
+    static let mirrorOffset: UInt32 = 0x488
     static let partySlotCount = 6
-    static let structLength: UInt32 = 0x1E4
 
     static let speciesOffset = 0x0C
     static let hpMaxOffset = 0x0E
@@ -1175,6 +1388,13 @@ private enum PokemonXBattleRead {
     static let moveStride = 0xE
     static let statsOffset = 0xF6
     static let typesOffset = 0x100
+
+    /// Structural-scan region (HUNTS-REPORT-2 §1.4 fallback).
+    static let scanRegionStart: UInt32 = 0x08200000
+    static let scanRegionLength: UInt32 = 0x10000
+    /// Scan chunk size (bridge reads) and minimum seconds between scans.
+    static let scanChunkLength: UInt32 = 0x1000
+    static let scanThrottleSeconds: TimeInterval = 30
 
     /// Gen 6 species range (Pokemon X). A species outside this range means the
     /// heap base moved (or no battle is running) — not a real Pokemon.
@@ -1189,8 +1409,9 @@ private enum PokemonXBattleRead {
     }
 
     /// Gen VI internal type numbering (NOT PokeAPI type ids — PokeAPI water
-    /// is 11). Water = 10 here, per the audit's Froakie 10/10 reading.
-    /// Nil for any id outside 0...17 — never a guessed type.
+    /// is 11). Water = 10 here, per the audit's Froakie 10/10 reading and
+    /// the HUNTS-REPORT-2 §1.2 table (Chespin 11/11 = Grass, Froakie
+    /// 10/10 = Water). Nil for any id outside 0...17 — never a guessed type.
     static func gameTypeName(_ gameTypeId: Int) -> String? {
         switch gameTypeId {
         case 0: return "normal"
@@ -1216,7 +1437,7 @@ private enum PokemonXBattleRead {
     }
 }
 
-/// One live party slot parsed from a battle struct.
+/// One live battler parsed from a battle stat struct (player or foe).
 private struct PokemonXLiveSlot {
     let species: Int
     let level: Int
@@ -1232,93 +1453,472 @@ private struct PokemonXLiveSlot {
     let types: [String]?
 }
 
-private enum PokemonXLivePartyReader {
-    /// Reads the six player battle structs through the pinned party-pointer
-    /// array at 0x081FD3CC.
-    static func readPlayerParty() -> [PokemonXLiveSlot?]? {
-        readParty(at: PokemonXBattleRead.playerPartyArrayVA)
+private enum PokemonXBattleStructReader {
+    /// Scan-discovered struct base (cached once found; cleared when it
+    /// stops validating). Nil until a scan succeeds.
+    private static var discoveredBase: UInt32?
+    private static var lastScanAttempt: Date?
+
+    /// Reads the active player + enemy battle structs. Fast path is the
+    /// pinned base + per-side mirror; the structural scan runs only when
+    /// the pinned base fails for BOTH sides (throttled, cached).
+    /// Returns (nil, nil) when no battle is running or the structs moved.
+    static func readBattleStructs() -> (player: PokemonXLiveSlot?, enemy: PokemonXLiveSlot?) {
+        let bridge = HUDMemoryBridge.shared()
+        guard bridge.hasLiveDataSource else { return (nil, nil) }
+        var result = readPair(at: PokemonXBattleRead.structBaseVA)
+        if result.player != nil || result.enemy != nil { return result }
+        if let discovered = discoveredBase {
+            result = readPair(at: discovered)
+            if result.player != nil || result.enemy != nil { return result }
+            discoveredBase = nil
+        }
+        guard let found = scanForStructBase() else { return (nil, nil) }
+        discoveredBase = found
+        return readPair(at: found)
     }
 
-    /// Reads the six enemy battle structs through the pinned enemy-pointer
-    /// array at 0x081FEB14. Same path and same validation as the player
-    /// read (BATTLE-SEND-HUNT-2026-11-19.md: Froakie HP 20→14 live,
-    /// Bubble PP 30→29 live, byte-matched across Slots 2/3/4).
-    static func readEnemyParty() -> [PokemonXLiveSlot?]? {
-        readParty(at: PokemonXBattleRead.enemyPartyArrayVA)
+    /// Reads the player + enemy structs at `base` (player = base,
+    /// enemy = base+0x244), falling back to each side's mirror
+    /// (player base+0x488, enemy base+0x6CC) when its primary fails.
+    private static func readPair(at base: UInt32) -> (player: PokemonXLiveSlot?, enemy: PokemonXLiveSlot?) {
+        let player = readOne(primary: base, mirror: base + PokemonXBattleRead.mirrorOffset)
+        let enemy = readOne(primary: base + PokemonXBattleRead.structStride,
+                            mirror: base + PokemonXBattleRead.structStride + PokemonXBattleRead.mirrorOffset)
+        return (player, enemy)
     }
 
-    /// Shared array read: read the 6 slot pointers at the given array VA,
-    /// then each slot's struct at the pointer it holds. Returns nil when the
-    /// read is untrusted as a whole (array unreadable, slot 0 pointer null,
-    /// slot 0 struct unreadable, or slot 0's species/level not plausible —
-    /// the heap moved or no battle is running). Slots 1-5 that fail to read
-    /// or hold no plausible species/level come back as nil (empty slot),
-    /// not as a failure of the whole party.
-    private static func readParty(at arrayVA: UInt32) -> [PokemonXLiveSlot?]? {
+    private static func readOne(primary: UInt32, mirror: UInt32) -> PokemonXLiveSlot? {
+        let bridge = HUDMemoryBridge.shared()
+        if let data = bridge.readBytes(atAddress: primary, length: PokemonXBattleRead.structStride),
+           data.count == Int(PokemonXBattleRead.structStride),
+           let slot = parseStruct(data) { return slot }
+        if let data = bridge.readBytes(atAddress: mirror, length: PokemonXBattleRead.structStride),
+           data.count == Int(PokemonXBattleRead.structStride),
+           let slot = parseStruct(data) { return slot }
+        return nil
+    }
+
+    /// Validates + parses one raw struct (0x244 bytes). Nil when any
+    /// check fails: species 1...721, level 1...100, HP max > 0,
+    /// HP cur <= HP max.
+    static func parseStruct(_ data: Data) -> PokemonXLiveSlot? {
+        guard data.count >= Int(PokemonXBattleRead.structStride) else { return nil }
+        let species = Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.speciesOffset))
+        guard PokemonXBattleRead.isPlausibleSpecies(species) else { return nil }
+        let level = Int(data[PokemonXBattleRead.levelOffset])
+        guard PokemonXBattleRead.isPlausibleLevel(level) else { return nil }
+        let hpMax = Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.hpMaxOffset))
+        guard hpMax > 0 else { return nil }
+        let hpCur = Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.hpCurrentOffset))
+        guard hpCur <= hpMax else { return nil }
+        var moves: [(id: Int, pp: Int, maxPP: Int)] = []
+        for moveIndex in 0..<4 {
+            let base = PokemonXBattleRead.movesOffset + moveIndex * PokemonXBattleRead.moveStride
+            let moveID = Int(PokemonXGuestMemory.u16LE(data, base))
+            // LIVE PP copy at slot+8 (+0x11E, HUNTS-REPORT-2 §1.4) and
+            // its max at slot+9 (LEVEL-HUNT §6c).
+            let pp = Int(data[base + 8])
+            let maxPP = Int(data[base + 9])
+            moves.append((id: moveID, pp: pp, maxPP: maxPP))
+        }
+        let stats = PokemonXBattleStats(
+            attack: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset)),
+            defense: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 2)),
+            specialAttack: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 4)),
+            specialDefense: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 6)),
+            speed: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 8)))
+        let type1 = Int(data[PokemonXBattleRead.typesOffset])
+        let type2 = Int(data[PokemonXBattleRead.typesOffset + 1])
+        let types: [String]? = {
+            guard let first = PokemonXBattleRead.gameTypeName(type1),
+                  let second = PokemonXBattleRead.gameTypeName(type2) else { return nil }
+            return first == second ? [first] : [first, second]
+        }()
+        return PokemonXLiveSlot(species: species, level: level, currentHP: hpCur, maxHP: hpMax, moves: moves, stats: stats, types: types)
+    }
+
+    /// True when two raw struct blobs agree on every validated field
+    /// (species, HP, level, moves, stats, types). The +0x00 back-pointer
+    /// is NOT compared — the mirror's back-pointer targets a different
+    /// wrapper (HUNTS-REPORT-2 §1.2), so the mirrors are not byte-identical.
+    static func structValuesEqual(_ a: Data, _ b: Data) -> Bool {
+        guard a.count >= Int(PokemonXBattleRead.structStride),
+              b.count >= Int(PokemonXBattleRead.structStride) else { return false }
+        for off in [PokemonXBattleRead.speciesOffset, PokemonXBattleRead.hpMaxOffset,
+                    PokemonXBattleRead.hpCurrentOffset] {
+            guard PokemonXGuestMemory.u16LE(a, off) == PokemonXGuestMemory.u16LE(b, off) else { return false }
+        }
+        guard a[PokemonXBattleRead.levelOffset] == b[PokemonXBattleRead.levelOffset] else { return false }
+        for moveIndex in 0..<4 {
+            let base = PokemonXBattleRead.movesOffset + moveIndex * PokemonXBattleRead.moveStride
+            guard PokemonXGuestMemory.u16LE(a, base) == PokemonXGuestMemory.u16LE(b, base),
+                  a[base + 8] == b[base + 8], a[base + 9] == b[base + 9] else { return false }
+        }
+        for off in stride(from: PokemonXBattleRead.statsOffset, to: PokemonXBattleRead.statsOffset + 10, by: 2) {
+            guard PokemonXGuestMemory.u16LE(a, off) == PokemonXGuestMemory.u16LE(b, off) else { return false }
+        }
+        return a[PokemonXBattleRead.typesOffset] == b[PokemonXBattleRead.typesOffset]
+            && a[PokemonXBattleRead.typesOffset + 1] == b[PokemonXBattleRead.typesOffset + 1]
+    }
+
+    /// Structural scan (HUNTS-REPORT-2 §1.4 fallback): reads the
+    /// 0x08200000–0x08210000 region in 4 KB chunks and finds a base X
+    /// where A (X), B (X+0x244) and both mirrors (X+0x488, X+0x6CC) all
+    /// validate AND each mirror's values equal its primary. The 4-struct
+    /// mirrored layout is the signature — a single struct match is not
+    /// enough. Throttled to once per 30 s; nil when nothing is found.
+    static func scanForStructBase() -> UInt32? {
+        let now = Date()
+        if let last = lastScanAttempt,
+           now.timeIntervalSince(last) < PokemonXBattleRead.scanThrottleSeconds { return nil }
+        lastScanAttempt = now
         let bridge = HUDMemoryBridge.shared()
         guard bridge.hasLiveDataSource else { return nil }
-        // The array itself: 6 little-endian u32 pointers (24 bytes).
-        guard let arrayData = bridge.readBytes(atAddress: arrayVA,
-                                               length: UInt32(PokemonXBattleRead.partySlotCount * 4)),
-              arrayData.count == PokemonXBattleRead.partySlotCount * 4 else {
-            return nil
+        var region = Data()
+        region.reserveCapacity(Int(PokemonXBattleRead.scanRegionLength))
+        var address = PokemonXBattleRead.scanRegionStart
+        while address < PokemonXBattleRead.scanRegionStart + PokemonXBattleRead.scanRegionLength {
+            guard let chunk = bridge.readBytes(atAddress: address, length: PokemonXBattleRead.scanChunkLength),
+                  chunk.count == Int(PokemonXBattleRead.scanChunkLength) else { return nil }
+            region.append(chunk)
+            address += PokemonXBattleRead.scanChunkLength
         }
-        var slots: [PokemonXLiveSlot?] = []
-        for index in 0..<PokemonXBattleRead.partySlotCount {
-            let structVA = PokemonXGuestMemory.u32LE(arrayData, index * 4)
-            guard structVA != 0 else {
-                // Null slot pointer = no Pokemon in this slot. Slot 0 null
-                // means the array itself is not a live party: trust nothing.
-                if index == 0 { return nil }
+        let stride = Int(PokemonXBattleRead.structStride)
+        var offset = 0
+        while offset + 4 * stride <= region.count {
+            // Cheap pre-filter: both structs' species must be plausible
+            // before the full parse (most offsets fail here).
+            let aSpecies = Int(PokemonXGuestMemory.u16LE(region, offset + PokemonXBattleRead.speciesOffset))
+            let bSpecies = Int(PokemonXGuestMemory.u16LE(region, offset + stride + PokemonXBattleRead.speciesOffset))
+            guard PokemonXBattleRead.isPlausibleSpecies(aSpecies),
+                  PokemonXBattleRead.isPlausibleSpecies(bSpecies) else {
+                offset += 4
+                continue
+            }
+            let a = region.subdata(in: offset..<(offset + stride))
+            let b = region.subdata(in: (offset + stride)..<(offset + 2 * stride))
+            let aMirror = region.subdata(in: (offset + 2 * stride)..<(offset + 3 * stride))
+            let bMirror = region.subdata(in: (offset + 3 * stride)..<(offset + 4 * stride))
+            if parseStruct(a) != nil, parseStruct(b) != nil,
+               parseStruct(aMirror) != nil, parseStruct(bMirror) != nil,
+               structValuesEqual(a, aMirror), structValuesEqual(b, bMirror) {
+                return PokemonXBattleRead.scanRegionStart + UInt32(offset)
+            }
+            offset += 4
+        }
+        return nil
+    }
+}
+
+// MARK: - Live field party read (G1, HUNTS-REPORT-2 §2.3)
+
+/// One field party slot, from the XOR-encrypted 232-byte PKM blob.
+/// Species / level (derived from EXP) / held item / ability / TID / SID /
+/// EXP / PID are the FIXED block-A fields — the only fields wireable from
+/// the blob. HP / status / Atk / Def / SpA come from the wrapper's +0x08
+/// 24-byte block (HUNTS-REPORT-3 §4); nickname / moves / PP are
+/// shuffle-dependent (only idx 1 + 9 mapped); IVs / EVs / nature are
+/// unconfirmed. Never guessed, never computed.
+private struct PokemonXFieldSlot {
+    let species: Int
+    let level: Int
+    let heldItemGameId: Int
+    let abilityId: Int
+    let trainerId: Int
+    let secretId: Int
+    let exp: Int
+    let personalityId: Int
+    /// OUTSIDE-BATTLE HP/status/stats from the wrapper's +0x08 24-byte
+    /// block (HUNTS-REPORT-3 §4). Nil when the block is unreadable or
+    /// fails validation — HP unknown, never stale. During a battle the
+    /// block holds PRE-BATTLE HP, so the poll overrides the active slot's
+    /// HP with the battle struct's live HP instead.
+    var currentHP: Int? = nil
+    var maxHP: Int? = nil
+    /// Status byte (+0x00): 0 = healthy. Only 0 observed live; other
+    /// values are standard Gen 6 status codes, unobserved — shown as a
+    /// raw code, never a guessed condition name.
+    var statusCode: Int? = nil
+    /// Atk / Def / SpA from the block (+0x0C / +0x0E / +0x12). The
+    /// +0x10 / +0x14 pair (Speed vs Sp. Def) is NOT wired — their order
+    /// is unproven (both 10 at Lv6 for this Chespin).
+    var fieldAttack: Int? = nil
+    var fieldDefense: Int? = nil
+    var fieldSpecialAttack: Int? = nil
+}
+
+/// HP/status/stats from one slot's +0x08 24-byte block, decrypted and
+/// validated (HUNTS-REPORT-3 §4 steps 4–6).
+private struct PokemonXFieldHP {
+    let statusCode: Int
+    let level: Int
+    let currentHP: Int
+    let maxHP: Int
+    let attack: Int
+    let defense: Int
+    let specialAttack: Int
+}
+
+private enum PokemonXFieldPartyReader {
+    /// Party pointer table base: 6 wrapper pointers at +0x00..+0x17,
+    /// party count (u32) at +0x18. NOT 0x08CE1C58 — a leading 0x0 u32
+    /// sits at 0x08CE1C58 (HUNTS-REPORT-2 §2.2).
+    static let tableBaseVA: UInt32 = 0x08CE1C5C
+    static let slotCount = 6
+    /// 232-byte XOR-encrypted PKM blob at the wrapper's +0x04 target.
+    static let blobLength = 232
+    /// Heap-scan fallback region (bounded; the spec says "scan the heap"
+    /// without fixing a region — this 1 MB window covers the bag, party
+    /// table and PKM area around the known VAs).
+    static let scanRegionStart: UInt32 = 0x08C00000
+    static let scanRegionLength: UInt32 = 0x100000
+    static let scanChunkLength: UInt32 = 0x1000
+    static let scanThrottleSeconds: TimeInterval = 30
+
+    private static var lastScanAttempt: Date?
+
+    /// Reads all 6 party slots through the pinned table. Returns nil when
+    /// the table itself is unreadable or its count is not 0...6 (the heap
+    /// base moved) — the caller then tries the scan fallback. Per-slot nil
+    /// means empty/invalid (null wrapper, null PKM, or a blob failing
+    /// sanity/checksum/species — how the shared empty-slot blob is
+    /// rejected). An all-nil result with a readable table is a genuine
+    /// empty party, not a failure.
+    static func readFieldParty() -> [PokemonXFieldSlot?]? {
+        let bridge = HUDMemoryBridge.shared()
+        guard bridge.hasLiveDataSource else { return nil }
+        guard let tableData = bridge.readBytes(atAddress: tableBaseVA, length: UInt32(slotCount * 4)),
+              tableData.count == slotCount * 4 else { return nil }
+        // Party count (u32) at table+0x18: 0...6 when the table is live.
+        // A larger value means the table base moved — trust nothing.
+        guard let countData = bridge.readBytes(atAddress: tableBaseVA + 0x18, length: 4),
+              countData.count == 4 else { return nil }
+        guard PokemonXGuestMemory.u32LE(countData, 0) <= UInt32(slotCount) else { return nil }
+        var slots: [PokemonXFieldSlot?] = []
+        for index in 0..<slotCount {
+            let wrapper = PokemonXGuestMemory.u32LE(tableData, index * 4)
+            guard wrapper != 0 else { slots.append(nil); continue }
+            guard let pkmVA = PokemonXGuestMemory.readU32(at: wrapper + 0x04), pkmVA != 0 else {
                 slots.append(nil)
                 continue
             }
-            guard let data = bridge.readBytes(atAddress: structVA, length: PokemonXBattleRead.structLength),
-                  data.count == Int(PokemonXBattleRead.structLength) else {
-                // Slot 0 unreadable = the array VA is wrong: trust nothing.
-                // Any later slot unreadable = that slot is empty.
-                if index == 0 { return nil }
+            guard let blob = bridge.readBytes(atAddress: pkmVA, length: UInt32(blobLength)),
+                  blob.count == blobLength,
+                  var slot = parseBlob(blob) else {
                 slots.append(nil)
                 continue
             }
-            let species = Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.speciesOffset))
-            guard PokemonXBattleRead.isPlausibleSpecies(species) else {
-                if index == 0 { return nil }
-                slots.append(nil)
-                continue
+            // Field HP (HUNTS-REPORT-3 §4): the wrapper's +0x08 block,
+            // decrypted with the blob's enc_const. A missing/invalid
+            // block leaves the slot valid with HP unknown — never stale.
+            let encConst = PokemonXGuestMemory.u32LE(blob, 0x00)
+            if let hp = readBlock(wrapper: wrapper, encConst: encConst, expectedLevel: slot.level) {
+                slot.currentHP = hp.currentHP
+                slot.maxHP = hp.maxHP
+                slot.statusCode = hp.statusCode
+                slot.fieldAttack = hp.attack
+                slot.fieldDefense = hp.defense
+                slot.fieldSpecialAttack = hp.specialAttack
             }
-            let level = Int(data[PokemonXBattleRead.levelOffset])
-            guard PokemonXBattleRead.isPlausibleLevel(level) else {
-                if index == 0 { return nil }
-                slots.append(nil)
-                continue
-            }
-            let hpMax = Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.hpMaxOffset))
-            let hpCur = Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.hpCurrentOffset))
-            var moves: [(id: Int, pp: Int, maxPP: Int)] = []
-            for moveIndex in 0..<4 {
-                let base = PokemonXBattleRead.movesOffset + moveIndex * PokemonXBattleRead.moveStride
-                let moveID = Int(PokemonXGuestMemory.u16LE(data, base))
-                let pp = Int(data[base + 2])
-                let maxPP = Int(data[base + 3])
-                moves.append((id: moveID, pp: pp, maxPP: maxPP))
-            }
-            let stats = PokemonXBattleStats(
-                attack: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset)),
-                defense: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 2)),
-                specialAttack: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 4)),
-                specialDefense: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 6)),
-                speed: Int(PokemonXGuestMemory.u16LE(data, PokemonXBattleRead.statsOffset + 8)))
-            let type1 = Int(data[PokemonXBattleRead.typesOffset])
-            let type2 = Int(data[PokemonXBattleRead.typesOffset + 1])
-            let types: [String]? = {
-                guard let first = PokemonXBattleRead.gameTypeName(type1),
-                      let second = PokemonXBattleRead.gameTypeName(type2) else { return nil }
-                return first == second ? [first] : [first, second]
-            }()
-            slots.append(PokemonXLiveSlot(species: species, level: level, currentHP: hpCur, maxHP: hpMax, moves: moves, stats: stats, types: types))
+            slots.append(slot)
         }
         return slots
+    }
+
+    /// Reads + decrypts + validates one slot's +0x08 24-byte block
+    /// (HUNTS-REPORT-3 §4). The block is reached through the wrapper
+    /// pointer — never a hardcoded VA. Decryption is the same LCRNG
+    /// keystream as the blob, seeded by enc_const, words 0..11 (NOT
+    /// words 112..123 — H2 failed). Validation: level 1...100, HP max
+    /// > 0, HP cur <= HP max, AND the block's level must equal the
+    /// EXP-derived level (the cross-check — a mismatch means the block
+    /// is stale/inconsistent with the blob, so its HP is untrusted).
+    /// Nil when the block pointer is 0, the read fails, or any check
+    /// fails — HP unknown, never stale or guessed.
+    static func readBlock(wrapper: UInt32, encConst: UInt32, expectedLevel: Int) -> PokemonXFieldHP? {
+        guard let blk = PokemonXGuestMemory.readU32(at: wrapper + 0x08), blk != 0 else { return nil }
+        guard let raw = HUDMemoryBridge.shared().readBytes(atAddress: blk, length: 24),
+              raw.count == 24 else { return nil }
+        let decrypted = xorDecryptBlock(raw, encConst: encConst)
+        let level = Int(decrypted[0x04])
+        guard level >= 1 && level <= 100 else { return nil }
+        let hpMax = Int(PokemonXGuestMemory.u16LE(decrypted, 0x0A))
+        guard hpMax > 0 else { return nil }
+        let hpCur = Int(PokemonXGuestMemory.u16LE(decrypted, 0x08))
+        guard hpCur <= hpMax else { return nil }
+        guard level == expectedLevel else { return nil }
+        return PokemonXFieldHP(
+            statusCode: Int(decrypted[0x00]),
+            level: level,
+            currentHP: hpCur, maxHP: hpMax,
+            attack: Int(PokemonXGuestMemory.u16LE(decrypted, 0x0C)),
+            defense: Int(PokemonXGuestMemory.u16LE(decrypted, 0x0E)),
+            specialAttack: Int(PokemonXGuestMemory.u16LE(decrypted, 0x12)))
+    }
+
+    /// XOR-decrypts a 24-byte block with the LCRNG keystream seeded by
+    /// enc_const, words 0..11 (high-16 per u16). Same keystream as the
+    /// blob (HUNTS-REPORT-3 §0: the empty-slot control proves it — a
+    /// seed-0 block decrypts to all zeros, and the raw empty blocks ARE
+    /// the seed-0 keystream).
+    static func xorDecryptBlock(_ block: Data, encConst: UInt32) -> Data {
+        var out = block
+        var state = encConst
+        for i in 0..<12 {
+            state = state &* 0x41C64E6D &+ 0x6073
+            let key = UInt16((state >> 16) & 0xFFFF)
+            let off = i * 2
+            let word = PokemonXGuestMemory.u16LE(out, off) ^ key
+            out[off] = UInt8(word & 0xFF)
+            out[off + 1] = UInt8((word >> 8) & 0xFF)
+        }
+        return out
+    }
+
+    /// XOR-decrypts bytes 0x08–0xE7 (112 u16 words) with the LCRNG
+    /// keystream seeded by enc_const (a=0x41C64E6D, c=0x6073, high-16 per
+    /// u16 — pk6_decrypt.py _keystream, PROVEN by the checksum match on a
+    /// real PKM, HUNTS-REPORT-2 §3.1). Bytes outside 0x08–0xE7 are
+    /// returned unchanged. NO unshuffle: the stored layout is NOT a
+    /// standard PK6 56-byte block permutation (exhaustive 24-perm brute
+    /// force, §3.2) — only the XOR + fixed block-A offsets are used.
+    static func xorDecrypt(_ blob: Data, encConst: UInt32) -> Data {
+        var out = blob
+        var state = encConst
+        for i in 0..<112 {
+            state = state &* 0x41C64E6D &+ 0x6073
+            let key = UInt16((state >> 16) & 0xFFFF)
+            let off = 0x08 + i * 2
+            let word = PokemonXGuestMemory.u16LE(out, off) ^ key
+            out[off] = UInt8(word & 0xFF)
+            out[off + 1] = UInt8((word >> 8) & 0xFF)
+        }
+        return out
+    }
+
+    /// Checksum = sum of u16s over the decrypted 0x08–0xE7, mod 0x10000.
+    static func checksum(_ decrypted: Data) -> UInt16 {
+        var total: UInt32 = 0
+        for off in stride(from: 0x08, to: 0xE8, by: 2) {
+            total = (total + UInt32(PokemonXGuestMemory.u16LE(decrypted, off))) & 0xFFFF
+        }
+        return UInt16(total)
+    }
+
+    /// Validates + parses one 232-byte blob. Nil when sanity (+0x04) is
+    /// not 0, the checksum (+0x06) does not match the decrypted bytes,
+    /// the species is outside 1...721, or the level cannot be derived.
+    /// Reads the FIXED block-A fields (same offsets in both known blobs,
+    /// §3.2): species u16 +0x40, held u16 +0x42, TID/SID u32 +0x44
+    /// (TID = low u16, SID = high u16), EXP u32 +0x48, ability u8 +0x4C,
+    /// PID u32 +0x50. Level is derived from EXP via the species' growth
+    /// rate — the blob does not store level.
+    static func parseBlob(_ blob: Data) -> PokemonXFieldSlot? {
+        guard blob.count == blobLength else { return nil }
+        let encConst = PokemonXGuestMemory.u32LE(blob, 0x00)
+        guard PokemonXGuestMemory.u16LE(blob, 0x04) == 0 else { return nil }
+        let storedChecksum = PokemonXGuestMemory.u16LE(blob, 0x06)
+        let decrypted = xorDecrypt(blob, encConst: encConst)
+        guard checksum(decrypted) == storedChecksum else { return nil }
+        let species = Int(PokemonXGuestMemory.u16LE(decrypted, 0x40))
+        guard PokemonXBattleRead.isPlausibleSpecies(species) else { return nil }
+        let held = Int(PokemonXGuestMemory.u16LE(decrypted, 0x42))
+        let tidSid = PokemonXGuestMemory.u32LE(decrypted, 0x44)
+        let exp = Int(PokemonXGuestMemory.u32LE(decrypted, 0x48))
+        let ability = Int(decrypted[0x4C])
+        let pid = PokemonXGuestMemory.u32LE(decrypted, 0x50)
+        guard let level = PokemonXCompanionData.level(forExp: exp, speciesId: species) else { return nil }
+        return PokemonXFieldSlot(
+            species: species, level: level, heldItemGameId: held, abilityId: ability,
+            trainerId: Int(tidSid & 0xFFFF), secretId: Int(tidSid >> 16),
+            exp: exp, personalityId: Int(pid))
+    }
+
+    /// Heap-scan fallback (HUNTS-REPORT-2 §2.3 step 7): reads the 1 MB
+    /// region around the known party VAs in 4 KB chunks and finds 232-byte
+    /// blobs passing sanity+checksum+species. The checksum is the strong
+    /// validator (1/65536 false-positive rate per candidate); the sanity
+    /// (+0x04 == 0, plaintext) and a nonzero enc_const pre-filter most
+    /// offsets before the full decrypt. Found blobs are assigned to slots
+    /// in address order (which matches slot order in the known layout) —
+    /// the scan cannot tell which slot a blob belongs to. Throttled to
+    /// once per 30 s; nil when nothing is found.
+    static func scanForParty() -> [PokemonXFieldSlot?]? {
+        let now = Date()
+        if let last = lastScanAttempt,
+           now.timeIntervalSince(last) < scanThrottleSeconds { return nil }
+        lastScanAttempt = now
+        let bridge = HUDMemoryBridge.shared()
+        guard bridge.hasLiveDataSource else { return nil }
+        var region = Data()
+        region.reserveCapacity(Int(scanRegionLength))
+        var address = scanRegionStart
+        while address < scanRegionStart + scanRegionLength {
+            guard let chunk = bridge.readBytes(atAddress: address, length: scanChunkLength),
+                  chunk.count == Int(scanChunkLength) else { return nil }
+            region.append(chunk)
+            address += scanChunkLength
+        }
+        var found: [(slot: PokemonXFieldSlot, blobVA: UInt32, encConst: UInt32)] = []
+        var offset = 0
+        while offset + blobLength <= region.count && found.count < slotCount {
+            // Cheap pre-filter on the PLAINTEXT header: sanity must be 0
+            // and the encryption constant nonzero (rejects zero regions).
+            if PokemonXGuestMemory.u16LE(region, offset + 0x04) == 0,
+               PokemonXGuestMemory.u32LE(region, offset) != 0 {
+                let blob = region.subdata(in: offset..<(offset + blobLength))
+                if let slot = parseBlob(blob) {
+                    found.append((slot: slot,
+                                  blobVA: scanRegionStart + UInt32(offset),
+                                  encConst: PokemonXGuestMemory.u32LE(blob, 0x00)))
+                    offset += blobLength
+                    continue
+                }
+            }
+            offset += 4
+        }
+        guard !found.isEmpty else { return nil }
+        // Field HP for scanned slots (HUNTS-REPORT-3 §4 step 8): find
+        // each blob's wrapper in the region (vtable 0x00598A50 at +0x00,
+        // blob pointer at +0x04) and follow its +0x08 block pointer.
+        // A slot whose wrapper is not found keeps HP unknown — honest.
+        var slots: [PokemonXFieldSlot?] = []
+        for entry in found {
+            var slot = entry.slot
+            if let wrapper = wrapperForBlob(entry.blobVA, in: region),
+               let hp = readBlock(wrapper: wrapper, encConst: entry.encConst, expectedLevel: slot.level) {
+                slot.currentHP = hp.currentHP
+                slot.maxHP = hp.maxHP
+                slot.statusCode = hp.statusCode
+                slot.fieldAttack = hp.attack
+                slot.fieldDefense = hp.defense
+                slot.fieldSpecialAttack = hp.specialAttack
+            }
+            slots.append(slot)
+        }
+        while slots.count < slotCount { slots.append(nil) }
+        return slots
+    }
+
+    /// Finds a PKM blob's wrapper in the scanned region: the wrapper's
+    /// +0x00 is the vtable 0x00598A50 and its +0x04 is the blob pointer
+    /// (HUNTS-REPORT-2 §2.2). Searches for the 8-byte pattern
+    /// [vtable][blob VA]; the hit must be 4-aligned. Nil when no wrapper
+    /// is found — the caller then shows the slot without HP.
+    static func wrapperForBlob(_ blobVA: UInt32, in region: Data) -> UInt32? {
+        var pattern = Data([0x50, 0x8A, 0x59, 0x00])
+        var le = blobVA.littleEndian
+        pattern.append(contentsOf: withUnsafeBytes(of: &le) { Array($0) })
+        var searchRange = region.startIndex..<region.endIndex
+        while let found = region.range(of: pattern, options: [], in: searchRange) {
+            let offset = region.distance(from: region.startIndex, to: found.lowerBound)
+            if offset % 4 == 0 {
+                return scanRegionStart + UInt32(offset)
+            }
+            searchRange = found.upperBound..<region.endIndex
+        }
+        return nil
     }
 }
 

@@ -263,7 +263,7 @@ struct PokemonXCompanionView: View {
                 partyDetailView(detail)
             } else {
                 noLiveDataNote(text: state.isLiveDataAvailable
-                    ? "Live battle data — HP and level update as the battle goes. Tap a Pokemon for stats, moves and what it learns next."
+                    ? "Live party data — HP, level, held item and ability update as you play. Tap a Pokemon for stats, moves and what it learns next. In battle, HP comes from the live battle read."
                     : "Your party will appear here once the companion can read the game. No Pokemon are shown yet — nothing here is real data.")
                 ForEach(state.partySlots) { slot in
                     Button(action: {
@@ -301,9 +301,10 @@ struct PokemonXCompanionView: View {
     }
 
     /// Tap-for-detail for one party slot (G9a): stats from +0xF6, types,
-    /// moves with PP, next moves to learn. G9b–G9g (IVs/EVs, status, held
-    /// item, ability, nature, EXP) stay unshown — the model fields are
-    /// nil and nothing is invented for them.
+    /// moves with PP, next moves to learn. Held item, ability, EXP and
+    /// the field stats (Atk/Def/SpA) are shown from the field read
+    /// (HUNTS-REPORT-2 §2.3 + REPORT-3 §4). IVs/EVs/nature stay unshown
+    /// — the model fields are nil and nothing is invented for them.
     private func partyDetailView(_ detail: PokemonXPartyDetail) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Button(action: { state.selectedPartySlotIndex = nil }) {
@@ -330,6 +331,39 @@ struct PokemonXCompanionView: View {
                     .font(.headline)
                 Text("Atk \(stats.attack) · Def \(stats.defense) · SpA \(stats.specialAttack) · SpD \(stats.specialDefense) · Spe \(stats.speed)")
                     .font(.subheadline)
+            } else if detail.fieldAttack != nil || detail.fieldDefense != nil || detail.fieldSpecialAttack != nil {
+                Text("Stats (in the field)")
+                    .font(.headline)
+                Text("Atk \(detail.fieldAttack.map(String.init) ?? "—") · Def \(detail.fieldDefense.map(String.init) ?? "—") · SpA \(detail.fieldSpecialAttack.map(String.init) ?? "—")")
+                    .font(.subheadline)
+                Text("Speed and Sp. Def are not shown — their order in the field block is unproven (both 10 at Lv6 for this Chespin).")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            if detail.heldItemName != nil || detail.abilityName != nil || detail.currentExp != nil || detail.status != nil {
+                Text("Field data")
+                    .font(.headline)
+                if let held = detail.heldItemName {
+                    Text("Held item: \(held)")
+                        .font(.subheadline)
+                }
+                if let ability = detail.abilityName {
+                    Text("Ability: \(ability)")
+                        .font(.subheadline)
+                }
+                if let exp = detail.currentExp {
+                    Text("EXP: \(exp)")
+                        .font(.subheadline)
+                }
+                if let status = detail.status {
+                    Text("Status: \(status)")
+                        .font(.subheadline)
+                }
+                if let tid = detail.trainerId, let sid = detail.secretId {
+                    Text("Trainer ID \(tid) · Secret ID \(sid)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
             Text("Moves")
                 .font(.headline)
@@ -354,7 +388,7 @@ struct PokemonXCompanionView: View {
                         .font(.subheadline)
                 }
             }
-            Text("IVs, EVs, status, held item, ability, nature and EXP are unknown — those fields are not yet mapped (G9b–G9g), so they are not shown.")
+            Text("IVs, EVs and nature are unknown — those fields are not yet mapped (G9b/G9c/G9f), so they are not shown. Moves are shown only in battle (they are shuffle-dependent in the field).")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

@@ -17,25 +17,27 @@
 //    widescreen or 60fps address. They may only be used after verification
 //    via Ghidra disassembly and/or a live Azahar FCRAM dump.
 //
-//  VERIFIED (2026-11-18, PAGE-TABLE-MAPPING-2026-11-18.md and
-//  STABLE-CHAIN-HUNT-2026-11-18.md): the DllBattle battle-Pokemon structs,
-//  reached through the pinned party-pointer arrays — player array VA
-//  0x081FD3CC, enemy array VA 0x081FEB14, each 6 consecutive u32 pointers
-//  to the battle structs (slot 0 = Chespin 0x081FD418 / Froakie 0x081FEB60
-//  in the Shauna battle). No stable-global pointer chain to the arrays
-//  exists via stored pointers; the pinned array VAs + the runtime species
-//  check are the wiring. BATTLE offsets species u16 +0x0C, HP max u16
+//  VERIFIED (2026-11-19, HUNTS-REPORT-2-2026-11-19.md §1 + §2 and
+//  HUNTS-REPORT-3-2026-11-19.md §4): the battle stat structs at base VA
+//  0x082059D8 (player +0, enemy +0x244, mirrors +0x488/+0x6CC) — the
+//  pinned arrays at 0x081FD3CC / 0x081FEB14 hold wrappers, NOT structs,
+//  and are never read. BATTLE offsets species u16 +0x0C, HP max u16
 //  +0x0E, HP current u16 +0x10 (LIVE — +0x0E is max, not current), moves
-//  4 x 0xE at +0x116, level u8 +0x18 (PROVEN 2026-11-19, LEVEL-HUNT-
-//  2026-11-19.md: Slot 8 fanfare dump, Chespin 6 vs Froakie 5 in the same
-//  dump; +0x08 is the current-level EXP threshold, NOT current EXP, and is
-//  never read). The enemy array is read the same way (BATTLE-SEND-HUNT-
-//  2026-11-19.md: Froakie HP 20->14 live, Bubble PP 30->29 live). HP
-//  liveness proven by the post-damage test (Chespin 21 -> 18 at +0x10).
+//  4 x 0xE at +0x116 (PP cur u8 +8 = +0x11E, the LIVE PP copy), level u8
+//  +0x18 (PROVEN 2026-11-19, LEVEL-HUNT-2026-11-19.md: Slot 8 fanfare
+//  dump, Chespin 6 vs Froakie 5 in the same dump; +0x08 is the
+//  current-level EXP threshold, NOT current EXP, and is never read).
+//  HP liveness proven by the post-damage test (Chespin 21 -> 18 at
+//  +0x10) and the mirror liveness (both copies, HUNTS-REPORT-2 §1.3).
+//  The FIELD party (G1) lives at table 0x08CE1C5C -> wrapper+0x04 ->
+//  232-byte XOR-encrypted PKM blob (species/held/TID/EXP/ability/PID at
+//  fixed block-A offsets, level from EXP), with outside-battle HP in
+//  the wrapper's +0x08 24-byte block (same LCRNG keystream, words 0..11).
 //  The verified addresses live in
-//  PokemonXCompanionModels.swift (PokemonXBattleRead) and are validated at
-//  runtime by a species check (1...721) on every poll — this bridge stays
-//  address-agnostic by design.
+//  PokemonXCompanionModels.swift (PokemonXBattleRead,
+//  PokemonXBattleStructReader, PokemonXFieldPartyReader) and are
+//  validated at runtime by species/HP/checksum checks on every poll —
+//  this bridge stays address-agnostic by design.
 //
 //  The only address range this file asserts is the 3DS FCRAM window
 //  0x08000000-0x0FFFFFFF (256 MB, New 3DS), the standard 3DS memory map.
