@@ -127,6 +127,9 @@ enum PokemonXCompanionPresenter {
     private static var rowHost: UIHostingController<AnyView>?
     private static var pillHost: UIHostingController<AnyView>?
     private static var cardHost: UIHostingController<AnyView>?
+    /// STAGE1-X DIAGNOSTIC (v1): top-edge strip showing the live layout
+    /// diagnostic line. Never hidden by updateVisibility.
+    private static var diagHost: UIHostingController<AnyView>?
     private static var cancellables = Set<AnyCancellable>()
 
     /// True while the overlay is installed. Lets the menu Companion
@@ -136,7 +139,8 @@ enum PokemonXCompanionPresenter {
     /// Installs the floating overlay: minimap, sprite box, button row,
     /// back pill and card host — five small hosting controllers, each
     /// sized to its content, so touches outside them fall through to the
-    /// game below. Deliberately does NOT pause emulation, does NOT change
+    /// game below. Plus the STAGE1-X diagnostic strip (v1, top edge, full
+    /// width, non-interactive). Deliberately does NOT pause emulation, does NOT change
     /// forceFullSkin, and does NOT show the skin buttons — so the
     /// controller keeps working while the overlay is up.
     static func present() {
@@ -187,6 +191,16 @@ enum PokemonXCompanionPresenter {
              view.topAnchor.constraint(equalTo: hostView.topAnchor),
              view.bottomAnchor.constraint(equalTo: hostView.bottomAnchor)]
         }
+        // STAGE1-X DIAGNOSTIC (v1): top-edge strip, live layout values.
+        // Non-interactive so taps fall through to the game; never hidden.
+        diagHost = install(host: host,
+                           content: PokemonXDiagStripView()) { view, _ in
+            [view.leadingAnchor.constraint(equalTo: host.view.leadingAnchor),
+             view.trailingAnchor.constraint(equalTo: host.view.trailingAnchor),
+             view.topAnchor.constraint(equalTo: host.view.topAnchor),
+             view.heightAnchor.constraint(equalToConstant: 22)]
+        }
+        diagHost?.view.isUserInteractionEnabled = false
         // Auto-swap watch: the 1s poll sets enemyActive when a battle
         // starts and clears it when the battle ends. Battle hides the
         // widgets and swaps the row; battle end restores the field row.
@@ -255,7 +269,7 @@ enum PokemonXCompanionPresenter {
     /// from the field row.
     static func dismiss() {
         guard rowHost != nil else { return }
-        for host in [minimapHost, spriteHost, rowHost, pillHost, cardHost] {
+        for host in [minimapHost, spriteHost, rowHost, pillHost, cardHost, diagHost] {
             host?.willMove(toParent: nil)
             host?.view.removeFromSuperview()
             host?.removeFromParent()
@@ -265,6 +279,7 @@ enum PokemonXCompanionPresenter {
         rowHost = nil
         pillHost = nil
         cardHost = nil
+        diagHost = nil
         cancellables.removeAll()
         uiState.openCard = nil
         uiState.screenOpen = nil
@@ -285,6 +300,27 @@ enum PokemonXCompanionPresenter {
         NSLayoutConstraint.activate(constraints(hosting.view, host.view))
         hosting.didMove(toParent: host)
         return hosting
+    }
+}
+
+// MARK: - STAGE1-X diagnostic strip (temporary, diagnostic build v1)
+
+/// One-line live readout of the layout diagnostic (see PokemonXDiag):
+/// old/new isPokemonX, Azahar, core, title ID, swap, branch that ran.
+/// Pinned to the very top edge so it never hides behind the widgets;
+/// non-interactive (the hosting view has user interaction disabled) so
+/// taps fall through to the game.
+struct PokemonXDiagStripView: View {
+    @ObservedObject var diag = PokemonXDiag.shared
+    var body: some View {
+        Text(diag.shortLine)
+            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            .foregroundColor(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .padding(.horizontal, 6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .background(Color.black.opacity(0.65))
     }
 }
 

@@ -976,10 +976,25 @@ class Game: Object, ObjectUpdatable {
     /// built for (STAGE1-X). Title ID 0004000000055D00 (USA), recorded at
     /// import from the ROM header. Fallback: the imported file name when
     /// the title ID was never recorded (identifier 0).
+    ///
+    /// DIAGNOSTIC v1 — the old name check was provably too narrow:
+    /// `localizedCaseInsensitiveContains` does NOT fold diacritics, so
+    /// "Pokémon X" (é, the game's real title) failed the "Pokemon X"
+    /// check, and "PokemonX" (no space) failed it too. The stored `name`
+    /// is the imported file name and `aliasName` is the SMDH title, so
+    /// either one can carry the é. The fallback now normalizes both
+    /// (diacritic + case folding, spaces stripped) and checks both.
     var isPokemonX: Bool {
         guard isAzahar3DS else { return false }
         if identifierFor3DS == 0x0004000000055D00 { return true }
-        return identifierFor3DS == 0 && name.localizedCaseInsensitiveContains("Pokemon X")
+        guard identifierFor3DS == 0 else { return false }
+        let wanted = "pokemonx"
+        return [name, aliasName].compactMap { $0 }.contains { candidate in
+            candidate
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+                .replacingOccurrences(of: " ", with: "")
+                .contains(wanted)
+        }
     }
     
     var isJGenesisCore: Bool {

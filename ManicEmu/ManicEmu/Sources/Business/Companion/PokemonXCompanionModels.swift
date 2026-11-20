@@ -86,6 +86,30 @@
 import Foundation
 import SwiftUI
 
+// MARK: - STAGE1-X diagnostic holder (temporary, diagnostic build v1)
+
+/// Shared holder for the layout-diagnostic line. PlayViewController updates
+/// it on every layout call; the overlay's debug strip (PokemonXDiagStripView,
+/// installed by PokemonXCompanionPresenter) reads it, so the decisive values
+/// are visible in a screenshot with no log pull. Remove when the layout is
+/// proven on the phone.
+final class PokemonXDiag: ObservableObject {
+    static let shared = PokemonXDiag()
+    @Published var shortLine: String = "DIAG: waiting for first layout call"
+    @Published var fullLine: String = ""
+    func update(short: String, full: String) {
+        if Thread.isMainThread {
+            self.shortLine = short
+            self.fullLine = full
+        } else {
+            DispatchQueue.main.async {
+                self.shortLine = short
+                self.fullLine = full
+            }
+        }
+    }
+}
+
 // MARK: - Static reference data (PokeAPI, bundled JSON with literal fallback)
 
 struct PokemonXStaticPokemon: Decodable, Identifiable, Hashable {

@@ -403,6 +403,7 @@ class PlayViewController: GameViewController {
                         citraCore?.updateConfig(["ManicEMU.disableRightEyeRender": self.manicGame.renderRightEye])
                     } else if property.name == "swapScreen" {
                         self.skinSwitchBindDatas["reverseScreens"] = self.manicGame.swapScreen
+                        self.logStage1Diag("observer-swapScreen", branch: "-", layout: nil)
                         self.updateSkin()
                     }
                     Log.debug("设置更新 Property '\(property.name)' changed from \(property.oldValue == nil ? "nil" : property.oldValue!) to '\(property.newValue!)'")
@@ -785,6 +786,7 @@ class PlayViewController: GameViewController {
         super.viewDidLoad()
         
         PlayViewController.currentPlayViewController = self
+        logStage1Diag("launch-viewDidLoad", branch: "-", layout: nil)
         if #available(iOS 27.0, *) {
             registerAirPlayScene()
         }
@@ -836,6 +838,7 @@ class PlayViewController: GameViewController {
         updateSkin()
         //更新声音
         updateAudio()
+        logStage1Diag("launch-viewDidAppear", branch: "-", layout: nil)
         // STAGE1-X (build #20, v3 overlay): Pokemon X opens with the
         // companion overlay already floating over the game — one persistent
         // screen, no menu detour. One-shot per launch (see
@@ -1274,6 +1277,7 @@ extension PlayViewController {
                             // tile in the skin's swapped bottom rect. Recompute the
                             // core layout now so the flip takes effect immediately.
                             self.updateDualScreenViews()
+                            self.logStage1Diag("toggle-swapScreen", branch: "-", layout: nil)
                         }
                     }
                     self.resumeEmulationAndHandleAudio()
@@ -2889,6 +2893,7 @@ extension PlayViewController {
                 }
                 
                 let vc = LibretroCore.sharedInstance().start(withCustomSaveDir: customSaveDir)
+                logStage1Diag("libretro-start", branch: "-", layout: nil)
                 gameMetalView = vc.view
                 guard let gameMetalView else { return }
                 self.view.insertSubview(gameMetalView, belowSubview: controllerView)
@@ -2967,6 +2972,7 @@ extension PlayViewController {
                             romPath = manicGame.romUrl.path
                         }
                         LibretroCore.sharedInstance().loadGame(romPath, corePath: corePath, completion: compltion)
+                        logStage1Diag("libretro-loadGame-called", branch: "-", layout: nil)
                     }
                     
                     DispatchQueue.main.asyncAfter(delay: 0.5) { [weak self] in
@@ -3175,6 +3181,36 @@ extension PlayViewController {
         LibretroCore.sharedInstance().setCoreOptionNeedsUpdate()
     }
     
+    // MARK: - STAGE1-X DIAGNOSTIC (v1)
+    //
+    // The v3 layout never took effect on Garrett's phone even though the
+    // game is on Azahar by default, so the Citra verdict in
+    // SCREEN-LAYOUT-V3-2026-11-19.md is wrong and the break is in the
+    // Azahar path itself. This logs the decisive values at launch and on
+    // EVERY updateDualScreenViews call — isPokemonX (old predicate vs the
+    // fixed one), isAzahar3DS, defaultCore, identifierFor3DS, the stored
+    // name/alias, Self.isGaming, coreRunning, swapScreen, which branch
+    // ran and the exact layout string — and mirrors a one-line summary
+    // into PokemonXDiag.shared so the companion overlay's debug strip
+    // shows it in a screenshot (no log pull needed). The old predicate
+    // is logged alongside the fixed one so the screenshot alone proves
+    // whether the name check was the break. Temporary: remove once the
+    // layout is proven on the phone.
+    private static var diagLayoutCallCount = 0
+
+    private func logStage1Diag(_ context: String, branch: String, layout: String?) {
+        Self.diagLayoutCallCount += 1
+        let g = manicGame
+        let legacyX = g.identifierFor3DS == 0x0004000000055D00
+            || (g.identifierFor3DS == 0 && g.name.localizedCaseInsensitiveContains("Pokemon X"))
+        let idHex = String(format: "%016llX", g.identifierFor3DS)
+        let idShort = String(idHex.suffix(5))
+        let short = "DIAG X:\(g.isPokemonX ? "T" : "F")(\(legacyX ? "T" : "F")) Az:\(g.isAzahar3DS ? "T" : "F") core:\(g.defaultCore) id:\(idShort) sw:\(g.swapScreen ? "1" : "0") br:\(branch)"
+        let full = "[DIAG-X] #\(Self.diagLayoutCallCount) \(context) oldX=\(legacyX) newX=\(g.isPokemonX) isAzahar=\(g.isAzahar3DS) defaultCore=\(g.defaultCore) id=0x\(idHex) name=\"\(g.name)\" alias=\"\(g.aliasName ?? "-")\" gaming=\(Self.isGaming) coreRunning=\(LibretroCore.sharedInstance().isCoreRunning()) swap=\(g.swapScreen) branch=\(branch) layout=\(layout ?? "-")"
+        Log.debug(full)
+        PokemonXDiag.shared.update(short: short, full: full)
+    }
+
     private func updateDualScreenViews() {
         guard manicGame.gameType == .ds || manicGame.gameType == ._3ds else { return }
         let usingShaderPath = Prefference.defalut.getPrefference(kind: .shader,
@@ -3279,11 +3315,21 @@ extension PlayViewController {
                 }
                 
             }
+            logStage1Diag("layout", branch: "AIRPLAY", layout: layout)
         } else {
             //屏幕需要跟随gameViews的更新而更新
-            guard let controllerSkin = controllerView.controllerSkin as? ControllerSkin else { return }
-            guard let hostingWindow, let frames = controllerSkin.getFrames(window: hostingWindow) else { return }
-            guard let libretroViewFrame = getDualScreenViewFrame() else { return }
+            guard let controllerSkin = controllerView.controllerSkin as? ControllerSkin else {
+                logStage1Diag("layout-GUARD-skin", branch: "GUARD", layout: nil)
+                return
+            }
+            guard let hostingWindow, let frames = controllerSkin.getFrames(window: hostingWindow) else {
+                logStage1Diag("layout-GUARD-frames", branch: "GUARD", layout: nil)
+                return
+            }
+            guard let libretroViewFrame = getDualScreenViewFrame() else {
+                logStage1Diag("layout-GUARD-dualFrame", branch: "GUARD", layout: nil)
+                return
+            }
             
             // STAGE1-X (v3): Widescreen layout for Pokemon X.
             //
@@ -3329,6 +3375,7 @@ extension PlayViewController {
                 let wideLayout = "\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(topOnlyX),\(topOnlyY),\(topOnlyW),\(topOnlyH),\(topOnlyW),\(topOnlyH)"
                 let swapValue = manicGame.swapScreen ? "Top" : "Bottom"
                 Log.debug("[STAGE1-X] v3 Pokemon X: swapScreen=\(manicGame.swapScreen) swap=\(swapValue) wideLayout=\(wideLayout) frame=\(stage1GameFrame)")
+                logStage1Diag("layout", branch: "STAGE1", layout: wideLayout)
                 LibretroCore.sharedInstance().set3DSCustomLayout(wideLayout)
                 setAzaharSwapScreen(swapValue)
                 if Self.isGaming {
@@ -3377,6 +3424,7 @@ extension PlayViewController {
                     // failure can be told apart (string never sent vs
                     // sent but misinterpreted by the core).
                     Log.debug("[STAGE1-X] wideLayout: \(wideLayout)")
+                    logStage1Diag("layout", branch: "WIDE20", layout: wideLayout)
                     LibretroCore.sharedInstance().set3DSCustomLayout(wideLayout)
                     setAzaharSwapScreen("Bottom")
                     // Touch frame = the bottom rect in view points (layout
@@ -3388,6 +3436,7 @@ extension PlayViewController {
             
             if manicGame.isCitra3DS {
                 guard let touchGameViewFrame = frames.touchGameViewFrame else { return }
+                logStage1Diag("layout", branch: "CITRA", layout: "top=\(frames.mainGameViewFrame) bottom=\(touchGameViewFrame)")
                 citraCore?.updateViews(topRect: frames.mainGameViewFrame,
                                        bottomRect: touchGameViewFrame)
                 return
@@ -3438,6 +3487,7 @@ extension PlayViewController {
                 setAzaharSwapScreen("Top")
                 AzaharEmulatorBridge.shared.touchInputFrame = touchGameViewFrame
             }
+            logStage1Diag("layout", branch: "SKIN", layout: layout)
         }
     }
     
@@ -3451,7 +3501,11 @@ extension PlayViewController {
     private func maybeAutoShowCompanion() {
         guard !didAttemptCompanionAutoShow else { return }
         didAttemptCompanionAutoShow = true
-        guard manicGame.isPokemonX else { return }
+        guard manicGame.isPokemonX else {
+            logStage1Diag("autoShow-SKIP", branch: "-", layout: nil)
+            return
+        }
+        logStage1Diag("autoShow-PRESENT", branch: "-", layout: nil)
         PokemonXCompanionPresenter.present()
     }
     
